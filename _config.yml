@@ -6,7 +6,7 @@
 title:       "jekyll-infops-theme"
 tagline:     "DevOps · SysOps · Infrastructure"
 description: "A modern Jekyll theme for DevOps and SysOps engineers."
-baseurl:     "https://50bvd.github.io/jekyll-infops-theme/"
+baseurl:     "/jekyll-infops-theme"
 url:         "https://50bvd.github.io"
 lang:        "en"
 timezone:    "Europe/Paris"
