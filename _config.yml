@@ -65,7 +65,7 @@ theme_config:
     os:    "YOUR_OS"          # ex: Jekyll 4.3 · AlmaLinux 10
     shell: "YOUR_SHELL"       # ex: bash 5.2
     role:  "YOUR_ROLE"        # ex: SysOps · Infrastructure  (laisser vide pour masquer)
-    line1: "YOUR_LINE1"       # ex: Org: EPSM74              (laisser vide pour masquer)
+    line1: "YOUR_LINE1"       # ex: Org: AT&T              (laisser vide pour masquer)
     line2: "YOUR_LINE2"       # ex: Stack: Proxmox · Docker  (laisser vide pour masquer)
     motd:  "YOUR_MOTD"        # ex: Bienvenue. /help pour les commandes.
 

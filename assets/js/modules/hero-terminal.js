@@ -341,15 +341,14 @@
       while (logo.length < 3) logo.push('');
     } else {
       logo = [
-        '        .:-/+oossssoo+/-.   ',
-        '    .:+ssssssssssssssssss+:.',
-        '  -+ssssssssssssssssssyyssss+-',
-        ' ossssssssssssssssssssNMssssso',
-        ' ssssssssssssssssssssMMMMssss ',
-        ' ossssssssssssssssssssNMssso  ',
-        '  -+sssssssssssssssssyyssss+- ',
-        '    .:+ssssssssssssssssss+:.  ',
-        '        .::-/+oossssoo+/-.    ',
+       '     _______      ',
+       '    |.-----.|     ',
+       '    ||x . x||     ',
+       '    ||_.-._||     ',
+       '    `--)-(--`     ', 
+       '   __[=== o]___   ',
+       '  |:::::::::::|\  ',
+       '  `-=========-`() ',
       ];
     }
 
