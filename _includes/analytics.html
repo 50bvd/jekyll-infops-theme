@@ -1,0 +1,45 @@
+{% comment %}
+  _includes/analytics.html
+  Charge les scripts de tracking EN PRODUCTION uniquement (JEKYLL_ENV=production).
+  En dev local (jekyll serve), aucun script n'est injecté.
+  Plusieurs services peuvent être actifs simultanément.
+  Configuration dans _config.yml sous la clé `analytics:`.
+{% endcomment %}
+{% if jekyll.environment == "production" %}
+{% assign a = site.analytics %}
+
+{% comment %}── 1. GoatCounter ────────────────────────────────────────────{% endcomment %}
+{% if a.goatcounter_code and a.goatcounter_code != "" %}
+<script data-goatcounter="https://{{ a.goatcounter_code }}.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+{% endif %}
+
+{% comment %}── 2. Google Analytics 4 ──────────────────────────────────────{% endcomment %}
+{% if a.google_analytics_id and a.google_analytics_id != "" %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ a.google_analytics_id }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ a.google_analytics_id }}', {
+    anonymize_ip: true,
+    cookie_flags: 'SameSite=None;Secure'
+  });
+</script>
+{% endif %}
+
+{% comment %}── 3. Plausible ───────────────────────────────────────────────{% endcomment %}
+{% if a.plausible_domain and a.plausible_domain != "" %}
+<script defer data-domain="{{ a.plausible_domain }}"
+        src="https://plausible.io/js/script.js"></script>
+{% endif %}
+
+{% comment %}── 4. Umami (self-hosted) ─────────────────────────────────────{% endcomment %}
+{% if a.umami_website_id and a.umami_website_id != ""
+   and a.umami_src      and a.umami_src      != "" %}
+<script async defer
+        data-website-id="{{ a.umami_website_id }}"
+        src="{{ a.umami_src }}"></script>
+{% endif %}
+
+{% endif %}

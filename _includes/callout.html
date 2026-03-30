@@ -1,0 +1,55 @@
+{% comment %}
+  _includes/callout.html
+  ─────────────────────────────────────────────────────────────────────────
+  Blocs d'alerte stylisés utilisables dans les posts Markdown.
+
+  USAGE dans un post .md :
+  ──────────────────────────
+  {% include callout.html type="note"    title="À savoir"    content="Votre texte ici." %}
+  {% include callout.html type="tip"     title="Astuce"      content="Votre texte ici." %}
+  {% include callout.html type="warning" title="Attention"   content="Votre texte ici." %}
+  {% include callout.html type="danger"  title="Danger"      content="Votre texte ici." %}
+  {% include callout.html type="success" title="Succès"      content="Votre texte ici." %}
+  {% include callout.html type="info"    title="Info"        content="Votre texte ici." %}
+
+  Paramètres :
+    type    → note | tip | warning | danger | success | info  (défaut: note)
+    title   → texte du titre (optionnel)
+    content → texte du contenu (supporte le Markdown basique via markdownify)
+  ─────────────────────────────────────────────────────────────────────────
+{% endcomment %}
+
+{% assign _type    = include.type    | default: "note" %}
+{% assign _title   = include.title %}
+{% assign _content = include.content %}
+
+{% case _type %}
+  {% when "tip" %}
+    {% assign _icon  = "fas fa-lightbulb" %}
+    {% assign _label = _title | default: "Astuce" %}
+  {% when "warning" %}
+    {% assign _icon  = "fas fa-exclamation-triangle" %}
+    {% assign _label = _title | default: "Attention" %}
+  {% when "danger" %}
+    {% assign _icon  = "fas fa-skull-crossbones" %}
+    {% assign _label = _title | default: "Danger" %}
+  {% when "success" %}
+    {% assign _icon  = "fas fa-check-circle" %}
+    {% assign _label = _title | default: "Succès" %}
+  {% when "info" %}
+    {% assign _icon  = "fas fa-info-circle" %}
+    {% assign _label = _title | default: "Information" %}
+  {% else %}
+    {% assign _icon  = "fas fa-sticky-note" %}
+    {% assign _label = _title | default: "Note" %}
+{% endcase %}
+
+<div class="callout callout-{{ _type }}" role="note">
+  <div class="callout-icon">
+    <i class="{{ _icon }}" aria-hidden="true"></i>
+  </div>
+  <div class="callout-body">
+    <div class="callout-title">{{ _label }}</div>
+    <div class="callout-content">{{ _content | markdownify }}</div>
+  </div>
+</div>

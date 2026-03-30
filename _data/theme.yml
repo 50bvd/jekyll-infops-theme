@@ -1,0 +1,145 @@
+# _data/theme.yml
+# =============================================================================
+# Personnalisation visuelle — jekyll-infops-theme
+# Modifiez CE FICHIER pour changer l'apparence sans toucher au SCSS.
+#
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │  OUTILS UTILES                                                          │
+# │  Polices   : https://fonts.google.com                                   │
+# │  Couleurs  : https://coolors.co  |  https://palettemaker.com           │
+# │  Dégradés  : https://cssgradient.io                                     │
+# │  Contraste : https://webaim.org/resources/contrastchecker               │
+# └─────────────────────────────────────────────────────────────────────────┘
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# POLICES
+# Laissez vide pour utiliser les défauts : Inter (sans) + JetBrains Mono (mono)
+# Mettez le nom exact tel qu'il apparaît sur fonts.google.com
+# ---------------------------------------------------------------------------
+fonts:
+  sans: ""   # ex: "Plus Jakarta Sans" | "Outfit" | "Geist" | "DM Sans"
+  mono: ""   # ex: "Fira Code" | "Source Code Pro" | "Cascadia Code"
+
+# ---------------------------------------------------------------------------
+# COULEURS
+# Utilisez des valeurs hex (#rrggbb) ou rgb(r,g,b)
+#
+# ── PALETTES PRÊTES À L'EMPLOI ─────────────────────────────────────────────
+# Décommentez un bloc et commentez les valeurs par défaut pour appliquer.
+#
+# ── Cyberpunk (violet + rose) ─────
+# accent_blue:   "#b57bee"
+# accent_green:  "#f72585"
+# accent_purple: "#7209b7"
+# accent_red:    "#f72585"
+# accent_yellow: "#ffd60a"
+# bg_primary:    "#0a0a0f"
+# bg_secondary:  "#13131a"
+# bg_tertiary:   "#1c1c2e"
+#
+# ── Ocean (bleu profond) ──────────
+# accent_blue:   "#00b4d8"
+# accent_green:  "#48cae4"
+# accent_purple: "#0077b6"
+# accent_red:    "#ef233c"
+# accent_yellow: "#f4a261"
+# bg_primary:    "#03045e"
+# bg_secondary:  "#023e8a"
+# bg_tertiary:   "#0077b6"
+#
+# ── Forest (vert sombre) ──────────
+# accent_blue:   "#52b788"
+# accent_green:  "#95d5b2"
+# accent_purple: "#b7e4c7"
+# accent_red:    "#e63946"
+# accent_yellow: "#ffd166"
+# bg_primary:    "#081c15"
+# bg_secondary:  "#1b4332"
+# bg_tertiary:   "#2d6a4f"
+#
+# ── Solarized Dark ───────────────
+# accent_blue:   "#268bd2"
+# accent_green:  "#859900"
+# accent_purple: "#6c71c4"
+# accent_red:    "#dc322f"
+# accent_yellow: "#b58900"
+# bg_primary:    "#002b36"
+# bg_secondary:  "#073642"
+# bg_tertiary:   "#586e75"
+#
+# ── Light Mode (clair) ───────────
+# accent_blue:   "#0969da"
+# accent_green:  "#1a7f37"
+# accent_purple: "#6e40c9"
+# accent_red:    "#cf222e"
+# accent_yellow: "#9a6700"
+# bg_primary:    "#ffffff"
+# bg_secondary:  "#f6f8fa"
+# bg_tertiary:   "#eaeef2"
+# ---------------------------------------------------------------------------
+colors:
+  # Couleurs d'accent
+  accent_blue:   "#58a6ff"   # Liens, boutons, highlights principaux
+  accent_green:  "#56d364"   # Succès, tips, statut "online"
+  accent_purple: "#a5a5ff"   # Accent secondaire
+  accent_red:    "#f85149"   # Erreurs, danger
+  accent_yellow: "#e3b341"   # Avertissements, maintenance
+
+  # Arrière-plans (dark mode — ignorés si default_theme: light)
+  bg_primary:    "#0d1117"   # Fond de page
+  bg_secondary:  "#161b22"   # Cards, header, sidebar
+  bg_tertiary:   "#21262d"   # Inputs, hover, code bg
+
+# ---------------------------------------------------------------------------
+# CODE BLOCKS
+# Options de personnalisation des blocs de code
+# ---------------------------------------------------------------------------
+code:
+  # Thème Prism.js pour la colorisation syntaxique
+  # Valeurs disponibles (CDN cloudflare) :
+  #   prism-tomorrow | prism-okaidia | prism-solarizedlight
+  #   prism-twilight | prism-coy | prism-dark | prism-funky
+  theme: "prism-tomorrow"
+
+  # Couleur de fond du header de code (laisser vide = utilise bg_tertiary)
+  header_bg: ""
+
+  # Couleur du label de langage
+  lang_color: ""   # laisser vide = utilise accent_blue
+
+# ---------------------------------------------------------------------------
+# LAYOUT
+# ---------------------------------------------------------------------------
+layout:
+  max_width:     1400   # Largeur max du site en px (1200–1600 recommandé)
+  border_radius: 12     # Arrondi des cards en px (0 = carré, 20+ = très arrondi)
+  section_gap:   2      # Espacement vertical entre sections en rem
+
+# ---------------------------------------------------------------------------
+# HERO SECTION
+# ---------------------------------------------------------------------------
+hero:
+  # Dégradé du titre principal
+  # Générateur : https://cssgradient.io
+  title_gradient: "linear-gradient(135deg, #58a6ff 0%, #a5a5ff 50%, #56d364 100%)"
+
+  # Hauteur minimale de la section hero en vh (0 = hauteur auto)
+  min_height: 58
+
+# ---------------------------------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------------------------------
+sidebar:
+  width: 320   # Largeur de la sidebar en px (260–400 recommandé)
+
+# ---------------------------------------------------------------------------
+# POSTS
+# ---------------------------------------------------------------------------
+posts:
+  reading_speed: 200   # Vitesse de lecture en mots/minute (défaut: 200)
+  excerpt_words: 30    # Longueur de l'extrait sur la homepage (en mots)
+
+  # Couleur du trait vertical gauche des post-cards sur la homepage
+  # Laisser vide = utilise le gradient primaire
+  card_accent: ""

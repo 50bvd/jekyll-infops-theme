@@ -1,0 +1,195 @@
+{% assign tc = site.theme_config %}
+<footer class="site-footer">
+  <div class="footer-inner">
+
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div class="footer-col footer-brand">
+        <a href="{{ '/' | relative_url }}" class="footer-logo">
+          <i class="fas fa-terminal" aria-hidden="true"></i>
+          <span>{{ site.title }}</span>
+        </a>
+        <p class="footer-tagline">{{ site.tagline | default: site.description }}</p>
+
+        <div class="footer-social">
+          {% if site.data.social.links %}
+            {% for link in site.data.social.links %}
+              {% if link.url and link.url != "" %}
+              <a href="{{ link.url }}"
+                 {% unless link.url contains '/' and link.url.size < 10 %}
+                   target="_blank" rel="noopener noreferrer"
+                 {% endunless %}
+                 aria-label="{{ link.name }}"
+                 style="--social-color: {{ link.color }}">
+                <i class="{{ link.icon }}" aria-hidden="true"></i>
+              </a>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% if site.author.github %}
+            <a href="https://github.com/{{ site.author.github }}"
+               target="_blank" rel="noopener" aria-label="GitHub">
+              <i class="fab fa-github" aria-hidden="true"></i>
+            </a>
+            {% endif %}
+            {% if site.author.twitter %}
+            <a href="https://twitter.com/{{ site.author.twitter | remove: '@' }}"
+               target="_blank" rel="noopener" aria-label="Twitter / X">
+              <i class="fab fa-twitter" aria-hidden="true"></i>
+            </a>
+            {% endif %}
+            {% if site.author.linkedin %}
+            <a href="https://linkedin.com/in/{{ site.author.linkedin }}"
+               target="_blank" rel="noopener" aria-label="LinkedIn">
+              <i class="fab fa-linkedin" aria-hidden="true"></i>
+            </a>
+            {% endif %}
+            {% if site.author.mastodon %}
+            <a href="{{ site.author.mastodon }}"
+               target="_blank" rel="noopener me" aria-label="Mastodon">
+              <i class="fab fa-mastodon" aria-hidden="true"></i>
+            </a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Navigation</h4>
+        <ul class="footer-links">
+          {% for item in tc.navigation %}
+            <li>
+              <a href="{% if item.external %}{{ item.url }}{% else %}{{ item.url | relative_url }}{% endif %}"
+                 {% if item.external %}target="_blank" rel="noopener"{% endif %}>
+                <i class="{{ item.icon | default: 'fas fa-chevron-right' }}" aria-hidden="true"></i>
+                {{ item.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Recent Posts -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Recent Posts</h4>
+        <ul class="footer-links">
+          {% for post in site.posts limit:4 %}
+            <li>
+              <a href="{{ post.url | relative_url }}">
+                <i class="fas fa-file-alt" aria-hidden="true"></i>
+                {{ post.title | truncate: 38 }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Subscribe -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Subscribe</h4>
+        <p class="footer-text">Stay up to date with the latest articles.</p>
+        {% if tc.footer.show_rss != false %}
+        <a href="{{ '/feed.xml' | relative_url }}" class="footer-rss-btn"
+           target="_blank" rel="noopener">
+          <i class="fas fa-rss" aria-hidden="true"></i> RSS Feed
+        </a>
+        {% endif %}
+        <div class="footer-stack">
+          <span class="stack-badge">
+            <i class="fas fa-gem" aria-hidden="true"></i> Jekyll 4
+          </span>
+          <span class="stack-badge">
+            <i class="fab fa-github" aria-hidden="true"></i> GitHub Pages
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <p>
+        &copy; {{ 'now' | date: "%Y" }}
+        {% if site.author.name %}
+          <strong>{{ site.author.name }}</strong> &mdash;
+        {% endif %}
+        {% if tc.footer.show_built_with != false %}
+          Built with <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a>.
+        {% endif %}
+        {% if tc.footer.custom_text and tc.footer.custom_text != "" %}
+          {{ tc.footer.custom_text }}
+        {% endif %}
+      </p>
+      <p class="footer-meta">
+        {% if tc.footer.show_rss != false %}
+          <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+        {% endif %}
+        {% if tc.footer.show_sitemap != false %}
+          &bull; <a href="{{ '/sitemap.xml' | relative_url }}">Sitemap</a>
+        {% endif %}
+      </p>
+    </div>
+
+  </div>
+</footer>
+
+<style>
+.site-footer {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  margin-top: 4rem;
+  padding: 3rem 2rem 1.5rem;
+}
+.footer-inner { max-width: 1400px; margin: 0 auto; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+.footer-logo {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  color: var(--accent-blue); font-size: 1.15rem; font-weight: 700;
+  text-decoration: none; margin-bottom: 0.75rem;
+  &:hover { color: var(--accent-blue-hover); }
+}
+.footer-tagline { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.2rem; }
+.footer-social { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.footer-social a {
+  width: 36px; height: 36px; background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); font-size: 0.9rem; text-decoration: none; transition: all var(--transition-fast);
+  &:hover { background: rgba(88,166,255,.1); border-color: var(--social-color, var(--accent-blue)); color: var(--social-color, var(--accent-blue)); transform: translateY(-2px); }
+}
+.footer-heading { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; }
+.footer-links {
+  list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;
+  a { color: var(--text-secondary); font-size: 0.875rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: color var(--transition-fast), padding-left var(--transition-fast); i { font-size: 0.7rem; color: var(--text-muted); } &:hover { color: var(--accent-blue); padding-left: 4px; } }
+}
+.footer-text { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.5; }
+.footer-rss-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;
+  background: rgba(227,179,65,.1); border: 1px solid rgba(227,179,65,.3); color: var(--accent-yellow);
+  border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 600; text-decoration: none;
+  transition: all var(--transition-fast); margin-bottom: 1rem;
+  &:hover { background: rgba(227,179,65,.2); transform: translateY(-2px); }
+}
+.footer-stack { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.stack-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem;
+  background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-full); font-size: 0.75rem; color: var(--text-muted);
+}
+.footer-bottom {
+  border-top: 1px solid var(--border-color); padding-top: 1.25rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+  font-size: 0.82rem; color: var(--text-muted);
+  a { color: var(--text-muted); text-decoration: none; &:hover { color: var(--accent-blue); } }
+  strong { color: var(--text-secondary); }
+}
+.footer-meta { display: flex; gap: 0.75rem; }
+@media (max-width: 1100px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
+@media (max-width: 600px)  { .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; } .footer-bottom { flex-direction: column; text-align: center; } }
+</style>

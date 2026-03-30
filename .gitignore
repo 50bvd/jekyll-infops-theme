@@ -1,0 +1,46 @@
+# Jekyll build output
+_site/
+.jekyll-cache/
+.jekyll-metadata
+.sass-cache/
+
+# Ruby / Bundler
+vendor/
+.bundle/
+*.gem
+*.bak
+
+# Node
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Secrets — never commit
+.env
+.env.*
+.env.local
+
+# Docker local volumes
+docker/certbot/
+
+# Obsolete — delete this folder when done cleaning up
+_obsolete/

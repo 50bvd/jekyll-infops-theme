@@ -1,0 +1,92 @@
+{% comment %}
+  _includes/custom-styles.html
+  Injecte les variables CSS depuis _data/theme.yml + charge Google Fonts.
+  Inclus dans _layouts/default.html dans le <head>.
+{% endcomment %}
+{% assign t = site.data.theme %}
+{% if t %}
+
+{% comment %} ── Google Fonts dynamique ────────────────────────────────── {% endcomment %}
+{% assign need_fonts = false %}
+{% if t.fonts.sans and t.fonts.sans != "" %}{% assign need_fonts = true %}{% endif %}
+{% if t.fonts.mono and t.fonts.mono != "" %}{% assign need_fonts = true %}{% endif %}
+
+{% if need_fonts %}
+{% assign font_q = "" %}
+{% if t.fonts.sans and t.fonts.sans != "" %}
+  {% assign sf = t.fonts.sans | replace: ' ', '+' %}
+  {% assign font_q = font_q | append: "family=" | append: sf | append: ":wght@300;400;500;600;700;800;900&" %}
+{% endif %}
+{% if t.fonts.mono and t.fonts.mono != "" %}
+  {% assign mf = t.fonts.mono | replace: ' ', '+' %}
+  {% assign font_q = font_q | append: "family=" | append: mf | append: ":wght@400;500;700&" %}
+{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?{{ font_q }}display=swap" rel="stylesheet">
+{% endif %}
+
+{% comment %} ── Thème Prism.js ───────────────────────────────────────── {% endcomment %}
+{% if t.code.theme and t.code.theme != "" and t.code.theme != "prism-tomorrow" %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/{{ t.code.theme }}.min.css"
+      rel="stylesheet" id="prism-theme">
+{% endif %}
+
+{% comment %} ── Variables CSS ────────────────────────────────────────── {% endcomment %}
+<style id="infops-custom-vars">
+:root, [data-theme="dark"] {
+  {% if t.colors.accent_blue    and t.colors.accent_blue    != "" %}--accent-blue:        {{ t.colors.accent_blue }};
+  --accent-blue-hover: {{ t.colors.accent_blue }};{% endif %}
+  {% if t.colors.accent_green   and t.colors.accent_green   != "" %}--accent-green:       {{ t.colors.accent_green }};{% endif %}
+  {% if t.colors.accent_purple  and t.colors.accent_purple  != "" %}--accent-purple:      {{ t.colors.accent_purple }};{% endif %}
+  {% if t.colors.accent_red     and t.colors.accent_red     != "" %}--accent-red:         {{ t.colors.accent_red }};{% endif %}
+  {% if t.colors.accent_yellow  and t.colors.accent_yellow  != "" %}--accent-yellow:      {{ t.colors.accent_yellow }};{% endif %}
+  {% if t.colors.bg_primary     and t.colors.bg_primary     != "" %}--bg-primary:         {{ t.colors.bg_primary }};{% endif %}
+  {% if t.colors.bg_secondary   and t.colors.bg_secondary   != "" %}--bg-secondary:       {{ t.colors.bg_secondary }};{% endif %}
+  {% if t.colors.bg_tertiary    and t.colors.bg_tertiary    != "" %}--bg-tertiary:        {{ t.colors.bg_tertiary }};{% endif %}
+  {% if t.layout.border_radius  and t.layout.border_radius  != "" %}--radius-lg:          {{ t.layout.border_radius }}px;
+  --radius-xl: {{ t.layout.border_radius | plus: 4 }}px;{% endif %}
+  {% if t.fonts.sans and t.fonts.sans != "" %}--font-sans: '{{ t.fonts.sans }}', -apple-system, BlinkMacSystemFont, sans-serif;{% endif %}
+  {% if t.fonts.mono and t.fonts.mono != "" %}--font-mono: '{{ t.fonts.mono }}', 'SF Mono', monospace;{% endif %}
+  {% if t.code.header_bg and t.code.header_bg != "" %}--code-header-bg: {{ t.code.header_bg }};{% endif %}
+  {% if t.code.lang_color and t.code.lang_color != "" %}--code-lang-color: {{ t.code.lang_color }};{% endif %}
+}
+
+{% if t.layout.max_width and t.layout.max_width != "" %}
+.main-container, .navbar, .footer-inner, .search-container {
+  max-width: {{ t.layout.max_width }}px;
+}
+{% endif %}
+
+{% if t.hero.title_gradient and t.hero.title_gradient != "" %}
+.hero-title {
+  background: {{ t.hero.title_gradient }};
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+{% endif %}
+
+{% if t.hero.min_height and t.hero.min_height != "" %}
+.hero { min-height: {{ t.hero.min_height }}vh; }
+{% endif %}
+
+{% if t.sidebar.width and t.sidebar.width != "" %}
+@media (min-width: 1101px) {
+  .main-container { grid-template-columns: 1fr {{ t.sidebar.width }}px; }
+}
+{% endif %}
+
+{% if t.posts.card_accent and t.posts.card_accent != "" %}
+.post-card::before { background: {{ t.posts.card_accent }}; }
+{% endif %}
+
+{% if t.code.header_bg and t.code.header_bg != "" %}
+.code-block-header { background: var(--code-header-bg) !important; }
+{% endif %}
+
+{% if t.code.lang_color and t.code.lang_color != "" %}
+.code-lang { color: var(--code-lang-color) !important; }
+{% endif %}
+</style>
+{% endif %}

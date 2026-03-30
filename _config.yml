@@ -1,0 +1,209 @@
+# =============================================================================
+# jekyll-infops-theme — Configuration
+# https://github.com/50bvd/jekyll-infops-theme
+# =============================================================================
+
+title:       "jekyll-infops-theme"
+tagline:     "DevOps · SysOps · Infrastructure"
+description: "A modern Jekyll theme for DevOps and SysOps engineers."
+baseurl:     ""
+url:         "https://50bvd.github.io"
+lang:        "en"
+timezone:    "Europe/Paris"
+
+author:
+  name:     "50bvd"
+  email:    ""
+  bio:      "Infrastructure engineer & open-source enthusiast."
+  avatar:   "/assets/images/avatar.jpg"
+  github:   "50bvd"
+  twitter:  ""
+  linkedin: ""
+  mastodon: ""
+
+# ---------------------------------------------------------------------------
+# ANALYTICS — load ONLY in production (JEKYLL_ENV=production)
+# ---------------------------------------------------------------------------
+analytics:
+  goatcounter_code:    ""
+  google_analytics_id: ""
+  plausible_domain:    ""
+  umami_website_id:    ""
+  umami_src:           ""
+
+# ---------------------------------------------------------------------------
+# COMMENTS
+# ---------------------------------------------------------------------------
+comments:
+  provider:         "utterances"
+  utterances_repo:  "50bvd/jekyll-infops-theme"
+  utterances_theme: "github-dark"
+  disqus_shortname: ""
+
+# ---------------------------------------------------------------------------
+# SEARCH
+# ---------------------------------------------------------------------------
+search:
+  enabled:  true
+  provider: "local"
+
+# ---------------------------------------------------------------------------
+# THEME
+# ---------------------------------------------------------------------------
+theme_config:
+  default_theme: "dark"   # dark | light
+
+  show_hero:     true
+  show_terminal: true
+  terminal_user: "user@infops"   # label affiché dans le header du terminal
+
+  # ── Terminal boot — neofetch affiché au démarrage ────────────────────────
+  # Laisser vide ("") pour masquer une ligne.
+  terminal_boot:
+    user:  "YOUR_USER"        # ex: loup
+    host:  "YOUR_HOST"        # ex: infops
+    os:    "YOUR_OS"          # ex: Jekyll 4.3 · AlmaLinux 10
+    shell: "YOUR_SHELL"       # ex: bash 5.2
+    role:  "YOUR_ROLE"        # ex: SysOps · Infrastructure  (laisser vide pour masquer)
+    line1: "YOUR_LINE1"       # ex: Org: EPSM74              (laisser vide pour masquer)
+    line2: "YOUR_LINE2"       # ex: Stack: Proxmox · Docker  (laisser vide pour masquer)
+    motd:  "YOUR_MOTD"        # ex: Bienvenue. /help pour les commandes.
+
+    # ASCII art affiché à gauche du neofetch (9 lignes, ~32 chars de large max)
+    # Laisser vide pour utiliser le logo Ubuntu par défaut.
+    # Générateur : https://patorjk.com/software/taag/
+    ascii: |
+      YOUR_ASCII_LINE_1
+      YOUR_ASCII_LINE_2
+      YOUR_ASCII_LINE_3
+      YOUR_ASCII_LINE_4
+      YOUR_ASCII_LINE_5
+      YOUR_ASCII_LINE_6
+      YOUR_ASCII_LINE_7
+      YOUR_ASCII_LINE_8
+      YOUR_ASCII_LINE_9
+
+  # ── Sidebar ────────────────────────────────────────────────────────────
+  show_stats:         true
+  show_system_status: true
+  show_recent_posts:  true
+  show_categories:    true
+  show_tags:          true
+  recent_posts_count: 5
+
+  # ── Post options ───────────────────────────────────────────────────────
+  reading_time:          true
+  word_count:            true
+  show_toc:              true
+  toc_min_headings:      2
+  code_copy_button:      true
+  show_share_buttons:    true
+  show_post_nav:         true
+  show_related_posts:    true
+  show_reading_progress: true
+
+  # ── Canvas background ──────────────────────────────────────────────────
+  canvas:
+    enabled:         true
+    particle_count:  80
+    max_distance:    130
+    cursor_distance: 160
+
+  # ── Navigation ─────────────────────────────────────────────────────────
+  navigation:
+    - title: "Home"
+      url:   "/"
+      icon:  "fas fa-home"
+    - title: "Archives"
+      url:   "/archives/"
+      icon:  "fas fa-archive"
+    - title: "Tags"
+      url:   "/tags/"
+      icon:  "fas fa-tags"
+    - title: "About"
+      url:   "/about/"
+      icon:  "fas fa-user"
+    - title: "GitHub"
+      url:   "https://github.com/50bvd/jekyll-infops-theme"
+      icon:  "fab fa-github"
+      external: true
+
+  footer:
+    show_rss:        true
+    show_sitemap:    true
+    show_built_with: true
+    custom_text:     ""
+
+  seo:
+    image: "/assets/images/og-default.png"
+
+# ---------------------------------------------------------------------------
+# SEO
+# ---------------------------------------------------------------------------
+twitter:
+  username: ""
+  card:     "summary_large_image"
+
+# ---------------------------------------------------------------------------
+# JEKYLL
+# ---------------------------------------------------------------------------
+markdown:    kramdown
+highlighter: rouge
+permalink:   /:year/:month/:day/:title/
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+paginate:      8
+paginate_path: "/page:num/"
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-paginate
+  - jekyll-relative-links
+
+sass:
+  style:    compressed
+  sass_dir: _sass
+
+liquid:
+  error_mode:       warn
+  strict_filters:   false
+  strict_variables: false
+
+defaults:
+  - scope: { path: "", type: "posts" }
+    values: { layout: "post", author: "50bvd", comments: true, toc: true }
+  - scope: { path: "", type: "pages" }
+    values: { layout: "default" }
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - LICENSE
+  - .gitignore
+  - .github/
+  - node_modules/
+  - package.json
+  - package-lock.json
+  - .sass-cache/
+  - .jekyll-cache/
+  - vendor/
+  - BAK/
+  - categories/
+  - "*.sh"
+  - "*.bak"
+  - "*.txt"
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - jekyll-infops-theme.gemspec
+
+include:
+  - .htaccess

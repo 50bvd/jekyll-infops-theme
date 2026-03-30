@@ -1,0 +1,69 @@
+{% if page.comments != false %}
+{% assign c = site.comments %}
+{% assign repo_ok = false %}
+{% if c.utterances_repo
+     and c.utterances_repo != ""
+     and c.utterances_repo != "YOUR_USERNAME/YOUR_REPO"
+     and c.utterances_repo contains "/" %}
+  {% assign repo_ok = true %}
+{% endif %}
+
+<section class="comments-section" id="comments">
+  <h3 class="comments-title">
+    <i class="fas fa-comments" aria-hidden="true"></i> Comments
+  </h3>
+
+  {% if c.provider == "utterances" and repo_ok %}
+  <script src="https://utteranc.es/client.js"
+    repo="{{ c.utterances_repo }}"
+    issue-term="pathname"
+    label="💬 comment"
+    theme="{{ c.utterances_theme | default: 'github-dark' }}"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+  {% elsif c.provider == "disqus" and c.disqus_shortname and c.disqus_shortname != "" %}
+  <div id="disqus_thread"></div>
+  <script>
+    var disqus_config = function () {
+      this.page.url        = '{{ page.url | absolute_url }}';
+      this.page.identifier = '{{ page.url }}';
+    };
+    (function() {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://{{ c.disqus_shortname }}.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+
+  {% else %}
+  <p class="comments-notice">
+    <i class="fas fa-info-circle" aria-hidden="true"></i>
+    Comments are not configured yet. Set <code>comments.provider</code> and
+    <code>comments.utterances_repo</code> in <code>_config.yml</code>.
+    See the <a href="/2025/01/08/analytics-setup/">setup guide</a> for instructions.
+  </p>
+  {% endif %}
+
+</section>
+{% endif %}
+
+<style>
+.comments-notice {
+  padding: 1rem 1.25rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  i    { color: var(--accent-blue); flex-shrink: 0; }
+  code { background: var(--bg-secondary); padding: 0.1em 0.35em; border-radius: var(--radius-sm); font-size: 0.85em; color: var(--accent-blue); }
+  a    { color: var(--accent-blue); }
+}
+</style>

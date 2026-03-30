@@ -1,0 +1,47 @@
+---
+layout: default
+title: Tags
+permalink: /tags/
+---
+
+<div class="main-container">
+  <div class="content">
+    <header style="margin-bottom:2.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border-color);">
+      <h1 style="display:flex;align-items:center;gap:.6rem;color:var(--accent-blue);">
+        <i class="fas fa-tags" aria-hidden="true"></i> All Tags
+      </h1>
+      <p style="color:var(--text-secondary);margin:0;">{{ site.tags.size }} tags across {{ site.posts.size }} articles.</p>
+    </header>
+
+    <div class="tags-cloud" style="margin-bottom:3rem;">
+      {% assign sorted_tags = site.tags | sort %}
+      {% for tag in sorted_tags %}
+        <a href="#{{ tag[0] | slugify }}" class="tag" style="font-size:{{ tag[1].size | times: 2 | plus: 10 }}px;">
+          {{ tag[0] }} <span style="opacity:.6;">({{ tag[1].size }})</span>
+        </a>
+      {% endfor %}
+    </div>
+
+    {% assign sorted_tags = site.tags | sort %}
+    {% for tag in sorted_tags %}
+      <section id="{{ tag[0] | slugify }}" style="margin-bottom:3rem;">
+        <h2 style="color:var(--accent-blue);display:flex;align-items:center;gap:.5rem;padding-bottom:.6rem;border-bottom:1px solid var(--border-color);margin-bottom:1.2rem;">
+          <i class="fas fa-tag" aria-hidden="true"></i> {{ tag[0] }}
+          <span style="font-size:.85rem;color:var(--text-muted);font-weight:400;">({{ tag[1].size }} post{% if tag[1].size != 1 %}s{% endif %})</span>
+        </h2>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+          {% for post in tag[1] %}
+            <li style="display:flex;align-items:baseline;gap:1.2rem;padding:.5rem .75rem;border-radius:var(--radius-md);transition:background var(--transition-fast);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background=''">
+              <span style="font-family:var(--font-mono);font-size:.82rem;color:var(--text-muted);white-space:nowrap;">{{ post.date | date: "%Y-%m-%d" }}</span>
+              <a href="{{ post.url | relative_url }}" style="color:var(--text-primary);text-decoration:none;font-weight:500;transition:color var(--transition-fast);" onmouseover="this.style.color='var(--accent-blue)'" onmouseout="this.style.color='var(--text-primary)'">
+                {{ post.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </div>
+
+  {% include sidebar.html %}
+</div>

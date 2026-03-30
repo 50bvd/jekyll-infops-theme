@@ -1,0 +1,148 @@
+<aside class="sidebar" aria-label="Sidebar">
+
+  {% if site.theme_config.show_stats != false %}
+    {% include widget-stats.html %}
+  {% endif %}
+
+  {% if site.theme_config.show_system_status != false %}
+  <div class="widget status-widget">
+    <h3 class="widget-title">
+      <i class="fas fa-server" aria-hidden="true"></i> System Status
+    </h3>
+    <div class="widget-content">
+      <ul class="status-list" id="live-status-list"></ul>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if site.theme_config.show_recent_posts != false %}
+  <div class="widget">
+    <h3 class="widget-title">
+      <i class="fas fa-clock" aria-hidden="true"></i> Recent Posts
+    </h3>
+    <div class="widget-content">
+      {% assign recent_count = site.theme_config.recent_posts_count | default: 5 %}
+      {% for post in site.posts limit: recent_count %}
+        <a href="{{ post.url | relative_url }}" class="sidebar-post">
+          <div>
+            <div class="sidebar-post-title">{{ post.title }}</div>
+            <div class="sidebar-post-date">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              {{ post.date | date: "%b %d, %Y" }}
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if site.theme_config.show_categories != false and site.categories.size > 0 %}
+  <div class="widget">
+    <h3 class="widget-title">
+      <i class="fas fa-folder" aria-hidden="true"></i> Categories
+    </h3>
+    <div class="widget-content">
+      <div class="categories-grid">
+        {% assign sorted_cats = site.categories | sort %}
+        {% for category in sorted_cats %}
+          <a href="{{ '/categories/' | append: category[0] | slugify | relative_url }}" class="tag">
+            {{ category[0] }}
+            <span style="opacity:.6;font-size:.7rem;">({{ category[1].size }})</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if site.theme_config.show_tags != false and site.tags.size > 0 %}
+  <div class="widget">
+    <h3 class="widget-title">
+      <i class="fas fa-tags" aria-hidden="true"></i> Tags
+    </h3>
+    <div class="widget-content">
+      <div class="tags-cloud">
+        {% assign sorted_tags = site.tags | sort %}
+        {% for tag in sorted_tags %}
+          <a href="{{ '/tags/#' | append: tag[0] | slugify | relative_url }}" class="tag">
+            {{ tag[0] }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</aside>
+
+<script>
+/* System Status — 4 real client metrics, no post count */
+(function() {
+  'use strict';
+  var list = document.getElementById('live-status-list');
+  if (!list) return;
+
+  function icon(s) {
+    var colors = { online: 'var(--status-success)', warning: 'var(--status-warning)', error: 'var(--status-error)' };
+    return '<i class="fas fa-circle" style="color:' + (colors[s]||'var(--text-muted)') + '" aria-hidden="true"></i>';
+  }
+  function row(label, s, v) {
+    return '<li class="status-item">'
+      + '<span class="status-name">' + icon(s) + ' ' + label + '</span>'
+      + '<span class="status-badge ' + s + '">' + v + '</span>'
+      + '</li>';
+  }
+
+  // 1. Network connectivity + type
+  function getNetwork() {
+    if (!navigator.onLine) return { s: 'error', v: 'offline' };
+    var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!c) return { s: 'online', v: 'online' };
+    var t = c.effectiveType || c.type || '';
+    if (t === 'slow-2g' || t === '2g') return { s: 'warning', v: t };
+    if (c.rtt && c.rtt > 400) return { s: 'warning', v: c.rtt + 'ms' };
+    return { s: 'online', v: t || 'online' };
+  }
+
+  // 2. Page load performance
+  function getPageLoad() {
+    if (!window.performance || !performance.timing) return null;
+    var ms = performance.timing.loadEventEnd - performance.timing.navigationStart;
+    if (ms <= 0) return null;
+    var v = ms < 1000 ? ms + 'ms' : (ms / 1000).toFixed(1) + 's';
+    return { s: ms < 2000 ? 'online' : ms < 5000 ? 'warning' : 'error', v: v };
+  }
+
+  // 3. Protocol
+  function getProtocol() {
+    return location.protocol === 'https:'
+      ? { s: 'online',   v: 'HTTPS' }
+      : { s: 'warning',  v: 'HTTP' };
+  }
+
+  // 4. Memory (JS heap) — Chrome only, skip if unavailable
+  function getMemory() {
+    if (!performance.memory) return null;
+    var used  = Math.round(performance.memory.usedJSHeapSize  / 1048576);
+    var total = Math.round(performance.memory.totalJSHeapSize / 1048576);
+    var pct   = Math.round(used / total * 100);
+    return { s: pct < 70 ? 'online' : pct < 90 ? 'warning' : 'error', v: used + 'MB / ' + total + 'MB' };
+  }
+
+  function render() {
+    var html = '';
+    var net  = getNetwork();   html += row('Network',   net.s,  net.v);
+    var load = getPageLoad();  if (load) html += row('Load time', load.s, load.v);
+    var proto = getProtocol(); html += row('Protocol',  proto.s, proto.v);
+    var mem  = getMemory();    if (mem)  html += row('JS heap',   mem.s,  mem.v);
+
+    list.innerHTML = html;
+  }
+
+  render();
+  setInterval(render, 12000);
+  window.addEventListener('online',  render);
+  window.addEventListener('offline', render);
+})();
+</script>

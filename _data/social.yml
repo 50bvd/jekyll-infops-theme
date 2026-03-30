@@ -1,0 +1,29 @@
+# _data/social.yml
+# Liens réseaux sociaux affichés dans le footer et la sidebar
+# Mettez url à "" pour masquer un réseau
+
+links:
+  - name:  "GitHub"
+    url:   "https://github.com/50bvd"
+    icon:  "fab fa-github"
+    color: "#e6edf3"
+
+  - name:  "Twitter / X"
+    url:   ""
+    icon:  "fab fa-twitter"
+    color: "#1da1f2"
+
+  - name:  "LinkedIn"
+    url:   ""
+    icon:  "fab fa-linkedin"
+    color: "#0077b5"
+
+  - name:  "Mastodon"
+    url:   ""
+    icon:  "fab fa-mastodon"
+    color: "#6364ff"
+
+  - name:  "RSS"
+    url:   "/feed.xml"
+    icon:  "fas fa-rss"
+    color: "#e3b341"

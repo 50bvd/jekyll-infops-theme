@@ -1,0 +1,187 @@
+---
+layout: default
+---
+
+{% assign cfg = site.theme_config %}
+
+<div class="reading-progress-container" aria-hidden="true">
+  <div class="reading-progress-bar"></div>
+</div>
+
+<div class="post-container">
+
+  <article class="post-content">
+
+    <header class="post-header">
+      <div class="post-meta">
+        <span>
+          <i class="fas fa-calendar" aria-hidden="true"></i>
+          <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %d, %Y" }}</time>
+        </span>
+        <span>
+          <i class="fas fa-user" aria-hidden="true"></i>
+          {{ page.author | default: site.author.name }}
+        </span>
+        {% if cfg.reading_time %}
+        <span class="reading-time">
+          <i class="fas fa-clock" aria-hidden="true"></i>
+          <span id="reading-time">…</span>
+        </span>
+        {% endif %}
+        {% if cfg.word_count %}
+        <span class="word-count">
+          <i class="fas fa-align-left" aria-hidden="true"></i>
+          <span id="word-count">…</span>
+        </span>
+        {% endif %}
+      </div>
+
+      {% if page.tags.size > 0 %}
+      <div class="post-tags">
+        {% for tag in page.tags %}
+          <a href="{{ '/tags/#' | append: tag | slugify | relative_url }}" class="tag">{{ tag }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <h1 class="post-title">{{ page.title }}</h1>
+
+      {% if page.description %}
+        <p class="post-description">{{ page.description }}</p>
+      {% endif %}
+    </header>
+
+    {% if page.toc %}
+    <div class="toc-wrapper">
+      <details class="toc-details" open>
+        <summary>
+          <i class="fas fa-list" aria-hidden="true"></i> Table of Contents
+        </summary>
+        <div class="toc-content" id="toc-content"></div>
+      </details>
+    </div>
+    {% endif %}
+
+    <div class="post-body">
+      {{ content }}
+    </div>
+
+    <footer class="post-footer">
+      {% if page.categories.size > 0 %}
+      <div class="post-categories">
+        <strong><i class="fas fa-folder" aria-hidden="true"></i> Categories:</strong>
+        {% for category in page.categories %}
+          <a href="{{ '/categories/' | append: category | slugify | relative_url }}" class="category-link">
+            {{ category }}
+          </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if cfg.show_share_buttons != false %}
+      <div class="post-share">
+        <strong><i class="fas fa-share-alt" aria-hidden="true"></i> Share:</strong>
+        <a href="https://twitter.com/intent/tweet?text={{ page.title | uri_escape }}&url={{ site.url }}{{ page.url }}"
+           target="_blank" rel="noopener noreferrer" class="share-btn twitter">
+          <i class="fab fa-twitter" aria-hidden="true"></i> Twitter
+        </a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ site.url }}{{ page.url }}"
+           target="_blank" rel="noopener noreferrer" class="share-btn linkedin">
+          <i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn
+        </a>
+        <a href="mailto:?subject={{ page.title | uri_escape }}&body={{ site.url }}{{ page.url }}"
+           class="share-btn email">
+          <i class="fas fa-envelope" aria-hidden="true"></i> Email
+        </a>
+        <button class="share-btn copy-link" onclick="copyPageUrl()" type="button">
+          <i class="fas fa-link" aria-hidden="true"></i> Copy Link
+        </button>
+      </div>
+      {% endif %}
+    </footer>
+
+    {% if cfg.show_post_nav != false %}
+    <nav class="post-navigation" aria-label="Post navigation">
+      {% if page.previous %}
+        <a href="{{ page.previous.url | relative_url }}" class="nav-prev" rel="prev">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          <div>
+            <span>Previous</span>
+            <strong>{{ page.previous.title | truncate: 50 }}</strong>
+          </div>
+        </a>
+      {% else %}
+        <span class="nav-prev disabled"></span>
+      {% endif %}
+
+      {% if page.next %}
+        <a href="{{ page.next.url | relative_url }}" class="nav-next" rel="next">
+          <div>
+            <span>Next</span>
+            <strong>{{ page.next.title | truncate: 50 }}</strong>
+          </div>
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </a>
+      {% else %}
+        <span class="nav-next disabled"></span>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+    <!-- Related Posts -->
+    {% if cfg.show_related_posts != false and site.related_posts.size > 0 %}
+    <section class="related-posts">
+      <h3><i class="fas fa-bookmark" aria-hidden="true"></i> Related Posts</h3>
+      <div class="related-grid">
+        {% for post in site.related_posts limit:3 %}
+          <article class="related-card">
+            <div class="related-meta">
+              <time class="related-date" datetime="{{ post.date | date_to_xmlschema }}">
+                {{ post.date | date: "%b %d, %Y" }}
+              </time>
+              {% if post.tags.first %}
+                <span class="related-tag">{{ post.tags.first }}</span>
+              {% endif %}
+            </div>
+            <h4><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h4>
+            <p class="related-excerpt">{{ post.excerpt | strip_html | truncatewords: 15 }}</p>
+            <a href="{{ post.url | relative_url }}" class="read-more-small">
+              Read Article <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Comments only — no sidebar, no system status -->
+    {% include comments.html %}
+
+  </article>
+
+</div>
+
+<!-- Floating TOC -->
+{% if page.toc %}
+<aside class="floating-toc" aria-label="Floating table of contents">
+  <button class="toc-toggle" onclick="toggleFloatingToc()" aria-label="Toggle table of contents" type="button">
+    <i class="fas fa-list" aria-hidden="true"></i>
+  </button>
+  <div class="floating-toc-content">
+    <h4><i class="fas fa-list" aria-hidden="true"></i> Navigation</h4>
+    <div id="floating-toc-list"></div>
+  </div>
+</aside>
+{% endif %}
+
+<style>
+/* Post page: single column, max-width for readability */
+.post-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+@media (max-width: 768px) {
+  .post-container { padding: 1rem; }
+}
+</style>

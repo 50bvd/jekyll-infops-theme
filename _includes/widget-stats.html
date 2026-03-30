@@ -1,0 +1,192 @@
+{% comment %}
+  widget-stats.html
+  ─────────────────────────────────────────────────────────────────────────────
+  GoatCounter note:
+  L'API /api/v0/stats/total nécessite une clé API (token) pour les requêtes
+  cross-origin (CORS). Sans token, elle retourne 403.
+  Solution : utiliser le compteur public GoatCounter qui expose un endpoint
+  JSON sans authentification via le pixel de comptage.
+
+  Alternative recommandée : activer "Public stats" dans GoatCounter
+  (Settings → Allow public access to stats) puis utiliser /api/v0/stats/total
+  avec le header Authorization.
+
+  Pour l'instant on affiche le total statique Jekyll + lien dashboard.
+  ─────────────────────────────────────────────────────────────────────────────
+{% endcomment %}
+{% assign a = site.analytics %}
+
+<div class="widget stats-widget">
+  <h3 class="widget-title">
+    <i class="fas fa-chart-bar" aria-hidden="true"></i> Site Stats
+  </h3>
+  <div class="widget-content">
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ site.posts | size }}</div>
+        <div class="stat-label">Articles</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ site.tags | size }}</div>
+        <div class="stat-label">Tags</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-visitors">—</div>
+        <div class="stat-label">Visitors / month</div>
+      </div>
+      <div class="stat-card">
+        {% assign total_words = 0 %}
+        {% for post in site.posts %}
+          {% assign w = post.content | strip_html | number_of_words %}
+          {% assign total_words = total_words | plus: w %}
+        {% endfor %}
+        {% if total_words >= 1000 %}
+          <div class="stat-value">{{ total_words | divided_by: 1000 }}k</div>
+        {% else %}
+          <div class="stat-value">{{ total_words }}</div>
+        {% endif %}
+        <div class="stat-label">Words</div>
+      </div>
+    </div>
+
+    <!-- Dashboard analytics links -->
+    <div class="analytics-links">
+      {% if a.goatcounter_code and a.goatcounter_code != "" %}
+      <a href="https://{{ a.goatcounter_code }}.goatcounter.com"
+         target="_blank" rel="noopener noreferrer" class="ga-link">
+        <i class="fas fa-chart-line" aria-hidden="true"></i>
+        GoatCounter
+        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+      </a>
+      {% endif %}
+      {% if a.google_analytics_id and a.google_analytics_id != "" %}
+      <a href="https://analytics.google.com/analytics/web/#/p{{ a.google_analytics_id | remove: 'G-' }}/reports/reportinghub"
+         target="_blank" rel="noopener noreferrer" class="ga-link ga-link--google">
+        <i class="fab fa-google" aria-hidden="true"></i>
+        Google Analytics
+        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+      </a>
+      {% endif %}
+      {% if a.plausible_domain and a.plausible_domain != "" %}
+      <a href="https://plausible.io/{{ a.plausible_domain }}"
+         target="_blank" rel="noopener noreferrer" class="ga-link">
+        <i class="fas fa-chart-area" aria-hidden="true"></i>
+        Plausible
+        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+      </a>
+      {% endif %}
+      {% if a.umami_website_id and a.umami_website_id != "" and a.umami_src and a.umami_src != "" %}
+      <a href="{{ a.umami_src | remove: '/script.js' }}"
+         target="_blank" rel="noopener noreferrer" class="ga-link">
+        <i class="fas fa-wave-square" aria-hidden="true"></i>
+        Umami
+        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+      </a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── GoatCounter visitors fetch ─────────────────────────────────────── -->
+{% if a.goatcounter_code and a.goatcounter_code != "" %}
+<script>
+(function() {
+  'use strict';
+  var code = '{{ a.goatcounter_code }}';
+  var el   = document.getElementById('stat-visitors');
+  if (!el || !code || code.indexOf('YOUR') !== -1) return;
+
+  // GoatCounter expose les stats publiques via un endpoint JSON sans auth
+  // si "Allow public access to stats" est activé dans Settings.
+  // Sinon on tente quand même — les erreurs CORS sont silencieuses.
+  var now   = new Date();
+  var start = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
+  var fmt   = function(d) {
+    return d.getFullYear() + '-'
+      + String(d.getMonth() + 1).padStart(2, '0') + '-'
+      + String(d.getDate()).padStart(2, '0');
+  };
+
+  el.innerHTML = '<span class="stat-loading" aria-hidden="true"></span>';
+
+  fetch('https://' + code + '.goatcounter.com/api/v0/stats/total'
+      + '?start=' + fmt(start) + '&end=' + fmt(now), {
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(function(r) {
+    if (r.status === 403) return Promise.reject('auth-required');
+    if (!r.ok)           return Promise.reject('http-' + r.status);
+    return r.json();
+  })
+  .then(function(d) {
+    var v = typeof d.total_unique === 'number' ? d.total_unique
+          : typeof d.total        === 'number' ? d.total : 0;
+    el.textContent = v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v > 0 ? String(v) : '—';
+  })
+  .catch(function(err) {
+    // 403 = stats non publiques, afficher lien vers dashboard
+    if (err === 'auth-required') {
+      el.innerHTML = '<a href="https://' + code + '.goatcounter.com" '
+        + 'target="_blank" rel="noopener" '
+        + 'style="font-size:.7rem;color:var(--accent-blue);text-decoration:none;" '
+        + 'title="Enable public stats in GoatCounter settings">View →</a>';
+    } else {
+      el.textContent = '—';
+    }
+    console.info('[infops] GoatCounter stats:', err,
+      '→ Enable "Allow public access" in GoatCounter Settings to show visitor count.');
+  });
+})();
+</script>
+{% endif %}
+
+<style>
+.stat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:.7rem; margin-bottom:.9rem; }
+.stat-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: .8rem .5rem;
+  text-align: center;
+}
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  margin-bottom: .2rem;
+  min-height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stat-label { font-size:.65rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; }
+.stat-loading {
+  display:inline-block; width:.8rem; height:.8rem;
+  border:2px solid var(--border-color);
+  border-top-color:var(--accent-blue);
+  border-radius:50%;
+  animation:gc-spin .7s linear infinite;
+}
+@keyframes gc-spin { to { transform:rotate(360deg); } }
+.analytics-links { display:flex; flex-direction:column; gap:.4rem; }
+.ga-link {
+  display:flex; align-items:center; gap:.5rem;
+  padding:.5rem .9rem;
+  background:rgba(88,166,255,.07);
+  border:1px solid rgba(88,166,255,.18);
+  border-radius:var(--radius-md);
+  color:var(--accent-blue);
+  font-size:.8rem; font-weight:600; text-decoration:none;
+  transition:all var(--transition-fast);
+}
+.ga-link:hover { background:rgba(88,166,255,.15); transform:translateY(-1px); color:var(--accent-blue-hover); }
+.ga-link--google { background:rgba(234,67,53,.07); border-color:rgba(234,67,53,.2); color:#ea4335; }
+.ga-link--google:hover { background:rgba(234,67,53,.14); color:#d62516; }
+</style>

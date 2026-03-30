@@ -1,0 +1,41 @@
+# =============================================================================
+# docker-compose.yml — Mode DÉVELOPPEMENT
+# Lance Jekyll avec livereload et monte les sources en volume.
+#
+# Usage :
+#   docker compose up          → démarrer
+#   docker compose up --build  → rebuild si Gemfile/Dockerfile changé
+#   docker compose down        → arrêter
+#
+# Accès : http://localhost:4000
+# =============================================================================
+
+services:
+  jekyll:
+    build:
+      context: .
+      target:  dev          # Stage "dev" du Dockerfile
+    container_name: infops-dev
+    volumes:
+      # Monte les sources en live — les changements sont pris en compte immédiatement
+      - .:/site
+      # Cache des gems isolé du host
+      - gem_cache:/usr/local/bundle
+      # Cache Jekyll pour les builds incrémentaux
+      - jekyll_cache:/site/.jekyll-cache
+    ports:
+      - "4000:4000"    # Site
+      - "35729:35729"  # LiveReload WebSocket
+    environment:
+      - JEKYLL_ENV=development
+      - TZ=Europe/Paris
+    restart: unless-stopped
+    # Optionnel : limites ressources
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
+
+volumes:
+  gem_cache:
+  jekyll_cache:

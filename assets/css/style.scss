@@ -1,0 +1,13 @@
+---
+# Front matter requis par Jekyll pour compiler ce fichier SCSS
+---
+
+// style.scss — point d'entrée unique
+// Utilise @use (Dart Sass)
+
+@use "themes";
+@use "base";
+@use "layout";
+@use "components";
+@use "animations";
+@use "responsive";
