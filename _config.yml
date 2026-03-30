@@ -25,8 +25,8 @@ author:
 # ANALYTICS — load ONLY in production (JEKYLL_ENV=production)
 # ---------------------------------------------------------------------------
 analytics:
-  goatcounter_code:    "50bvd"
-  google_analytics_id: "G-7VLLSDMVSP"
+  goatcounter_code:    ""
+  google_analytics_id: ""
   plausible_domain:    ""
   umami_website_id:    ""
   umami_src:           ""
