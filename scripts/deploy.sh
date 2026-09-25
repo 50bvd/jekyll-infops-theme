@@ -58,9 +58,15 @@ deploy_host() {
   if command -v apachectl >/dev/null; then sudo apachectl configtest && sudo apachectl graceful; fi
 }
 
-# GBA emulator ROM list (no-op when the folder does not exist yet)
+# Server-side files (mounted read-only in the containers, see docker-compose):
+# make sure the folders exist and are readable (never world-writable)
+IMG_DIR="${IMG_DIR:-/opt/50bvd-files/img}"
 ROMS_DIR="${ROMS_DIR:-/opt/50bvd-files/roms}"
-mkdir -p "$ROMS_DIR" 2>/dev/null || true
+for d in "$IMG_DIR" "$ROMS_DIR"; do
+  mkdir -p "$d" 2>/dev/null || true
+  find "$d" -type d -exec chmod 755 {} + 2>/dev/null || true
+  find "$d" -type f -exec chmod 644 {} + 2>/dev/null || true
+done
 [ -x scripts/gba-library.sh ] && ./scripts/gba-library.sh "$ROMS_DIR" || true
 
 case "${1:-}" in

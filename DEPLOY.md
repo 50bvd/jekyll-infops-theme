@@ -129,3 +129,27 @@ sudo apachectl configtest && sudo systemctl reload apache2
 - [ ] Keep the server updated: `apt install unattended-upgrades`
 - [ ] SSH: keys only (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`), `fail2ban`
 - [ ] Firewall: only the ports the router forwards, SSH from the LAN only
+
+---
+
+## Files kept on the server (not in Git)
+
+Two folders of the server are served read-only by the containers, at the same
+URLs as before — no rebuild needed when you add or remove files:
+
+| Folder on the server | URL | Use |
+|---|---|---|
+| `/opt/50bvd-files/img/` | `https://50bvd.com/assets/img/…` | shared images and downloads (the old site's `assets/img`) |
+| `/opt/50bvd-files/roms/` | `https://50bvd.com/assets/roms/…` | GBA emulator library (`./scripts/gba-library.sh` refreshes the list) |
+
+Move the old files once:
+
+```bash
+mkdir -p /opt/50bvd-files
+cp -a /root/50bvd-site/assets/img /opt/50bvd-files/img
+./scripts/deploy.sh all          # also fixes permissions (folders 755, files 644)
+```
+
+Upload new files with SFTP (MobaXterm's side panel, WinSCP, FileZilla) or
+`scp file root@srv-docker:/opt/50bvd-files/img/folder/` — they are online
+immediately. Folder listings are disabled: share direct links to the files.
