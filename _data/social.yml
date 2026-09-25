@@ -1,6 +1,6 @@
 # _data/social.yml
-# Liens réseaux sociaux affichés dans le footer et la sidebar
-# Mettez url à "" pour masquer un réseau
+# Social links shown in the footer and the sidebar
+# Set url to "" to hide a network
 
 links:
   - name:  "GitHub"

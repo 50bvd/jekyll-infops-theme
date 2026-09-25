@@ -135,7 +135,7 @@ fonts:
   mono: ""   # empty = JetBrains Mono
 ```
 
-Any Google Fonts name works. The theme builds the font URL with only the weights it uses and appends `&display=swap`.
+The defaults are self-hosted. Any Google Fonts name works: the theme builds the font URL with only the weights it uses, appends `&display=swap` and allows Google Fonts in the CSP.
 
 **Recommended pairings:**
 

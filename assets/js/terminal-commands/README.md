@@ -40,5 +40,5 @@ window.Terminal.register({
 });
 ```
 
-Load it in `_layouts/default.html` after `hero-terminal.js`, then type `hello` in the terminal.
+Load it in `_layouts/default.html` next to the other command scripts (inside the `{% if load_terminal %}` block: commands are only loaded on pages that have a terminal), then type `hello` in the terminal.
 `window.Terminal` is defined on every page, so command files can safely be loaded site-wide.

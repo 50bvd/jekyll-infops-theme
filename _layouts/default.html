@@ -38,16 +38,18 @@
   {% comment %} jekyll-seo-tag : <title>, description, canonical, Open Graph, Twitter card, JSON-LD {% endcomment %}
   {% seo %}
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  {% include custom-styles.html %}
+  {% comment %} Default fonts are self-hosted (_sass/_fonts.scss): preload the main text face {% endcomment %}
+  {% unless site.data.theme.fonts.sans and site.data.theme.fonts.sans != "" %}
+  <link rel="preload" href="{{ '/assets/vendor/fonts/inter-latin-wght-normal.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
+  {% endunless %}
 
   {% comment %} Font Awesome 6.7.2 and Prism 1.30.0 are served from the site itself (assets/vendor/) — no CDN needed {% endcomment %}
+  {% assign prism_theme = site.data.theme.code.theme | default: 'prism-tomorrow' | slugify %}
   <link rel="stylesheet" href="{{ '/assets/vendor/fontawesome/css/all.min.css' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/vendor/prism/themes/prism-tomorrow.min.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/vendor/prism/themes/' | append: prism_theme | append: '.min.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  {% comment %} After style.css on purpose: options from _data/theme.yml override the theme {% endcomment %}
+  {% include custom-styles.html %}
   <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
 
   {% feed_meta %}
@@ -119,7 +121,6 @@
   <script src="{{ '/assets/js/modules/goatcounter-widget.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/modules/reading-progress.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/modules/toc.js'              | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/reading-stats.js'    | relative_url }}" defer></script>
   <script src="{{ '/assets/js/modules/search.js'           | relative_url }}" defer></script>
   <script src="{{ '/assets/js/modules/lazy-load.js'        | relative_url }}" defer></script>
   <script src="{{ '/assets/js/modules/lightbox.js'         | relative_url }}" defer></script>
@@ -127,6 +128,13 @@
 
   <!-- Terminal engine: always loaded so window.Terminal.register() works on every page -->
   <script src="{{ '/assets/js/modules/hero-terminal.js'    | relative_url }}" defer></script>
+
+  {% comment %} Commands and games only where there is a terminal to run them (home hero,
+     or any page with `terminal: true` in its front matter) — saves ~150 KB elsewhere {% endcomment %}
+  {% assign load_terminal = false %}
+  {% if has_hero and site.theme_config.show_terminal != false and site.theme_config.terminal.enabled != false %}{% assign load_terminal = true %}{% endif %}
+  {% if page.terminal %}{% assign load_terminal = true %}{% endif %}
+  {% if load_terminal %}
 
   <script src="{{ '/assets/js/terminal-commands/help.js'    | relative_url }}" defer></script>
   <script src="{{ '/assets/js/terminal-commands/system.js'  | relative_url }}" defer></script>
@@ -137,6 +145,7 @@
   <script src="{{ '/assets/js/terminal-commands/snake.js'   | relative_url }}" defer></script>
   <script src="{{ '/assets/js/terminal-commands/tetris.js'  | relative_url }}" defer></script>
   <script src="{{ '/assets/js/terminal-commands/2048.js'    | relative_url }}" defer></script>
+  {% endif %}
 
 </body>
 </html>

@@ -65,7 +65,15 @@
     }
 
     if (inline)   inline.replaceChildren(build());
-    if (floating) floating.replaceChildren(build());
+    if (floating) {
+      floating.replaceChildren(build());
+      // Close the floating panel once a heading is picked (it covers the text on phones)
+      floating.addEventListener('click', e => {
+        if (!e.target.closest('a') || !floatWrap) return;
+        floatWrap.classList.remove('open');
+        if (floatBtn) floatBtn.setAttribute('aria-expanded', 'false');
+      });
+    }
 
     const links = Array.from(document.querySelectorAll('.toc-content a, #floating-toc-list a'));
     const obs = new IntersectionObserver(entries => {

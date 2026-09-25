@@ -29,7 +29,7 @@
   color: var(--text-secondary); font-size: 0.9rem; text-decoration: none; transition: all var(--transition-fast);
   &:hover { background: rgba(88,166,255,.1); border-color: var(--social-color, var(--accent-blue)); color: var(--social-color, var(--accent-blue)); transform: translateY(-2px); }
 }
-.footer-heading { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; }
+.footer-heading { margin-top: 0; line-height: 1.4; font-family: var(--font-sans); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; }
 .footer-links {
   list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;
   a { color: var(--text-secondary); font-size: 0.875rem; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; transition: color var(--transition-fast), padding-left var(--transition-fast); i { font-size: 0.7rem; color: var(--text-muted); } &:hover { color: var(--accent-blue); padding-left: 4px; } }

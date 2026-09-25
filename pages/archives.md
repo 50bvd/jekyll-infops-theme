@@ -10,7 +10,7 @@ permalink: /archives/
       <h1 style="display:flex;align-items:center;gap:.6rem;color:var(--accent-blue);">
         <i class="fas fa-archive" aria-hidden="true"></i> Archives
       </h1>
-      <p style="color:var(--text-secondary);margin:0;">{{ site.posts | size }} articles publiés.</p>
+      <p style="color:var(--text-secondary);margin:0;">{{ site.posts | size }} articles published.</p>
     </header>
 
     {% assign postsByYear = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}

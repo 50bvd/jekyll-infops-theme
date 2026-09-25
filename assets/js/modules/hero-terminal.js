@@ -422,18 +422,28 @@
   window.TerminalApplyColor = applyColor;
 
   // ── Print ─────────────────────────────────────────────────────────────────
+  // Lines are appended right away (or after `delay` ms); trimming and
+  // scrolling happen once per frame however many lines were printed.
+  var scrollPending = false;
   function trimOutput() {
-    while (output.childElementCount > cfg.maxLines) output.removeChild(output.firstElementChild);
-    output.scrollTop = output.scrollHeight;
+    if (scrollPending) return;
+    scrollPending = true;
+    requestAnimationFrame(function() {
+      scrollPending = false;
+      while (output.childElementCount > cfg.maxLines) output.removeChild(output.firstElementChild);
+      output.scrollTop = output.scrollHeight;
+    });
+  }
+  function appendLine(text, cls) {
+    var line = document.createElement('div');
+    line.className = 'terminal-line ' + (cls || 'term-out');
+    line.textContent = text;
+    output.appendChild(line);
+    trimOutput();
   }
   function printLine(text, cls, delay) {
-    setTimeout(function() {
-      var line = document.createElement('div');
-      line.className = 'terminal-line ' + (cls || 'term-out');
-      line.textContent = text;
-      output.appendChild(line);
-      trimOutput();
-    }, delay || 0);
+    if (delay > 0) setTimeout(function() { appendLine(text, cls); }, delay);
+    else appendLine(text, cls);
   }
   function printLines(arr, cls, base) { arr.forEach(function(l, i) { printLine(l, cls || 'term-out', (base || 0) + i * 55); }); }
   function clearOutput() { output.textContent = ''; }

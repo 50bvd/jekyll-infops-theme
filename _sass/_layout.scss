@@ -149,18 +149,18 @@ body > * { position: relative; z-index: 1; }
 }
 
 // --------------------------------------------------------------------------
-// Post Body — typographie soignée
+// Post body — typography
 // --------------------------------------------------------------------------
 .post-body {
   font-size: 1.05rem;
   line-height: 1.85;
   color: var(--text-primary);
 
-  // Espacement vertical rythmé — pas de > * + * qui cause des doubles marges
+  // Vertical rhythm — no `> * + *`, which doubled the margins
   p          { margin-bottom: 1.4rem; }
   p:last-child { margin-bottom: 0; }
 
-  // Headings avec ancres visuelles
+  // Headings with visual anchors
   h2 {
     font-size: clamp(1.3rem, 2.5vw, 1.7rem);
     font-weight: 800;
@@ -206,7 +206,7 @@ body > * { position: relative; z-index: 1; }
     margin-bottom: 0.5rem;
   }
 
-  // Listes — bien espacées, pas écrasées
+  // Lists — comfortable spacing
   ul, ol {
     padding-left: 1.75rem;
     margin-bottom: 1.4rem;
@@ -228,11 +228,11 @@ body > * { position: relative; z-index: 1; }
   ul { list-style: disc; }
   ol { list-style: decimal; }
 
-  // Strong/em dans les paragraphes
+  // Strong / em in paragraphs
   strong { font-weight: 700; color: var(--text-primary); }
   em     { font-style: italic; color: var(--text-secondary); }
 
-  // Liens dans le contenu
+  // Links in the content
   a:not(.btn):not(.tag):not(.callout-title) {
     color: var(--accent-blue);
     text-decoration-line: underline;
@@ -256,7 +256,7 @@ body > * { position: relative; z-index: 1; }
     max-width: 100%;
   }
 
-  // Séparateur
+  // Separator
   hr {
     border: none;
     border-top: 1px solid var(--border-color);

@@ -10,9 +10,9 @@
   var code = el && el.getAttribute('data-goatcounter');
   if (!el || !code || code.indexOf('YOUR') !== -1 || !/^[a-z0-9-]+$/i.test(code)) return;
 
-  // GoatCounter expose les stats publiques via un endpoint JSON sans auth
-  // si "Allow public access to stats" est activé dans Settings.
-  // Sinon on tente quand même — les erreurs CORS sont silencieuses.
+  // GoatCounter serves public stats as JSON without authentication when
+  // "Allow public access to stats" is enabled in its Settings; otherwise the
+  // request fails quietly and a link to the dashboard is shown instead.
   var now   = new Date();
   var start = new Date(now.getTime() - 30 * 24 * 3600 * 1000);
   var fmt   = function(d) {
@@ -38,7 +38,7 @@
     el.textContent = v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v > 0 ? String(v) : '—';
   })
   .catch(function(err) {
-    // 403 = stats non publiques, afficher lien vers dashboard
+    // 403 = stats are not public: link to the dashboard instead
     if (err === 'auth-required') {
       var link = document.createElement('a');
       link.href = 'https://' + code + '.goatcounter.com';
