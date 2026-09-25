@@ -55,6 +55,8 @@ layout: default
       {% endif %}
     </header>
 
+    {% if cfg.covers.show_on_posts != false %}{% include cover.html post=page class="post-cover" loading="eager" %}{% endif %}
+
     {% if page.toc and cfg.show_toc != false %}
     <div class="toc-wrapper">
       <details class="toc-details" open>

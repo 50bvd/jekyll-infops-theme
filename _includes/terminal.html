@@ -1,0 +1,25 @@
+{% comment %}
+  _includes/terminal.html — a terminal session rendered like a screenshot.
+
+  {% capture shot %}
+  $ pihole -c
+  Blocked queries: 28%
+  {% endcapture %}
+  {% include terminal.html content=shot title="pi@pihole: ~" prompt="pi@pihole:~" caption="Optional caption" %}
+
+  · Lines starting with "$ " are commands (shown after the prompt), "# " = root prompt,
+    everything else is output. Lines starting with "! " are shown as errors.
+  · Parameters: content (required), title, prompt (default "user@host:~"), caption.
+  · Content is HTML-escaped: paste raw terminal text.
+{% endcomment %}
+{% assign _prompt = include.prompt | default: "user@host:~" %}
+{% assign _lines = include.content | strip | newline_to_br | split: "<br />" %}
+<figure class="term-shot">
+  <div class="term-shot-bar" aria-hidden="true">
+    <span class="term-shot-dots"><i></i><i></i><i></i></span>
+    <span class="term-shot-title">{{ include.title | default: _prompt | escape }}</span>
+  </div>
+  <pre class="term-shot-body"><code>{% for raw in _lines %}{% assign line = raw | strip_newlines %}{% assign head = line | slice: 0, 2 %}{% if head == "$ " %}<span class="ts-prompt">{{ _prompt | escape }}$</span> <span class="ts-cmd">{{ line | slice: 2, 10000 | escape }}</span>{% elsif head == "# " %}<span class="ts-prompt ts-root">{{ _prompt | replace: "~", "" | escape }}~#</span> <span class="ts-cmd">{{ line | slice: 2, 10000 | escape }}</span>{% elsif head == "! " %}<span class="ts-err">{{ line | slice: 2, 10000 | escape }}</span>{% else %}<span class="ts-out">{{ line | escape }}</span>{% endif %}
+{% endfor %}</code></pre>
+  {% if include.caption %}<figcaption>{{ include.caption | markdownify | remove: "<p>" | remove: "</p>" | strip }}</figcaption>{% endif %}
+</figure>
