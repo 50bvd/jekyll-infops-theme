@@ -171,7 +171,7 @@
   .code-line-numbers {
     background: rgba(37,99,235,.04) !important;
     border-right-color: rgba(37,99,235,.12) !important;
-    span { color: #64748b !important; }
+    span { color: #4b5563 !important; }
   }
 
   pre { filter: none !important; color: #1a2535 !important; }
@@ -263,7 +263,7 @@
 .term-shot-dots i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f56; }
 .term-shot-dots i:nth-child(2) { background: #ffbd2e; }
 .term-shot-dots i:nth-child(3) { background: #27ca3f; }
-.term-shot-title { flex: 1; text-align: center; margin-right: 45px; font-size: .75rem; color: rgba(88,166,255,.55); }
+.term-shot-title { flex: 1; text-align: center; margin-right: 45px; font-size: .75rem; color: #6f93c4; }
 .post-body .term-shot-body, .term-shot-body {
   margin: 0; padding: 1rem 1.2rem; border: 0; border-radius: 0; background: transparent;
   font-size: .82rem; line-height: 1.65; color: #c9d7ea; overflow-x: auto;
