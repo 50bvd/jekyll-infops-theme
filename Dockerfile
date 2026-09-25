@@ -70,20 +70,26 @@ COPY . .
 RUN JEKYLL_ENV=production bundle exec jekyll build \
       --config _config.yml,_config.perso.yml,_config.preprod.yml --destination /dist
 
-# ─── Preprod : Apache httpd (same rules as the production vhost) ─────────────
-FROM httpd:2.4-alpine AS preprod
+# ─── Apache httpd image shared by prod-httpd and preprod ─────────────────────
+FROM httpd:2.4-alpine AS httpd-base
 
-COPY apache/security-headers.conf apache/site-common.conf /usr/local/apache2/conf/infops/
-COPY apache/preprod-httpd.conf /usr/local/apache2/conf/infops/preprod-httpd.conf
-RUN echo "Include conf/infops/preprod-httpd.conf" >> /usr/local/apache2/conf/httpd.conf \
+COPY apache/security-headers.conf apache/site-common.conf apache/container-httpd.conf /usr/local/apache2/conf/infops/
+RUN echo "Include conf/infops/container-httpd.conf" >> /usr/local/apache2/conf/httpd.conf \
  && rm -rf /usr/local/apache2/htdocs/*
-
-COPY --from=builder-preprod /dist /usr/local/apache2/htdocs
 
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
+
+# ─── Production: Apache httpd container serving 50bvd.com ────────────────────
+FROM httpd-base AS prod-httpd
+COPY --from=builder /dist /usr/local/apache2/htdocs
+
+# ─── Preprod: same image, noindex build + X-Robots-Tag ───────────────────────
+FROM httpd-base AS preprod
+COPY --from=builder-preprod /dist /usr/local/apache2/htdocs
+CMD ["httpd-foreground", "-DPREPROD"]
 
 # ─── Stage 4 : production (nginx léger) ──────────────────────────────────────
 FROM nginx:stable-alpine AS prod

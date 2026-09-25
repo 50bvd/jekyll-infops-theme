@@ -2,19 +2,21 @@
 # =============================================================================
 # scripts/deploy.sh — deploy 50bvd.com on the home server
 #
-#   ./scripts/deploy.sh prod      build with Docker, publish to Apache (host)
-#   ./scripts/deploy.sh preprod   (re)build and restart the preprod container
-#   ./scripts/deploy.sh all       both
+#   ./scripts/deploy.sh preprod   rebuild + restart the preprod container (127.0.0.1:8081)
+#   ./scripts/deploy.sh prod      rebuild + restart the production container (port 4000)
+#   ./scripts/deploy.sh all       preprod, then prod
+#   ./scripts/deploy.sh host      alternative: publish to Apache installed on the host
+#                                 (/var/www/50bvd.com, see DEPLOY.md)
 #
-# Requirements on the server: git, Docker (with buildx), Apache 2.4, rsync.
-# No Ruby needed: Jekyll runs inside Docker.
-#
-# Overridable: WEB_ROOT (default /var/www/50bvd.com), BRANCH (default site/perso)
+# Requirements: git, Docker (buildx + compose). No Ruby needed on the server.
+# Overridable: BRANCH (site/perso), PROD_PORT (4000), PREPROD_PORT (8081),
+#              WEB_ROOT (/var/www/50bvd.com, "host" mode only)
 # =============================================================================
 set -euo pipefail
 
-WEB_ROOT="${WEB_ROOT:-/var/www/50bvd.com}"
 BRANCH="${BRANCH:-site/perso}"
+WEB_ROOT="${WEB_ROOT:-/var/www/50bvd.com}"
+COMPOSE="docker compose -f docker-compose.50bvd.yml"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_DIR"
 
@@ -32,36 +34,35 @@ update_sources() {
   fi
 }
 
-deploy_prod() {
+# Build first, swap containers only if the build succeeded (no downtime on failure)
+deploy_service() {
+  local svc="$1"
+  log "Building $svc"
+  $COMPOSE build "$svc"
+  log "Restarting $svc"
+  $COMPOSE up -d --no-build "$svc"
+  sleep 2
+  $COMPOSE ps "$svc"
+}
+
+deploy_host() {
   command -v rsync >/dev/null || die "rsync is not installed"
   local out; out="$(mktemp -d)"
   trap 'rm -rf "$out"' RETURN
-
   log "Building the production site (Docker)"
   docker build --target site-export --output "type=local,dest=$out" .
-
   [ -f "$out/index.html" ] || die "build produced no index.html — nothing deployed"
-
   log "Publishing to $WEB_ROOT"
   sudo mkdir -p "$WEB_ROOT"
   sudo rsync -a --delete --chmod=D755,F644 "$out"/ "$WEB_ROOT"/
-
-  if command -v apachectl >/dev/null; then
-    sudo apachectl configtest && sudo apachectl graceful
-  fi
-  log "Production deployed → https://50bvd.com"
-}
-
-deploy_preprod() {
-  log "Building and restarting the preprod container"
-  docker compose -f docker-compose.preprod.yml up -d --build
-  docker image prune -f >/dev/null
-  log "Preprod up → http://127.0.0.1:8081 (on the server)"
+  if command -v apachectl >/dev/null; then sudo apachectl configtest && sudo apachectl graceful; fi
 }
 
 case "${1:-}" in
-  prod)    update_sources; deploy_prod ;;
-  preprod) update_sources; deploy_preprod ;;
-  all)     update_sources; deploy_preprod; deploy_prod ;;
-  *) echo "Usage: $0 {prod|preprod|all}"; exit 1 ;;
+  preprod) update_sources; deploy_service preprod; log "Preprod → http://127.0.0.1:${PREPROD_PORT:-8081}" ;;
+  prod)    update_sources; deploy_service prod;    log "Production → port ${PROD_PORT:-4000}" ;;
+  all)     update_sources; deploy_service preprod; deploy_service prod ;;
+  host)    update_sources; deploy_host; log "Production (host Apache) → $WEB_ROOT" ;;
+  *) echo "Usage: $0 {preprod|prod|all|host}"; exit 1 ;;
 esac
+docker image prune -f >/dev/null 2>&1 || true

@@ -1,0 +1,45 @@
+# =============================================================================
+# docker-compose.50bvd.yml — 50bvd.com on the home server (Apache httpd)
+#
+#   ./scripts/deploy.sh prod | preprod | all      (recommended)
+#   docker compose -f docker-compose.50bvd.yml up -d --build
+#
+# prod    : replaces the old WEBrick container on the same port (4000 by
+#           default), so the router / reverse proxy in front needs no change.
+# preprod : 127.0.0.1:8081 only, noindex, no analytics / comments.
+# Both containers are read-only with all Linux capabilities dropped except
+# the ones Apache needs to bind its port and drop to its unprivileged user.
+# =============================================================================
+
+x-hardening: &hardening
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /usr/local/apache2/logs
+  cap_drop: [ALL]
+  cap_add: [NET_BIND_SERVICE, SETUID, SETGID]
+  security_opt:
+    - no-new-privileges:true
+  environment:
+    - TZ=Europe/Paris
+
+services:
+  prod:
+    <<: *hardening
+    build:
+      context: .
+      target:  prod-httpd
+    image: 50bvd/site:prod
+    container_name: 50bvd-prod
+    ports:
+      - "${PROD_PORT:-4000}:80"
+
+  preprod:
+    <<: *hardening
+    build:
+      context: .
+      target:  preprod
+    image: 50bvd/site:preprod
+    container_name: 50bvd-preprod
+    ports:
+      - "127.0.0.1:${PREPROD_PORT:-8081}:80"
