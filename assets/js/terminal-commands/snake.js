@@ -75,7 +75,7 @@
           var d = g.data, light = g.light(), ac = g.accent();
           var key = ac.r + ',' + ac.g + ',' + ac.b + (light ? 'L' : 'D');
           c.drawImage(g.layer('board', function(l) {
-            l.fillStyle = light ? '#f0f4fc' : '#050a12';
+            l.fillStyle = light ? '#e3e6eb' : '#050a12';
             l.fillRect(0, 0, g.W, g.H);
             l.fillStyle = g.color(light ? 0.18 : 0.12);
             for (var y = 0; y < ROWS; y++) for (var x = 0; x < COLS; x++) l.fillRect(x * CS + CS / 2 - 1, y * CS + CS / 2 - 1, 2, 2);

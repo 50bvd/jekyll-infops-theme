@@ -99,13 +99,13 @@
         render: function(c, g) {
           var d = g.data, light = g.light(), ac = g.accent();
           c.drawImage(g.layer('maze', function(l) {
-            l.fillStyle = light ? '#eef3fc' : '#050a12'; l.fillRect(0, 0, W, H);
+            l.fillStyle = light ? '#e3e6eb' : '#050a12'; l.fillRect(0, 0, W, H);
             l.save(); l.translate(0, TOP);
             l.shadowColor = g.color(0.55); l.shadowBlur = 8;
             l.fillStyle = g.color(light ? 0.85 : 0.75);
             for (var y = 0; y < MR; y++) for (var x = 0; x < MC; x++) if (MAP[y][x] === 1) l.fillRect(x * CS + 3, y * CS + 3, CS - 6, CS - 6);
             l.shadowBlur = 0;
-            l.fillStyle = light ? '#eef3fc' : '#050a12';   // hollow walls look lighter
+            l.fillStyle = light ? '#e3e6eb' : '#050a12';   // hollow walls look lighter
             for (var y2 = 0; y2 < MR; y2++) for (var x2 = 0; x2 < MC; x2++) if (MAP[y2][x2] === 1) l.fillRect(x2 * CS + 7, y2 * CS + 7, CS - 14, CS - 14);
             l.fillStyle = '#ffb4ff'; l.fillRect(10 * CS + 3, 5 * CS + CS * 0.42, CS - 6, 4);
             l.restore();

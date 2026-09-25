@@ -37,10 +37,10 @@
 
 /* Light theme */
 [data-theme="light"] .terminal-window {
-  --term-color: 37,99,235;
-  background: #f5f8ff;
-  border: 1px solid rgba(37,99,235,.2);
-  box-shadow: 0 0 0 1px rgba(37,99,235,.1), 0 12px 32px rgba(37,99,235,.1), 0 4px 16px rgba(0,0,0,.07);
+  --term-color: 30,79,196;
+  background: #e6e9ee;
+  border: 1px solid rgba(30,79,196,.18);
+  box-shadow: 0 0 0 1px rgba(30,37,48,.05), 0 12px 30px rgba(30,37,48,.1);
 }
 [data-theme="light"] .terminal-window::before {
   background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(37,99,235,.015) 3px, rgba(37,99,235,.015) 4px);
@@ -96,7 +96,7 @@ body.term-fullscreen .back-to-top { display: none !important; }
   position: relative; z-index: 12; flex-shrink: 0; user-select: none;
   background: #0a1628; border-bottom: 1px solid rgba(88,166,255,.14);
 }
-[data-theme="light"] .terminal-header { background: #e8f0fe; border-bottom: 1px solid rgba(37,99,235,.15); }
+[data-theme="light"] .terminal-header { background: #dde1e8; border-bottom: 1px solid rgba(30,37,48,.1); }
 
 .terminal-dots { display: flex; gap: 6px; flex-shrink: 0; }
 .dot { position: relative; width: 13px; height: 13px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform .15s ease; flex-shrink: 0; }
@@ -209,8 +209,8 @@ body.term-fullscreen .back-to-top { display: none !important; }
   animation: termBlink 1.2s step-end infinite;
 }
 [data-theme="light"] .terminal-launcher {
-  color: #1d4ed8; background: #f5f8ff; border-color: rgba(37,99,235,.25);
-  box-shadow: 0 10px 24px rgba(37,99,235,.12);
+  color: var(--accent-blue); background: var(--bg-surface); border-color: rgba(30,79,196,.25);
+  box-shadow: 0 8px 20px rgba(30,37,48,.1);
 }
 
 // Closed by the user (any device) → launcher only

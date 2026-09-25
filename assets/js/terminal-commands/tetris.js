@@ -92,8 +92,8 @@
           var d = g.data, light = g.light(), ac = g.accent();
           var txt = light ? 'rgba(17,24,39,.88)' : 'rgba(230,237,243,.92)', dim = g.color(0.7);
           c.drawImage(g.layer('frame', function(l) {
-            l.fillStyle = light ? '#f0f4fc' : '#050a12'; l.fillRect(0, 0, W, H);
-            l.fillStyle = light ? '#e6ecf7' : '#070e1a'; l.fillRect(BX, BY, COLS * CS, ROWS * CS);
+            l.fillStyle = light ? '#e3e6eb' : '#050a12'; l.fillRect(0, 0, W, H);
+            l.fillStyle = light ? '#dadee5' : '#070e1a'; l.fillRect(BX, BY, COLS * CS, ROWS * CS);
             l.strokeStyle = g.color(0.08); l.lineWidth = 1;
             for (var x = 1; x < COLS; x++) { l.beginPath(); l.moveTo(BX + x * CS + .5, BY); l.lineTo(BX + x * CS + .5, BY + ROWS * CS); l.stroke(); }
             for (var y = 1; y < ROWS; y++) { l.beginPath(); l.moveTo(BX, BY + y * CS + .5); l.lineTo(BX + COLS * CS, BY + y * CS + .5); l.stroke(); }

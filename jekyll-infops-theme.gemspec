@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "jekyll-infops-theme"
-  spec.version       = "1.5.0"
+  spec.version       = "1.5.1"
   spec.authors       = ["50bvd"]
   spec.email         = [""]
 

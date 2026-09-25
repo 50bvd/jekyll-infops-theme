@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.1
+
+- **Softer light theme**: muted "paper" blue-grey surfaces instead of near-white ones, softer ink for the text, lighter shadows and background particles. Still WCAG AA everywhere (axe-core: 0 violations).
+- The terminal "screenshots" in articles now follow the light theme (they stayed dark), and inline-code styling no longer leaks into code blocks in light mode.
+- Post header: the reading time and word count no longer show a pill inside the pill.
+- Comments: when Disqus is blocked (ad / tracker blocker, tracking prevention) or doesn't answer, a short explanation is shown instead of an empty area.
+- Games and the terminal window use the same soft tones in light mode.
+
 ## 1.5.0
 
 ### Search

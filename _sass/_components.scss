@@ -148,8 +148,8 @@
   box-shadow: 0 0 0 1px rgba(37,99,235,.12), 0 4px 16px rgba(17,24,39,.1);
 
   .code-block-header {
-    background: #dce8f8 !important;
-    border-bottom: 1px solid rgba(37,99,235,.18) !important;
+    background: #d9dee6 !important;
+    border-bottom: 1px solid var(--border-color) !important;
     &::before { color: rgba(37,99,235,.3) !important; }
     .code-lang {
       color: #1d4ed8 !important;
@@ -163,7 +163,7 @@
   }
 
   .code-block-body {
-    background: #eef4ff !important;           // light blue, definitely NOT black
+    background: var(--code-bg) !important;    // soft grey-blue, never black nor white
     &::before { display: none !important; }   // no scanlines
     &::after  { display: none !important; }   // no sweep
   }
@@ -183,8 +183,8 @@
   .token.number, .token.constant, .token.symbol, .token.deleted { color: #005cc5 !important; }
   .token.selector, .token.attr-name, .token.string, .token.char,
   .token.builtin, .token.inserted             { color: #032f62 !important; }
-  .token.operator, .token.entity, .token.url  { color: #cf222e !important; }
-  .token.atrule, .token.attr-value, .token.keyword { color: #cf222e !important; font-weight: 600; }
+  .token.operator, .token.entity, .token.url  { color: #b31d28 !important; }
+  .token.atrule, .token.attr-value, .token.keyword { color: #b31d28 !important; font-weight: 600; }
   .token.function, .token.class-name          { color: #6f42c1 !important; }
   .token.regex, .token.important, .token.variable { color: #953800 !important; }
   code { color: #24292e !important; }
@@ -278,7 +278,18 @@
   padding: .55rem 1rem; font-size: .8rem; color: var(--text-muted); font-style: normal; text-align: left;
   border-top: 1px solid var(--border-subtle); background: var(--bg-secondary);
 }
-[data-theme="light"] .term-shot { box-shadow: 0 8px 22px rgba(17,24,39,.18); }
+// Light theme: the terminal captures follow the theme (they stayed dark before)
+[data-theme="light"] {
+  .term-shot { background: var(--code-bg); border-color: var(--border-color); box-shadow: 0 6px 18px rgba(30,37,48,.1); }
+  .term-shot-bar { background: #d9dee6; border-bottom-color: var(--border-color); }
+  .term-shot-title { color: var(--text-muted); }
+  .term-shot-body, .post-body .term-shot-body { color: var(--text-primary); }
+  .ts-prompt { color: #166534; }
+  .ts-prompt.ts-root { color: #b91c1c; }
+  .ts-cmd  { color: var(--text-primary); }
+  .ts-out  { color: #3f4a5a; }
+  .ts-err  { color: #b91c1c; }
+}
 
 // --------------------------------------------------------------------------
 // Interface screenshot (_includes/screenshot.html) + lightbox
