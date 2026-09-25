@@ -9,15 +9,19 @@ Each file registers one or more commands via `window.Terminal.register()`.
 | `help.js` | `help`, `?` — auto-builds table from registry |
 | `system.js` | `clear`, `cls` |
 | `color.js` | `color <name\|#hex\|reset>` |
-| `fun.js` | `matrix` |
-| `pong.js` | 🎮 Pong |
-| `pacman.js` | 🎮 Pac-Man |
+| `fun.js` | `matrix`, `sl`, `hack`, `fortune`, `cowsay`, `joke`, `8ball`, `flip`, `roll`, `rps`, `sudo`, `neofetch`, `whoami`, `date`, `uptime`, `echo`, `history`, `theme`, `ls`, `open` |
+| `pong.js` | 🏓 Pong |
+| `pacman.js` | 🟡 Pac-Man |
 | `snake.js` | 🐍 Snake |
-| `tetris.js` | 🎮 Tetris |
+| `tetris.js` | 🧱 Tetris |
+| `2048.js` | 🔢 2048 |
+
+Games run on the shared engine `ctx.createGame()` (same window size for every
+game, scaled in fullscreen, fixed 60 Hz update, pause / replay / best score).
 
 ## Built-in shortcuts
 
-`Tab` autocomplete · `↑/↓` history · `Ctrl+C` stop · `Ctrl+L` clear · `Esc` quit game / fullscreen
+`Tab` autocomplete · `↑/↓` history · `Ctrl+C` stop · `Ctrl+L` clear · `Esc` quit game / fullscreen · in games: `P` pause, `R` replay
 
 ## Adding a command
 

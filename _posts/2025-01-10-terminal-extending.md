@@ -21,11 +21,12 @@ assets/js/
     ├── help.js                 ← Auto-built from registry
     ├── system.js               ← clear / cls
     ├── color.js                ← color command
-    ├── fun.js                  ← matrix
-    ├── pong.js                 ← Canvas game
-    ├── pacman.js               ← Canvas game
-    ├── snake.js                ← Canvas game
-    └── tetris.js               ← Canvas game
+    ├── fun.js                  ← matrix, sl, hack, fortune, cowsay, ls/open…
+    ├── pong.js                 ← Game (ctx.createGame)
+    ├── pacman.js               ← Game (ctx.createGame)
+    ├── snake.js                ← Game (ctx.createGame)
+    ├── tetris.js               ← Game (ctx.createGame)
+    └── 2048.js                 ← Game (ctx.createGame)
 ```
 
 Every command file calls `window.Terminal.register()` and is loaded via a `<script>` tag in `_layouts/default.html`.
@@ -73,10 +74,13 @@ The `ctx` object is passed to every command's `run` function.
 | `ctx.clearOutput()` | Clear the terminal |
 | `ctx.hideOutput()` | Hide output + input (for games) |
 | `ctx.showOutput()` | Restore output + input |
-| `ctx.stopGame()` | Stop canvas loop, restore terminal |
+| `ctx.createGame(spec)` | Run a canvas game on the shared engine (see below) |
+| `ctx.stopGame()` | Stop the running game, restore terminal |
 | `ctx.canvas` | The `<canvas>` element |
-| `ctx.getGameDimensions()` | Returns `{W, H}` — usable canvas size |
-| `ctx.resizeForGame(W, H)` | Resize terminal to fit game, returns Promise |
+| `ctx.history()` | Copy of the command history (newest first) |
+| `ctx.neofetch()` | Print the boot banner again |
+| `ctx.getGameDimensions()` | *Legacy* — returns `{W, H}`, usable canvas size |
+| `ctx.resizeForGame(W, H)` | *Legacy* — resize terminal to fit a game, returns Promise |
 | `ctx.getAccentColor()` | Returns `{r, g, b}` — current user/theme accent |
 | `ctx.isFullscreen()` | `true` if terminal is in fullscreen mode |
 | `ctx.gameLoop.set(handle)` | Set rAF handle |
@@ -116,68 +120,88 @@ window.Terminal.register({
 
 ## Canvas games
 
-### Pattern: resizeForGame + getAccentColor
+### `ctx.createGame(spec)` — the shared game engine
+
+Every built-in game runs on `ctx.createGame`. You describe the game at a fixed
+**logical resolution** and draw in those units; the engine takes care of the rest:
+
+- **same window for every game** — sized to the viewport and the hero frame,
+  the whole window in fullscreen, the whole screen on phones. The game is
+  scaled to fit, centred (letterboxed) and sharp on HiDPI screens;
+- **fixed 60 Hz update** whatever the monitor refresh rate (a 144 Hz screen no longer runs games 2.4× faster), one render per frame;
+- **P** pause (also when the tab is hidden), **R / Enter** replay after game over,
+  **Esc / Ctrl+C** quit, best score saved per game, live resize and fullscreen switch;
+- every listener is removed on exit.
 
 ```javascript
-(function() {
-  var keyH = null;
-  function cleanup(ctx) {
-    if (keyH) document.removeEventListener('keydown', keyH);
-    keyH = null;
-    ctx.stopGame();
+window.Terminal.register({
+  name: 'dodge',
+  help: ['dodge', 'Dodge the blocks  (← →)', 'games'],
+  touch: { drag: true },                     // phones: finger drag → onPointer
+  run: function(args, ctx) {
+    ctx.createGame({
+      name: 'dodge', title: '🟦 DODGE', controls: '← → or mouse',
+      width: 600, height: 400,               // logical size: draw in these units
+      keys: ['ArrowLeft', 'ArrowRight'],     // keys the page must not scroll with
+
+      init: function(g) {                    // also called on replay (R)
+        g.data.x = 300; g.data.rocks = []; g.data.spawn = 0;
+      },
+      onPointer: function(g, x) { g.data.x = x; },
+      update: function(g, dt) {              // dt = 1/60 s, fixed
+        var d = g.data;
+        if (g.keys.ArrowLeft)  d.x -= 320 * dt;
+        if (g.keys.ArrowRight) d.x += 320 * dt;
+        d.x = Math.max(15, Math.min(g.W - 15, d.x));
+        if ((d.spawn -= dt) <= 0) { d.spawn = 0.5; d.rocks.push({ x: Math.random() * g.W, y: -20 }); }
+        d.rocks.forEach(function(r) { r.y += 220 * dt; });
+        d.rocks = d.rocks.filter(function(r) { return r.y < g.H + 20; });
+        if (d.rocks.some(function(r) { return Math.abs(r.x - d.x) < 25 && Math.abs(r.y - (g.H - 30)) < 20; })) g.end('SPLAT');
+        g.score = Math.floor(g.t * 10);
+      },
+      render: function(c, g) {
+        // static background drawn once, re-drawn only when the theme/accent changes
+        c.drawImage(g.layer('bg', function(l) {
+          l.fillStyle = g.light() ? '#f0f4fc' : '#050a12'; l.fillRect(0, 0, g.W, g.H);
+        }, g.light()), 0, 0, g.W, g.H);
+        c.fillStyle = g.color(1);                              // current accent colour
+        c.fillRect(g.data.x - 15, g.H - 40, 30, 20);
+        c.fillStyle = '#f85149';
+        g.data.rocks.forEach(function(r) { c.fillRect(r.x - 10, r.y - 10, 20, 20); });
+        c.fillText('SCORE ' + g.score + '  BEST ' + g.best, 10, 20);
+      }
+    });
   }
-
-  window.Terminal.register({
-    name: 'mygame',
-    help: ['mygame', 'My canvas game', 'games'],
-    run: function(args, ctx) {
-      ctx.stopGame(); ctx.hideOutput();
-
-      // Compute desired size from viewport
-      var W = Math.min(window.innerWidth - 40, 800);
-      var H = Math.min(window.innerHeight - 140, 500);
-
-      ctx.resizeForGame(W, H).then(function() {
-        var canvas = ctx.canvas; if (!canvas) return;
-        var dim = ctx.getGameDimensions();
-        W = dim.W; H = dim.H;
-        canvas.style.display = 'block'; canvas.style.height = H + 'px';
-        canvas.width = W; canvas.height = H;
-
-        var c = canvas.getContext('2d');
-        var x = W/2, y = H/2;
-
-        keyH = function(e) {
-          if (e.key === 'Escape') { cleanup(ctx); return; }
-          if (e.key === 'ArrowLeft')  x -= 8;
-          if (e.key === 'ArrowRight') x += 8;
-          if (e.key === 'ArrowUp')    y -= 8;
-          if (e.key === 'ArrowDown')  y += 8;
-        };
-        document.addEventListener('keydown', keyH);
-        ctx.printLine('Arrow keys · ESC to quit', 'term-out-bold');
-
-        function loop() {
-          // Read accent color every frame — changes instantly with color command
-          var ac = ctx.getAccentColor();
-          var light = document.documentElement.getAttribute('data-theme') === 'light';
-
-          c.fillStyle = light ? '#f0f4fc' : '#070d18';
-          c.fillRect(0, 0, W, H);
-
-          var color = 'rgba('+ac.r+','+ac.g+','+ac.b+',.9)';
-          c.beginPath(); c.arc(x, y, 20, 0, Math.PI * 2);
-          c.fillStyle = color; c.shadowColor = color; c.shadowBlur = 12;
-          c.fill(); c.shadowBlur = 0;
-
-          ctx.gameLoop.set(requestAnimationFrame(loop));
-        }
-        loop();
-      });
-    }
-  });
-})();
+});
 ```
+
+| `spec` field | |
+|---|---|
+| `name`, `title`, `controls` | Best-score key, start line printed in the terminal |
+| `width`, `height` | Logical resolution |
+| `keys` | Keys the game uses (their default action is prevented) |
+| `init(g)` | Set up `g.data`; called again on replay |
+| `update(g, dt)` | Game logic, `dt` = 1/60 s |
+| `render(c, g)` | Draw with the 2D context `c`, in logical units |
+| `onKey(g, key, down, e)` | Optional, key presses/releases (`g.keys[key]` also tracks held keys) |
+| `onPointer(g, x, y)` | Optional, mouse / finger position in logical units |
+| `exit(g)` | Optional, called when the game is closed |
+
+| `g` | |
+|---|---|
+| `g.W`, `g.H`, `g.t` | Logical size, game time in seconds |
+| `g.score`, `g.best` | Current / best score |
+| `g.data` | Your state (reset on replay) |
+| `g.keys` | Keys currently held |
+| `g.end(msg, won)` | Game over (or win) overlay, saves the best score |
+| `g.color(alpha)`, `g.accent()`, `g.light()` | Accent colour as `rgba()`, `{r,g,b}`, light theme? |
+| `g.layer(id, drawFn, deps)` | Cached offscreen drawing, redrawn when `deps` or the scale change |
+
+Tips: avoid `shadowBlur` on many shapes per frame (it is the most expensive
+canvas operation) and put everything static in a `g.layer`.
+
+The older pattern (`ctx.resizeForGame` + your own `requestAnimationFrame` loop
+and `ctx.gameLoop.set`) still works for existing games.
 
 ---
 
@@ -265,4 +289,4 @@ theme_config:
 
 - **Phones**: with `mobile: "button"` the terminal is not shown at page load; an *Open terminal* button opens it full screen, sized to the visible area so the on-screen keyboard never hides the prompt.
 - **Desktop**: double-click the title bar to toggle fullscreen. Closing the terminal (red dot or `exit`) leaves the *Open terminal* button to bring it back.
-- **Shortcuts**: `Tab` autocomplete · `↑/↓` history · `Ctrl+L` clear · `Ctrl+C` stop · `Esc` quit game / fullscreen.
+- **Shortcuts**: `Tab` autocomplete · `↑/↓` history · `Ctrl+L` clear · `Ctrl+C` stop · `Esc` quit game / fullscreen · `P` pause · `R` replay.
