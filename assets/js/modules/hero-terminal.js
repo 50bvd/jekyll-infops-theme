@@ -579,9 +579,11 @@
   //
   // spec = { name, width, height, keys: [...keys the game uses],
   //          init(g), update(g, dt), render(c, g), onKey(g, key, down, e),
-  //          onPointer(g, x, y) }
+  //          onPointer(g, x, y), exit(g),
+  //          integerScale: bool | fn → whole-number scaling only,
+  //          pauseOverlay: false → no "PAUSED" overlay (the game draws its own UI) }
   // g    = { W, H, t, score, best, over, paused, data, color(a), light(),
-  //          end(message, won), restart(), print(text, cls) }
+  //          end(message, won), restart(), print(text, cls), relayout() }
   var STEP = 1 / 60;
 
   function gameStage() {
@@ -657,6 +659,9 @@
       cssW = Math.round(s2.w); cssH = Math.round(s2.h);
       dpr   = Math.min(window.devicePixelRatio || 1, 2);
       scale = Math.min(cssW / g.W, cssH / g.H);
+      // optional pixel-perfect scaling (whole multiples only)
+      var intScale = typeof spec.integerScale === 'function' ? spec.integerScale() : spec.integerScale;
+      if (intScale && scale >= 1) scale = Math.floor(scale);
       ox = (cssW - g.W * scale) / 2; oy = (cssH - g.H * scale) / 2;
       canvas.style.display = 'block';
       canvas.style.width  = cssW + 'px';
@@ -666,6 +671,7 @@
       g.cache = {};                      // cached layers depend on the scale
       g.scale = scale;
     }
+    g.relayout = function() { layout(); };
 
     function drawOverlay(title, sub) {
       c2d.fillStyle = 'rgba(2,6,14,.62)';
@@ -698,7 +704,7 @@
       c2d.beginPath(); c2d.rect(0, 0, g.W, g.H); c2d.clip();
       spec.render(c2d, g);
       if (g.over) drawOverlay(g.message, 'score ' + g.score + '  ·  best ' + g.best + '  ·  R to replay  ·  Esc to quit');
-      else if (g.paused) drawOverlay('PAUSED', 'P to resume  ·  Esc to quit');
+      else if (g.paused && spec.pauseOverlay !== false) drawOverlay('PAUSED', 'P to resume  ·  Esc to quit');
       c2d.restore();
     }
 

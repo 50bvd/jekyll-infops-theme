@@ -17,7 +17,7 @@ GPSP_COMMIT="5819380c2ffb0900219d700a382ee68c464ebb99"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 WORK="${WORK:-$HERE/.build}"
-OUT="$ROOT/assets/vendor/gpsp"
+OUT="${OUT:-$ROOT/assets/vendor/gpsp}"
 
 command -v emcc >/dev/null || { echo "emcc not found: source <emsdk>/emsdk_env.sh first" >&2; exit 1; }
 
@@ -52,7 +52,7 @@ LC_SOURCES=(
 )
 CC_SOURCES=(video.cc cpu.cc)
 
-FLAGS=(-O3 -DNDEBUG -DHAVE_STRINGS_H -DHAVE_STDINT_H -DHAVE_INTTYPES_H -D__LIBRETRO__ -DINLINE=inline
+FLAGS=(-O3 ${OPT_FLAGS:-} -DNDEBUG -DHAVE_STRINGS_H -DHAVE_STDINT_H -DHAVE_INTTYPES_H -D__LIBRETRO__ -DINLINE=inline
        -I"$SRC/libretro" -I"$LC/include" -I"$SRC" -w)
 
 OBJ="$WORK/obj"; rm -rf "$OBJ"; mkdir -p "$OBJ"
@@ -67,12 +67,12 @@ emcc "${FLAGS[@]}" -c "$HERE/web_frontend.c"   -o "$OBJ/frontend.o"
 # No eval / new Function in the JS glue (works under the site's CSP; WebAssembly
 # compilation itself needs 'wasm-unsafe-eval', added by _includes/csp.html).
 mkdir -p "$OUT"
-em++ -O3 "$OBJ"/*.o -o "$OUT/gpsp.js" \
+em++ -O3 ${OPT_FLAGS:-} "$OBJ"/*.o -o "$OUT/gpsp.js" \
   -sMODULARIZE=1 -sEXPORT_NAME=createGpsp -sENVIRONMENT=web \
   -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=64MB -sSTACK_SIZE=1MB \
   -sDYNAMIC_EXECUTION=0 -sFILESYSTEM=1 -sFORCE_FILESYSTEM=1 \
   -sEXPORTED_RUNTIME_METHODS=FS,HEAPU8,HEAP16,HEAPU16 \
-  -sEXPORTED_FUNCTIONS=_malloc,_free,_gba_init,_gba_load,_gba_run_frame,_gba_reset,_gba_set_keys,_gba_frame_ptr,_gba_audio_ptr,_gba_audio_frames,_gba_sample_rate,_gba_fps,_gba_sram_ptr,_gba_sram_size,_gba_state_save,_gba_state_load,_gba_state_ptr,_gba_state_size \
+  -sEXPORTED_FUNCTIONS=_malloc,_free,_gba_init,_gba_load,_gba_run_frame,_gba_reset,_gba_set_keys,_gba_frame_ptr,_gba_audio_ptr,_gba_audio_frames,_gba_sample_rate,_gba_fps,_gba_sram_ptr,_gba_sram_size,_gba_state_save,_gba_state_load,_gba_state_ptr,_gba_state_size,_gba_set_option \
   -sEXIT_RUNTIME=0 -sASSERTIONS=0
 
 cp "$SRC/COPYING" "$OUT/COPYING"
