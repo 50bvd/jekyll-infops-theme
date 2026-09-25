@@ -487,7 +487,7 @@
           .then(function(j) {
             var arr = Array.isArray(j) ? j : (j && j.roms) || [];
             library = arr.filter(function(x) { return x && x.file; }).map(function(x) {
-              return { name: String(x.name || x.file), file: sameOrigin(new URL(String(x.file), url).href), size: +x.size || 0, info: String(x.info || '') };
+              return { name: String(x.name || x.file), file: sameOrigin(new URL(String(x.file).replace(/%(?![0-9a-f]{2})/gi, '%25').replace(/#/g, '%23').replace(/\?/g, '%3F'), url).href), size: +x.size || 0, info: String(x.info || '') };
             }).filter(function(x) { return x.file; });
           }).catch(function() { library = []; })
           .then(function() { if (screen === 'home' && menu.classList.contains('is-open')) render(); });
