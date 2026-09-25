@@ -35,6 +35,19 @@ static bool     loaded;
 static uint8_t *state_buf;
 static size_t   state_size;
 
+/* Core options: defaults below, changed at run time by gba_set_option()
+ * (settings panel); the core re-reads them on the next frame. */
+static struct { const char *key; char value[16]; } options[] = {
+   { "gpsp_bios",             "builtin"  },   /* open-source BIOS */
+   { "gpsp_drc",              "disabled" },   /* no JIT in WebAssembly */
+   { "gpsp_sound_rate",       "32768"    },
+   { "gpsp_frameskip",        "disabled" },
+   { "gpsp_color_correction", "enabled"  },   /* GBA LCD colours */
+   { "gpsp_frame_mixing",     "disabled" },   /* inter-frame blending */
+   { "gpsp_boot_mode",        "game"     },
+};
+static bool options_updated;
+
 static bool env_cb(unsigned cmd, void *data)
 {
    switch (cmd)
@@ -42,17 +55,13 @@ static bool env_cb(unsigned cmd, void *data)
       case RETRO_ENVIRONMENT_GET_VARIABLE: {
          struct retro_variable *v = (struct retro_variable *)data;
          v->value = NULL;
-         if (!strcmp(v->key, "gpsp_bios"))              v->value = "builtin";   /* open-source BIOS */
-         else if (!strcmp(v->key, "gpsp_drc"))          v->value = "disabled";  /* no JIT in WebAssembly */
-         else if (!strcmp(v->key, "gpsp_sound_rate"))   v->value = "32768";
-         else if (!strcmp(v->key, "gpsp_frameskip"))    v->value = "disabled";
-         else if (!strcmp(v->key, "gpsp_color_correction")) v->value = "enabled";
-         else if (!strcmp(v->key, "gpsp_frame_mixing")) v->value = "disabled";
-         else if (!strcmp(v->key, "gpsp_boot_mode"))    v->value = "game";
+         for (size_t i = 0; i < sizeof(options) / sizeof(options[0]); i++)
+            if (!strcmp(v->key, options[i].key)) { v->value = options[i].value; break; }
          return v->value != NULL;
       }
       case RETRO_ENVIRONMENT_GET_VARIABLE_UPDATE:
-         *(bool *)data = false;
+         *(bool *)data = options_updated;
+         options_updated = false;
          return true;
       case RETRO_ENVIRONMENT_SET_PIXEL_FORMAT:
          return *(const enum retro_pixel_format *)data == RETRO_PIXEL_FORMAT_RGB565;
@@ -64,6 +73,19 @@ static bool env_cb(unsigned cmd, void *data)
       default:
          return false;
    }
+}
+
+/* gba_set_option("gpsp_color_correction", "disabled") */
+EMSCRIPTEN_KEEPALIVE int gba_set_option(const char *key, const char *value)
+{
+   for (size_t i = 0; i < sizeof(options) / sizeof(options[0]); i++)
+      if (!strcmp(key, options[i].key)) {
+         strncpy(options[i].value, value, sizeof(options[i].value) - 1);
+         options[i].value[sizeof(options[i].value) - 1] = 0;
+         options_updated = true;
+         return 1;
+      }
+   return 0;
 }
 
 static void video_cb(const void *data, unsigned w, unsigned h, size_t pitch)

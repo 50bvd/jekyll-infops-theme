@@ -11,6 +11,7 @@
   {% if site.theme_config.seo.noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
   {% include csp.html %}
   <meta name="search-json-url" content="{{ '/search.json' | relative_url }}">
+  {% if site.theme_config.gba.library and site.theme_config.gba.library != "" %}<meta name="gba-library" content="{{ site.theme_config.gba.library | relative_url }}">{% endif %}
 
   <!-- Terminal boot config — injected from _config.yml → theme_config.terminal_boot -->
   {% assign boot = site.theme_config.terminal_boot %}

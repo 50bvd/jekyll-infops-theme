@@ -19,6 +19,49 @@ compiled to WebAssembly with Emscripten.
 | `build.sh` | fetches gpSP at a pinned commit and builds `assets/vendor/gpsp/gpsp.{js,wasm}` |
 | `../../assets/js/terminal-commands/gba.js` | the terminal command: file picker / drag & drop, game loop on `ctx.createGame`, audio, saves, touch pad |
 
+## Optional: a ROM library on your server
+
+```yaml
+# _config.yml
+theme_config:
+  gba:
+    library: "/assets/roms/roms.json"   # same-origin URL of the list
+```
+
+`roms.json` lists the files, relative to the JSON file (`.gba` or `.zip`):
+
+```json
+{ "roms": [
+  { "name": "My homebrew game", "file": "my-game.gba", "size": 4194304, "info": "homebrew" }
+] }
+```
+
+The menu shows the list with a filter, downloads the chosen file with a
+progress bar (size, speed, cancel) and starts it. Only list games you are
+allowed to distribute (homebrew, public domain, your own creations).
+
+## Saves
+
+- kept automatically in the browser (IndexedDB), per game;
+- **Download .sav / Import .sav** from the menu (standard raw `.sav`, usable
+  with other emulators);
+- **Keep the save in a file on this PC** (Chrome / Edge): pick a `.sav` file
+  once, it is then rewritten every few seconds while playing and read back
+  the next time the game starts.
+
+## Settings (menu → ⚙)
+
+Key bindings (any key, per action), smoothing / anti-aliasing, pixel-perfect
+integer scaling, scanlines, GBA LCD colour correction, frame blending, FPS
+counter, volume / mute, fast-forward speed. Stored in the browser.
+
+## Performance
+
+gpSP runs a frame in ~0.3 ms in Chromium on a desktop PC (budget 16.7 ms).
+WebAssembly SIMD (`-msimd128`) and LTO were measured and bring nothing
+(LTO is slower and larger), so the build uses plain `-O3`
+(`OPT_FLAGS=... ./build.sh` to experiment).
+
 ## Rebuild
 
 ```bash
