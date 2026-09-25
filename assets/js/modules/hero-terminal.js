@@ -410,8 +410,9 @@
       win.style.boxShadow   = '0 0 0 1px ' + rgba(.08) + ', 0 30px 60px rgba(0,0,0,.55), 0 0 80px ' + rgba(.08);
       if (header) { header.style.background = 'rgb(' + hd.join(',') + ')'; header.style.borderBottomColor = rgba(.12); }
     } else {
-      var lb = [Math.min(255, Math.round(242 + r * .05)), Math.min(255, Math.round(246 + g * .04)), Math.min(255, Math.round(254 + b * .01))];
-      var lh = [Math.min(255, Math.round(232 + r * .09)), Math.min(255, Math.round(240 + g * .06)), Math.min(255, Math.round(254 + b * .02))];
+      // soft tinted greys (the light theme is never white)
+      var lb = [Math.round(r * .06 + 226 * .94), Math.round(g * .06 + 230 * .94), Math.round(b * .06 + 236 * .94)];
+      var lh = [Math.round(r * .1 + 216 * .9), Math.round(g * .1 + 221 * .9), Math.round(b * .1 + 229 * .9)];
       win.style.background  = 'rgb(' + lb.join(',') + ')';
       win.style.borderColor = rgba(.22);
       win.style.boxShadow   = '0 0 0 1px ' + rgba(.12) + ', 0 12px 32px ' + rgba(.12) + ', 0 4px 16px rgba(0,0,0,.07)';
@@ -690,7 +691,7 @@
 
       // letterbox background, then the game in logical units
       c2d.setTransform(dpr, 0, 0, dpr, 0, 0);
-      c2d.fillStyle = g.light() ? '#dfe7f3' : '#02060d';
+      c2d.fillStyle = g.light() ? '#d7dbe2' : '#02060d';
       c2d.fillRect(0, 0, cssW, cssH);
       c2d.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * ox, dpr * oy);
       c2d.save();

@@ -81,7 +81,7 @@
         render: function(c, g) {
           var d = g.data, light = g.light(), ac = g.accent();
           c.drawImage(g.layer('court', function(l) {
-            l.fillStyle = light ? '#f0f4fc' : '#050a12'; l.fillRect(0, 0, W, H);
+            l.fillStyle = light ? '#e3e6eb' : '#050a12'; l.fillRect(0, 0, W, H);
             l.strokeStyle = g.color(0.2); l.lineWidth = 2; l.setLineDash([10, 12]);
             l.beginPath(); l.moveTo(W / 2, 0); l.lineTo(W / 2, H); l.stroke(); l.setLineDash([]);
             l.strokeStyle = g.color(0.45); l.strokeRect(1, 1, W - 2, H - 2);

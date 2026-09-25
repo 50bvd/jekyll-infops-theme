@@ -120,7 +120,7 @@ body > * { position: relative; z-index: 1; }
     margin-bottom: 1.2rem;
     font-size: 0.875rem;
     color: var(--text-secondary);
-    span {
+    > span {                 // direct children only: no pill inside a pill
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
