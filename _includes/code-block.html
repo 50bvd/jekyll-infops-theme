@@ -5,15 +5,8 @@
   needed for manually inserted code blocks in HTML pages/layouts.
 {% endcomment %}
 {% if include.code %}
-<div class="code-block-wrapper">
-  <div class="code-block-header">
-    <span class="code-lang">{{ include.lang | default: "code" | upcase }}</span>
-    <button class="copy-btn" type="button"
-            onclick="navigator.clipboard.writeText(this.closest('.code-block-wrapper').querySelector('code').innerText).then(()=>{this.innerHTML='<i class=\'fas fa-check\'></i> Copied!';this.classList.add(\'copied\');setTimeout(()=>{this.innerHTML=\'<i class=\'fas fa-copy\'></i> Copy\';this.classList.remove(\'copied\')},2000);})"
-            aria-label="Copy code">
-      <i class="fas fa-copy" aria-hidden="true"></i> Copy
-    </button>
-  </div>
-  <pre><code class="language-{{ include.lang | default: 'plaintext' }}">{{ include.code | xml_escape }}</code></pre>
+{% comment %} Header + copy button are added by assets/js/modules/code-blocks.js {% endcomment %}
+<div class="code-block-src">
+  <pre><code class="language-{{ include.lang | default: 'plaintext' | escape }}">{{ include.code | xml_escape }}</code></pre>
 </div>
 {% endif %}

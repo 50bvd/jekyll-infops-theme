@@ -20,6 +20,8 @@ services:
     environment:
       - TZ=Europe/Paris
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test:     ["CMD", "wget", "-qO-", "http://localhost/"]
       interval: 30s

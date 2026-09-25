@@ -28,7 +28,7 @@
 
 {% comment %} ── Thème Prism.js ───────────────────────────────────────── {% endcomment %}
 {% if t.code.theme and t.code.theme != "" and t.code.theme != "prism-tomorrow" %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/{{ t.code.theme }}.min.css"
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/{{ t.code.theme | url_encode }}.min.css" crossorigin="anonymous"
       rel="stylesheet" id="prism-theme">
 {% endif %}
 

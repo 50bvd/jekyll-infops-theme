@@ -124,9 +124,8 @@
 [data-theme="light"] {
   // Navbar
   .main-header {
-    background: rgba(232,240,252,.94) !important;
-    border-color: var(--border-color) !important;
-    backdrop-filter: blur(12px);
+    background: rgba(232,240,252,.86);
+    border-color: var(--border-color);
   }
 
   // Post cards — layered blue-white

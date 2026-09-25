@@ -92,8 +92,8 @@ description: "Interactive feature checklist to verify all theme functionality."
         <div class="test-content">
           <strong>Active nav link</strong>
           <span>Current page link is highlighted blue — NOT active on post pages</span>
-          <a href="/" class="test-link">→ Check home</a>
-          <a href="/archives/" class="test-link">→ Check archives</a>
+          <a href="{{ '/' | relative_url }}" class="test-link">→ Check home</a>
+          <a href="{{ '/archives/' | relative_url }}" class="test-link">→ Check archives</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -117,7 +117,7 @@ description: "Interactive feature checklist to verify all theme functionality."
         <div class="test-content">
           <strong>Hero section</strong>
           <span>Gradient title, animated terminal, CTA buttons</span>
-          <a href="/" class="test-link">→ Homepage</a>
+          <a href="{{ '/' | relative_url }}" class="test-link">→ Homepage</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -159,7 +159,7 @@ description: "Interactive feature checklist to verify all theme functionality."
         <div class="test-content">
           <strong>Reading progress bar</strong>
           <span>Gradient bar at top advances as you scroll through an article</span>
-          <a href="/2025/01/04/writing-posts-reference/" class="test-link">→ Open an article</a>
+          <a href="{{ '/2025/01/04/writing-posts-reference/' | relative_url }}" class="test-link">→ Open an article</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -205,7 +205,7 @@ description: "Interactive feature checklist to verify all theme functionality."
         <div class="test-content">
           <strong>Callout blocks</strong>
           <span>note, tip, info, warning, danger, success all render correctly</span>
-          <a href="/2025/01/04/writing-posts-reference/" class="test-link">→ See writing reference</a>
+          <a href="{{ '/2025/01/04/writing-posts-reference/' | relative_url }}" class="test-link">→ See writing reference</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -270,7 +270,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>Client-side search</strong>
           <span>Type "docker" → results appear instantly without page reload</span>
-          <a href="/search/?q=docker" class="test-link">→ Test search</a>
+          <a href="{{ '/search/?q=docker' | relative_url }}" class="test-link">→ Test search</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -294,7 +294,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>Archives</strong>
           <span>Articles grouped by year with date and tags</span>
-          <a href="/archives/" class="test-link">→ Archives</a>
+          <a href="{{ '/archives/' | relative_url }}" class="test-link">→ Archives</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -304,7 +304,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>Tags page</strong>
           <span>Tag cloud + post list per tag with counters</span>
-          <a href="/tags/" class="test-link">→ Tags</a>
+          <a href="{{ '/tags/' | relative_url }}" class="test-link">→ Tags</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -314,7 +314,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>About page</strong>
           <span>Feature table, tech stack, GitHub link</span>
-          <a href="/about/" class="test-link">→ About</a>
+          <a href="{{ '/about/' | relative_url }}" class="test-link">→ About</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -324,7 +324,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>404 page</strong>
           <span>Styled terminal error, home and archive links</span>
-          <a href="/this-page-does-not-exist" class="test-link">→ Trigger 404</a>
+          <a href="{{ '/this-page-does-not-exist' | relative_url }}" class="test-link">→ Trigger 404</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -348,7 +348,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>Status colors</strong>
           <span>Test all 4 statuses in <code>_config.yml</code>: online (green), warning (yellow), error (red), maintenance (blue)</span>
-          <a href="/2025/01/06/sidebar-configuration/" class="test-link">→ Simulation guide</a>
+          <a href="{{ '/2025/01/06/sidebar-configuration/' | relative_url }}" class="test-link">→ Simulation guide</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -381,7 +381,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>RSS feed</strong>
           <span>feed.xml is generated and valid</span>
-          <a href="/feed.xml" class="test-link" target="_blank">→ feed.xml</a>
+          <a href="{{ '/feed.xml' | relative_url }}" class="test-link" target="_blank">→ feed.xml</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -391,7 +391,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>Sitemap</strong>
           <span>sitemap.xml generated for search engines</span>
-          <a href="/sitemap.xml" class="test-link" target="_blank">→ sitemap.xml</a>
+          <a href="{{ '/sitemap.xml' | relative_url }}" class="test-link" target="_blank">→ sitemap.xml</a>
         </div>
         <span class="test-status"></span>
       </div>
@@ -401,7 +401,7 @@ kubectl get nodes -o wide</code></pre>
         <div class="test-content">
           <strong>Toast notification</strong>
           <span>Green toast appears bottom-right for 3s</span>
-          <button class="test-link" onclick="showNotification('Test notification ✓', 'success')">
+          <button class="test-link" type="button" data-test-toast>
             → Test toast
           </button>
         </div>
@@ -428,7 +428,7 @@ kubectl get nodes -o wide</code></pre>
         <span id="summary-done">0</span>/<span id="summary-total">0</span>
       </div>
       <p id="summary-msg">Check off tests as you go.</p>
-      <button class="test-reset-btn" onclick="resetTests()">
+      <button class="test-reset-btn" type="button" data-test-reset>
         <i class="fas fa-redo" aria-hidden="true"></i> Reset
       </button>
     </div>
@@ -573,7 +573,7 @@ kubectl get nodes -o wide</code></pre>
   }
 
   window.resetTests = function() {
-    localStorage.removeItem(STORAGE_KEY);
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
     document.querySelectorAll('.test-item input[type="checkbox"]').forEach(function(cb) {
       cb.checked = false;
       cb.closest('.test-item').classList.remove('done');
@@ -581,6 +581,12 @@ kubectl get nodes -o wide</code></pre>
     updateUI();
   };
 
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', function() {
+    init();
+    var reset = document.querySelector('[data-test-reset]');
+    if (reset) reset.addEventListener('click', window.resetTests);
+    var toast = document.querySelector('[data-test-toast]');
+    if (toast) toast.addEventListener('click', function() { showNotification('Test notification ✓', 'success'); });
+  });
 })();
 </script>

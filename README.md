@@ -2,7 +2,7 @@
 
 > A modern, feature-rich Jekyll theme for DevOps, SysOps and infrastructure engineers.
 
-[![Jekyll](https://img.shields.io/badge/Jekyll-4.3-red?logo=jekyll)](https://jekyllrb.com)
+[![Jekyll](https://img.shields.io/badge/Jekyll-4.4-red?logo=jekyll)](https://jekyllrb.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ready-brightgreen?logo=github)](https://pages.github.com)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](https://www.docker.com)
@@ -82,7 +82,7 @@ theme_config:
   terminal_boot:
     user:  "loup"
     host:  "myblog"
-    os:    "Jekyll 4.3"
+    os:    "Jekyll 4.4"
     shell: "bash 5.2"
     role:  "SysOps"
     motd:  "Type /help for commands."

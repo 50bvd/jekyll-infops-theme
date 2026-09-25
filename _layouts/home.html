@@ -8,8 +8,8 @@ layout: default
   <div class="content">
     {{ content }}
 
-    <section class="recent-posts">
-      <h2><i class="fas fa-newspaper" aria-hidden="true"></i> Recent Posts</h2>
+    <section class="recent-posts" id="posts">
+      <h2 class="reveal"><i class="fas fa-newspaper" aria-hidden="true"></i> Recent Posts</h2>
 
       {% for post in paginator.posts %}
         <article class="post-card fade-in">
@@ -31,7 +31,7 @@ layout: default
       {% endfor %}
 
       {% if paginator.total_pages > 1 %}
-        <nav class="pagination" aria-label="Blog pagination">
+        <nav class="pagination reveal" aria-label="Blog pagination">
           {% if paginator.previous_page %}
             <a href="{{ paginator.previous_page_path | relative_url }}" class="pagination-btn prev" rel="prev">
               <i class="fas fa-chevron-left" aria-hidden="true"></i> Previous

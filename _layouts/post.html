@@ -3,10 +3,14 @@ layout: default
 ---
 
 {% assign cfg = site.theme_config %}
+{% assign share_url   = page.url | absolute_url | url_encode %}
+{% assign share_title = page.title | url_encode %}
 
+{% if cfg.show_reading_progress != false %}
 <div class="reading-progress-container" aria-hidden="true">
   <div class="reading-progress-bar"></div>
 </div>
+{% endif %}
 
 <div class="post-container">
 
@@ -51,7 +55,7 @@ layout: default
       {% endif %}
     </header>
 
-    {% if page.toc %}
+    {% if page.toc and cfg.show_toc != false %}
     <div class="toc-wrapper">
       <details class="toc-details" open>
         <summary>
@@ -81,19 +85,19 @@ layout: default
       {% if cfg.show_share_buttons != false %}
       <div class="post-share">
         <strong><i class="fas fa-share-alt" aria-hidden="true"></i> Share:</strong>
-        <a href="https://twitter.com/intent/tweet?text={{ page.title | uri_escape }}&url={{ site.url }}{{ page.url }}"
+        <a href="https://twitter.com/intent/tweet?text={{ share_title }}&amp;url={{ share_url }}"
            target="_blank" rel="noopener noreferrer" class="share-btn twitter">
-          <i class="fab fa-twitter" aria-hidden="true"></i> Twitter
+          <i class="fab fa-x-twitter" aria-hidden="true"></i> X / Twitter
         </a>
-        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ site.url }}{{ page.url }}"
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url }}"
            target="_blank" rel="noopener noreferrer" class="share-btn linkedin">
           <i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn
         </a>
-        <a href="mailto:?subject={{ page.title | uri_escape }}&body={{ site.url }}{{ page.url }}"
+        <a href="mailto:?subject={{ share_title }}&amp;body={{ share_url }}"
            class="share-btn email">
           <i class="fas fa-envelope" aria-hidden="true"></i> Email
         </a>
-        <button class="share-btn copy-link" onclick="copyPageUrl()" type="button">
+        <button class="share-btn copy-link" data-copy-url type="button">
           <i class="fas fa-link" aria-hidden="true"></i> Copy Link
         </button>
       </div>
@@ -130,7 +134,7 @@ layout: default
 
     <!-- Related Posts -->
     {% if cfg.show_related_posts != false and site.related_posts.size > 0 %}
-    <section class="related-posts">
+    <section class="related-posts reveal">
       <h3><i class="fas fa-bookmark" aria-hidden="true"></i> Related Posts</h3>
       <div class="related-grid">
         {% for post in site.related_posts limit:3 %}
@@ -162,12 +166,12 @@ layout: default
 </div>
 
 <!-- Floating TOC -->
-{% if page.toc %}
+{% if page.toc and cfg.show_toc != false %}
 <aside class="floating-toc" aria-label="Floating table of contents">
-  <button class="toc-toggle" onclick="toggleFloatingToc()" aria-label="Toggle table of contents" type="button">
+  <button class="toc-toggle" aria-label="Toggle table of contents" aria-expanded="false" aria-controls="floating-toc-panel" type="button">
     <i class="fas fa-list" aria-hidden="true"></i>
   </button>
-  <div class="floating-toc-content">
+  <div class="floating-toc-content" id="floating-toc-panel">
     <h4><i class="fas fa-list" aria-hidden="true"></i> Navigation</h4>
     <div id="floating-toc-list"></div>
   </div>

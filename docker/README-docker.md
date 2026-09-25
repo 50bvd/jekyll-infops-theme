@@ -17,3 +17,5 @@ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 Build le site statique avec `JEKYLL_ENV=production`, puis le sert via nginx avec headers de sécurité et compression gzip.
+
+Security headers (CSP, etc.) live in `docker/security-headers.conf`, included in every `location` of `docker/nginx.conf`. If you use a self-hosted Umami or another external service, add its domain to the CSP in that file.

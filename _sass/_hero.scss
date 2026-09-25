@@ -1,0 +1,164 @@
+// =============================================================================
+// _hero.scss — Full-screen home page hero
+//   · fills the whole viewport (100svh, slides under the transparent header)
+//   · animated backdrop (orbs + grid), GPU compositor only
+//   · scroll parallax/fade driven by --hero-p (0 → 1), see scroll-fx.js
+// =============================================================================
+
+.hero {
+  --hero-p: 0;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  // The hero slides under the sticky header: true full screen
+  margin-top: calc(-1 * var(--navbar-h));
+  padding: calc(var(--navbar-h) + 3rem) 2rem 5.5rem;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+// ── Backdrop ─────────────────────────────────────────────────────────────────────
+.hero-backdrop {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  // Fade into the page background at the bottom of the hero
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+}
+
+.hero-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(70px); opacity: .55;
+  will-change: transform;
+  animation: orbFloat 22s ease-in-out infinite alternate;
+
+  &--1 { width: 46vmax; height: 46vmax; left: -12vmax; top: -8vmax;
+         background: radial-gradient(circle, rgba(88,166,255,.35), transparent 65%); }
+  &--2 { width: 40vmax; height: 40vmax; right: -12vmax; top: 10vmax;
+         background: radial-gradient(circle, rgba(165,165,255,.28), transparent 65%);
+         animation-duration: 26s; animation-delay: -8s; }
+  &--3 { width: 34vmax; height: 34vmax; left: 30%; bottom: -14vmax;
+         background: radial-gradient(circle, rgba(86,211,100,.16), transparent 65%);
+         animation-duration: 30s; animation-delay: -15s; }
+}
+@keyframes orbFloat {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(4vmax, 3vmax, 0) scale(1.08); }
+  100% { transform: translate3d(-3vmax, 5vmax, 0) scale(.95); }
+}
+
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(88,166,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88,166,255,.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 20%, transparent 75%);
+          mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 20%, transparent 75%);
+}
+
+[data-theme="light"] {
+  .hero-orb { opacity: .7; }
+  .hero-orb--1 { background: radial-gradient(circle, rgba(37,99,235,.22), transparent 65%); }
+  .hero-orb--2 { background: radial-gradient(circle, rgba(124,58,237,.18), transparent 65%); }
+  .hero-orb--3 { background: radial-gradient(circle, rgba(8,145,178,.14), transparent 65%); }
+  .hero-grid {
+    background-image:
+      linear-gradient(rgba(37,99,235,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,.07) 1px, transparent 1px);
+  }
+}
+
+// ── Content (scroll parallax) ────────────────────────────────────────────
+.hero-content {
+  position: relative; z-index: 1;
+  max-width: 860px; width: 100%; margin: 0 auto;
+  transform: translate3d(0, calc(var(--hero-p) * -70px), 0) scale(calc(1 - var(--hero-p) * .05));
+  opacity: calc(1 - var(--hero-p) * 1.1);
+  transform-origin: 50% 30%;
+}
+.hero.is-parallax .hero-content { will-change: transform, opacity; }
+
+.hero-title {
+  font-size: clamp(2.4rem, 6.5vw, 4.6rem);
+  font-weight: 900; line-height: 1.05; letter-spacing: -.035em;
+  margin-bottom: 1.1rem;
+  background: var(--gradient-primary);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation:
+    heroRise 1s var(--ease-out-expo) .05s both,
+    gradientShift 14s ease-in-out 1s infinite;
+}
+.hero-description {
+  font-size: clamp(1rem, 2.2vw, 1.25rem); color: var(--text-secondary);
+  margin: 0 auto 2.5rem; max-width: 580px; line-height: 1.65;
+  animation: heroRise 1s var(--ease-out-expo) .2s both;
+}
+.hero-cta {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  position: relative; z-index: 1;
+  animation: heroRise 1s var(--ease-out-expo) .55s both;
+}
+
+@keyframes heroRise {
+  from { opacity: 0; transform: translate3d(0, 28px, 0) scale(.98); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
+// ── Scroll cue ─────────────────────────────────────────────────────
+.hero-scroll {
+  position: absolute; left: 50%; bottom: 1.6rem; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: .45rem;
+  color: var(--text-muted); text-decoration: none;
+  font-family: var(--font-mono); font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+  transform: translateX(-50%);
+  opacity: calc(1 - var(--hero-p) * 4);
+  // fill-mode "backwards": once played, the animation hands opacity back to --hero-p
+  animation: fadeIn 1s ease 1.2s backwards;
+  transition: color var(--transition-fast);
+  &:hover { color: var(--accent-blue); }
+}
+.hero-scroll-mouse {
+  width: 22px; height: 34px; border: 2px solid currentColor; border-radius: 12px;
+  display: flex; justify-content: center; padding-top: 6px;
+  span {
+    width: 3px; height: 7px; border-radius: 2px; background: currentColor;
+    animation: scrollWheel 1.8s var(--ease-out-expo) infinite;
+  }
+}
+@keyframes scrollWheel {
+  0%   { transform: translateY(0);   opacity: 1; }
+  70%  { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0);   opacity: 0; }
+}
+
+// ── Transparent header over the hero ─────────────────────────────────────
+body.has-hero .main-header:not(.is-scrolled):not(:has(.navbar-menu.active)) {
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .hero { padding: calc(var(--navbar-h) + 2rem) 1.2rem 4.5rem; }
+  .hero-description { margin-bottom: 2rem; }
+}
+@media (max-width: 480px) {
+  .hero { padding-left: 1rem; padding-right: 1rem; }
+  .hero-cta .btn { font-size: .85rem; padding: .6rem 1.1rem; }
+}
+@media (max-height: 760px) {
+  .hero-scroll { display: none; }
+  .hero { padding-bottom: 2.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title, .hero-description, .hero-cta, .hero-scroll { animation: none; opacity: 1; transform: none; }
+  .hero-orb, .hero-scroll-mouse span { animation: none; }
+  .hero-content { transform: none; opacity: 1; }
+}

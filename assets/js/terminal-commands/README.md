@@ -15,6 +15,10 @@ Each file registers one or more commands via `window.Terminal.register()`.
 | `snake.js` | 🐍 Snake |
 | `tetris.js` | 🎮 Tetris |
 
+## Built-in shortcuts
+
+`Tab` autocomplete · `↑/↓` history · `Ctrl+C` stop · `Ctrl+L` clear · `Esc` quit game / fullscreen
+
 ## Adding a command
 
 See `_posts/2025-01-10-terminal-extending.md` for the full guide and `ctx` API reference.
@@ -33,3 +37,4 @@ window.Terminal.register({
 ```
 
 Load it in `_layouts/default.html` after `hero-terminal.js`, then type `hello` in the terminal.
+`window.Terminal` is defined on every page, so command files can safely be loaded site-wide.

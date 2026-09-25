@@ -1,0 +1,63 @@
+// =============================================================================
+// _pages.scss — Page-specific styles: comments, category and tags pages
+// =============================================================================
+
+.comments-notice {
+  padding: 1rem 1.25rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  i    { color: var(--accent-blue); flex-shrink: 0; }
+  code { background: var(--bg-secondary); padding: 0.1em 0.35em; border-radius: var(--radius-sm); font-size: 0.85em; color: var(--accent-blue); }
+  a    { color: var(--accent-blue); }
+}
+
+.category-header {
+  text-align: center; margin-bottom: 3rem; padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.category-header h1 {
+  color: var(--accent-blue); margin-bottom: 1rem;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.category-description {
+  color: var(--text-secondary); font-size: 1.1rem;
+  max-width: 600px; margin: 0 auto; line-height: 1.6;
+}
+.posts-grid { display: grid; gap: 2rem; }
+.no-posts {
+  text-align: center; padding: 4rem 2rem; color: var(--text-secondary);
+  background: var(--bg-secondary); border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  i { font-size: 4rem; display: block; margin-bottom: 1rem; opacity: 0.5; color: var(--accent-blue); }
+  h3 { margin-bottom: 1rem; color: var(--text-primary); font-size: 1.5rem; }
+  p  { font-size: 1.1rem; max-width: 400px; margin: 0 auto; }
+}
+@media (max-width: 768px) {
+  .category-header h1 { font-size: 1.8rem; flex-direction: column; gap: 0.3rem; }
+}
+
+// --------------------------------------------------------------------------
+// Tags page
+// --------------------------------------------------------------------------
+.tag-section { margin-bottom: 3rem; }
+.tag-count { opacity: .6; font-size: .7rem; }
+.tag-post-list {
+  list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .5rem;
+  li {
+    display: flex; align-items: baseline; gap: 1.2rem; padding: .5rem .75rem; margin: 0;
+    border-radius: var(--radius-md); transition: background var(--transition-fast);
+    &:hover { background: var(--bg-secondary); }
+  }
+  time { font-family: var(--font-mono); font-size: .82rem; color: var(--text-muted); white-space: nowrap; }
+  a {
+    color: var(--text-primary); text-decoration: none; font-weight: 500; transition: color var(--transition-fast);
+    &:hover { color: var(--accent-blue); }
+  }
+}
