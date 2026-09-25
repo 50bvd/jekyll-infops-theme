@@ -21,6 +21,9 @@ window.Prism.manual = true;
 (function() {
 
   var UNSAFE = { html:1, xml:1, markup:1, svg:1, mathml:1 };
+  // Languages Prism has no grammar for: shown as plain text (keeps the label,
+  // avoids a 404 from the autoloader)
+  var NO_GRAMMAR = { haproxy:1, text:1, plaintext:1, console:1, output:1 };
 
   function escHtml(str) {
     return (str || '')
@@ -169,8 +172,20 @@ window.Prism.manual = true;
     sanitiseHtmlBlocks();
   }
 
+  function disableUnknownGrammars() {
+    // Rouge puts the language class on the wrapper <div>, Prism reads it from any ancestor
+    document.querySelectorAll('[class*="language-"]').forEach(function(el) {
+      var m = (el.className || '').match(/language-([a-z0-9_-]+)/i);
+      if (!m || !NO_GRAMMAR[m[1].toLowerCase()]) return;
+      var code = el.tagName === 'CODE' ? el : el.querySelector('code');
+      if (code && !code.getAttribute('data-original-lang')) code.setAttribute('data-original-lang', m[1].toLowerCase());
+      el.className = el.className.replace(/\blanguage-\S+/g, 'language-none');
+    });
+  }
+
   // ── Main sequence ────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
+    disableUnknownGrammars();
     // 1. Sanitise html/xml blocks (remove raw tags before Prism sees them)
     preSanitise();
 

@@ -43,8 +43,8 @@ description: "About this blog and the jekyll-infops-theme."
   <tbody>
     <tr><td>Generator</td><td>Jekyll 4.4</td></tr>
     <tr><td>CSS</td><td>Modular SCSS</td></tr>
-    <tr><td>Icons</td><td>Font Awesome 6.4</td></tr>
-    <tr><td>Syntax</td><td>Prism.js</td></tr>
+    <tr><td>Icons</td><td>Font Awesome 6.7 (self-hosted)</td></tr>
+    <tr><td>Syntax</td><td>Prism.js 1.30 (self-hosted)</td></tr>
     <tr><td>Feed</td><td>jekyll-feed</td></tr>
     <tr><td>SEO</td><td>jekyll-seo-tag</td></tr>
   </tbody>
