@@ -5,7 +5,7 @@
   {% endif %}
 
   {% if site.theme_config.show_system_status != false %}
-  <div class="widget status-widget">
+  <div class="widget status-widget reveal">
     <h3 class="widget-title">
       <i class="fas fa-server" aria-hidden="true"></i> System Status
     </h3>
@@ -16,7 +16,7 @@
   {% endif %}
 
   {% if site.theme_config.show_recent_posts != false %}
-  <div class="widget">
+  <div class="widget reveal">
     <h3 class="widget-title">
       <i class="fas fa-clock" aria-hidden="true"></i> Recent Posts
     </h3>
@@ -38,7 +38,7 @@
   {% endif %}
 
   {% if site.theme_config.show_categories != false and site.categories.size > 0 %}
-  <div class="widget">
+  <div class="widget reveal">
     <h3 class="widget-title">
       <i class="fas fa-folder" aria-hidden="true"></i> Categories
     </h3>
@@ -48,7 +48,7 @@
         {% for category in sorted_cats %}
           <a href="{{ '/categories/' | append: category[0] | slugify | relative_url }}" class="tag">
             {{ category[0] }}
-            <span style="opacity:.6;font-size:.7rem;">({{ category[1].size }})</span>
+            <span class="tag-count">({{ category[1].size }})</span>
           </a>
         {% endfor %}
       </div>
@@ -57,7 +57,7 @@
   {% endif %}
 
   {% if site.theme_config.show_tags != false and site.tags.size > 0 %}
-  <div class="widget">
+  <div class="widget reveal">
     <h3 class="widget-title">
       <i class="fas fa-tags" aria-hidden="true"></i> Tags
     </h3>
@@ -105,10 +105,14 @@
     return { s: 'online', v: t || 'online' };
   }
 
-  // 2. Page load performance
+  // 2. Page load performance (Navigation Timing Level 2, fallback Level 1)
   function getPageLoad() {
-    if (!window.performance || !performance.timing) return null;
-    var ms = performance.timing.loadEventEnd - performance.timing.navigationStart;
+    if (!window.performance) return null;
+    var ms = 0;
+    var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (nav && nav.loadEventEnd > 0) ms = Math.round(nav.loadEventEnd - nav.startTime);
+    else if (performance.timing && performance.timing.loadEventEnd > 0)
+      ms = performance.timing.loadEventEnd - performance.timing.navigationStart;
     if (ms <= 0) return null;
     var v = ms < 1000 ? ms + 'ms' : (ms / 1000).toFixed(1) + 's';
     return { s: ms < 2000 ? 'online' : ms < 5000 ? 'warning' : 'error', v: v };
@@ -124,9 +128,11 @@
   // 4. Memory (JS heap) — Chrome only, skip if unavailable
   function getMemory() {
     if (!performance.memory) return null;
-    var used  = Math.round(performance.memory.usedJSHeapSize  / 1048576);
-    var total = Math.round(performance.memory.totalJSHeapSize / 1048576);
-    var pct   = Math.round(used / total * 100);
+    var m     = performance.memory;
+    var used  = Math.round(m.usedJSHeapSize  / 1048576);
+    var total = Math.round(m.totalJSHeapSize / 1048576);
+    // Health is measured against the heap *limit*, not the currently allocated size
+    var pct   = m.jsHeapSizeLimit ? Math.round(m.usedJSHeapSize / m.jsHeapSizeLimit * 100) : 0;
     return { s: pct < 70 ? 'online' : pct < 90 ? 'warning' : 'error', v: used + 'MB / ' + total + 'MB' };
   }
 
@@ -141,7 +147,9 @@
   }
 
   render();
-  setInterval(render, 12000);
+  // Re-render once the load event has fired so "Load time" gets a value
+  if (document.readyState !== 'complete') window.addEventListener('load', function() { setTimeout(render, 0); });
+  setInterval(function() { if (!document.hidden) render(); }, 12000);
   window.addEventListener('online',  render);
   window.addEventListener('offline', render);
 })();

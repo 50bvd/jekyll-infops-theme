@@ -15,10 +15,10 @@
 
   {% if c.provider == "utterances" and repo_ok %}
   <script src="https://utteranc.es/client.js"
-    repo="{{ c.utterances_repo }}"
+    repo="{{ c.utterances_repo | escape }}"
     issue-term="pathname"
     label="💬 comment"
-    theme="{{ c.utterances_theme | default: 'github-dark' }}"
+    theme="{{ c.utterances_theme | default: 'github-dark' | escape }}"
     crossorigin="anonymous"
     async>
   </script>
@@ -27,12 +27,14 @@
   <div id="disqus_thread"></div>
   <script>
     var disqus_config = function () {
-      this.page.url        = '{{ page.url | absolute_url }}';
-      this.page.identifier = '{{ page.url }}';
+      this.page.url        = {{ page.url | absolute_url | jsonify }};
+      this.page.identifier = {{ page.url | jsonify }};
     };
     (function() {
+      var shortname = {{ c.disqus_shortname | jsonify }};
+      if (!/^[a-z0-9-]+$/i.test(shortname)) return;
       var d = document, s = d.createElement('script');
-      s.src = 'https://{{ c.disqus_shortname }}.disqus.com/embed.js';
+      s.src = 'https://' + shortname + '.disqus.com/embed.js';
       s.setAttribute('data-timestamp', +new Date());
       (d.head || d.body).appendChild(s);
     })();
@@ -43,27 +45,9 @@
     <i class="fas fa-info-circle" aria-hidden="true"></i>
     Comments are not configured yet. Set <code>comments.provider</code> and
     <code>comments.utterances_repo</code> in <code>_config.yml</code>.
-    See the <a href="/2025/01/08/analytics-setup/">setup guide</a> for instructions.
+    See the <a href="{{ '/2025/01/08/analytics-setup/' | relative_url }}">setup guide</a> for instructions.
   </p>
   {% endif %}
 
 </section>
 {% endif %}
-
-<style>
-.comments-notice {
-  padding: 1rem 1.25rem;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  i    { color: var(--accent-blue); flex-shrink: 0; }
-  code { background: var(--bg-secondary); padding: 0.1em 0.35em; border-radius: var(--radius-sm); font-size: 0.85em; color: var(--accent-blue); }
-  a    { color: var(--accent-blue); }
-}
-</style>

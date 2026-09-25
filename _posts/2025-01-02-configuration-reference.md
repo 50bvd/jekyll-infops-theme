@@ -89,7 +89,7 @@ theme_config:
   terminal_boot:
     user:  "YOUR_USER"     # shown as user@host in neofetch
     host:  "YOUR_HOST"
-    os:    "YOUR_OS"       # e.g. "Jekyll 4.3 · AlmaLinux 10"
+    os:    "YOUR_OS"       # e.g. "Jekyll 4.4 · AlmaLinux 10"
     shell: "YOUR_SHELL"    # e.g. "bash 5.2"
     role:  "YOUR_ROLE"     # e.g. "SysOps · Infrastructure"
     line1: ""              # extra info line (leave empty to hide)

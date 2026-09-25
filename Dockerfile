@@ -1,6 +1,6 @@
 # =============================================================================
 # Dockerfile — jekyll-infops-theme
-# Deux stages : dev (livereload) et prod (site statique servi par nginx)
+# Two targets: dev (livereload) and prod (static site served by nginx)
 #
 # Usage :
 #   Dev  → docker compose up
@@ -8,23 +8,23 @@
 # =============================================================================
 
 # ─── Stage 1 : base Ruby ─────────────────────────────────────────────────────
-FROM ruby:3.3-alpine AS base
+FROM ruby:3.4-alpine AS base
 
-# Dépendances système
+# System dependencies (native extensions + sass-embedded)
 RUN apk add --no-cache \
       build-base \
       git \
-      nodejs \
-      npm \
       tzdata \
       libffi-dev \
       yaml-dev \
-      zlib-dev
+      zlib-dev \
+      gcompat
 
 WORKDIR /site
 
-# Copier les fichiers de gems en premier (cache Docker)
-COPY Gemfile Gemfile.lock ./
+# Copy gem files first (Docker layer cache).
+# Gemfile.lock is optional: the glob keeps COPY from failing when it is absent.
+COPY Gemfile Gemfile.lock* ./
 
 # Installer les gems
 RUN bundle install --jobs 4 --retry 3
@@ -54,14 +54,18 @@ COPY . .
 RUN JEKYLL_ENV=production bundle exec jekyll build --destination /dist
 
 # ─── Stage 4 : production (nginx léger) ──────────────────────────────────────
-FROM nginx:1.27-alpine AS prod
+FROM nginx:stable-alpine AS prod
 
 # Copier le site buildé
 COPY --from=builder /dist /usr/share/nginx/html
 
 # Config nginx optimisée pour un site statique Jekyll
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 
 EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

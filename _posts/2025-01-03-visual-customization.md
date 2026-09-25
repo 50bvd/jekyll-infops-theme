@@ -167,7 +167,7 @@ code:
   theme: "prism-tomorrow"   # default
 ```
 
-Available Prism themes (loaded from cdnjs):
+Available Prism themes (loaded from jsDelivr, Prism 1.30):
 
 | Value | Style |
 |---|---|

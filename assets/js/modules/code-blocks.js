@@ -62,7 +62,7 @@ window.Prism.manual = true;
     });
 
     document.querySelectorAll(
-      '.post-body pre, .post-content pre, article pre, .content pre'
+      '.post-body pre, .post-content pre, article pre, .content pre, .code-block-src pre'
     ).forEach(function(pre) {
       if (pre.closest('.code-block-wrapper')) return;
       if (pre.closest('.sidebar, nav, .widget, .toc-content')) return;
@@ -117,8 +117,9 @@ window.Prism.manual = true;
           setTimeout(function() { copyBtn.textContent = 'copy'; copyBtn.classList.remove('copied'); }, 2000);
         }
         var txt = rawText;
-        if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(ok).catch(ok); }
-        else {
+        if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(txt).then(ok).catch(fallback); }
+        else fallback();
+        function fallback() {
           var ta = document.createElement('textarea');
           ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
           document.body.appendChild(ta); ta.select();
@@ -174,8 +175,9 @@ window.Prism.manual = true;
     preSanitise();
 
     // 2. Now let Prism run — it will NOT see raw HTML tags
-    if (window.Prism) {
-      Prism.highlightAll();
+    //    (guarded: if the CDN is blocked, Prism is only our {manual:true} stub)
+    if (window.Prism && typeof window.Prism.highlightAll === 'function') {
+      try { window.Prism.highlightAll(); } catch (e) { console.warn('[code-blocks] Prism:', e); }
     }
 
     // 3. Wrap all pre blocks with our CRT header

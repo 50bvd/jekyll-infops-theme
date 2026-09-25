@@ -1,25 +1,35 @@
 /**
  * modules/canvas.js — Particle canvas background
  * Reads params from data-attributes on #bg-canvas (set in default.html).
- * Dispatches 'themechange' event to update colors on theme switch.
+ * Listens to 'themechange' to update colors on theme switch.
+ *
+ * Performance: HiDPI-aware, fewer particles on small screens, squared-distance
+ * checks (no sqrt in the O(n²) loop), paused when the tab is hidden, and a
+ * single static frame when the user prefers reduced motion.
  */
 'use strict';
 (function initCanvas() {
   const canvas = document.getElementById('bg-canvas');
-  if (!canvas) return;
+  if (!canvas || !canvas.getContext) return;
 
-  const ctx = canvas.getContext('2d');
-  let W, H, animFrame;
+  const ctx = canvas.getContext('2d', { alpha: true });
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, DPR = 1, animFrame = null, running = false;
   let mouseX = -9999, mouseY = -9999;
 
-  const PARTICLE_COUNT = parseInt(canvas.dataset.particles  || '80',  10);
-  const MAX_DIST       = parseInt(canvas.dataset.maxDist    || '130', 10);
-  const CURSOR_DIST    = parseInt(canvas.dataset.cursorDist || '160', 10);
-  const CURSOR_PUSH    = 80;
+  const BASE_COUNT  = parseInt(canvas.dataset.particles  || '80',  10);
+  const MAX_DIST    = parseInt(canvas.dataset.maxDist    || '130', 10);
+  const CURSOR_DIST = parseInt(canvas.dataset.cursorDist || '160', 10);
+  const MAX_DIST2    = MAX_DIST * MAX_DIST;
+  const CURSOR_DIST2 = CURSOR_DIST * CURSOR_DIST;
+  const CURSOR_PUSH  = 80;
 
   function getCSSVar(n) {
     return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   }
+
+  let pColor = 'rgba(88,166,255,0.35)';
+  let lColor = 'rgba(88,166,255,0.12)';
 
   class Particle {
     constructor() { this.reset(true); }
@@ -33,8 +43,9 @@
     }
     update() {
       const dx = this.x - mouseX, dy = this.y - mouseY;
-      const d  = Math.hypot(dx, dy);
-      if (d < CURSOR_PUSH && d > 0) {
+      const d2 = dx * dx + dy * dy;
+      if (d2 < CURSOR_PUSH * CURSOR_PUSH && d2 > 0) {
+        const d = Math.sqrt(d2);
         const f = (CURSOR_PUSH - d) / CURSOR_PUSH;
         this.x += (dx / d) * f * 2;
         this.y += (dy / d) * f * 2;
@@ -44,76 +55,121 @@
       if (this.y > H + 10 || this.x < -10 || this.x > W + 10) this.reset(false);
     }
     draw() {
+      ctx.globalAlpha = this.alpha;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle   = pColor;
-      ctx.globalAlpha = this.alpha;
       ctx.fill();
-      ctx.globalAlpha = 1;
     }
   }
 
   let particles = [];
-  let pColor = 'rgba(88,166,255,0.35)';
-  let lColor = 'rgba(88,166,255,0.12)';
 
   function updateColors() {
     pColor = getCSSVar('--canvas-particle') || 'rgba(88,166,255,0.35)';
     lColor = getCSSVar('--canvas-line')     || 'rgba(88,166,255,0.12)';
+    if (!running) frame(false);
+  }
+
+  function particleCount() {
+    // Scale down on small screens (≈ 1 particle per 14k px², capped by config)
+    const byArea = Math.round((W * H) / 14000);
+    return Math.max(18, Math.min(BASE_COUNT, byArea));
   }
 
   function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width  = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    const n = particleCount();
+    if (particles.length > n) particles.length = n;
+    while (particles.length < n) particles.push(new Particle());
+    particles.forEach(p => { if (p.x > W || p.y > H) p.reset(true); });
+    if (!running) frame(false);
   }
 
   function drawLines() {
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const d = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
-        if (d < MAX_DIST) {
+    ctx.strokeStyle = lColor;
+    const n = particles.length;
+    for (let i = 0; i < n; i++) {
+      const a = particles[i];
+      ctx.lineWidth = 0.8;
+      for (let j = i + 1; j < n; j++) {
+        const b = particles[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < MAX_DIST2) {
+          ctx.globalAlpha = (1 - Math.sqrt(d2) / MAX_DIST) * 0.6;
           ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle  = lColor;
-          ctx.globalAlpha  = (1 - d / MAX_DIST) * 0.6;
-          ctx.lineWidth    = 0.8;
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
           ctx.stroke();
-          ctx.globalAlpha  = 1;
         }
       }
-      const d = Math.hypot(particles[i].x - mouseX, particles[i].y - mouseY);
-      if (d < CURSOR_DIST) {
+      const cx = a.x - mouseX, cy = a.y - mouseY;
+      const c2 = cx * cx + cy * cy;
+      if (c2 < CURSOR_DIST2) {
+        ctx.globalAlpha = (1 - Math.sqrt(c2) / CURSOR_DIST) * 0.8;
+        ctx.lineWidth   = 1.2;
         ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.moveTo(a.x, a.y);
         ctx.lineTo(mouseX, mouseY);
-        ctx.strokeStyle  = lColor;
-        ctx.globalAlpha  = (1 - d / CURSOR_DIST) * 0.8;
-        ctx.lineWidth    = 1.2;
         ctx.stroke();
-        ctx.globalAlpha  = 1;
       }
     }
+    ctx.globalAlpha = 1;
+  }
+
+  function frame(step) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = pColor;
+    for (let i = 0; i < particles.length; i++) {
+      if (step) particles[i].update();
+      particles[i].draw();
+    }
+    ctx.globalAlpha = 1;
+    drawLines();
   }
 
   function loop() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
-    drawLines();
+    frame(true);
     animFrame = requestAnimationFrame(loop);
   }
 
-  function init() {
-    resize();
-    updateColors();
-    particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle());
+  function start() {
+    if (running || reduced || document.hidden) return;
+    running = true;
+    animFrame = requestAnimationFrame(loop);
+  }
+  function stop() {
+    running = false;
     if (animFrame) cancelAnimationFrame(animFrame);
-    loop();
+    animFrame = null;
   }
 
-  window.addEventListener('resize',      () => resize());
-  window.addEventListener('mousemove',   e  => { mouseX = e.clientX; mouseY = e.clientY; });
-  window.addEventListener('mouseleave',  () => { mouseX = -9999; mouseY = -9999; });
-  window.addEventListener('themechange', () => updateColors());
-  document.addEventListener('DOMContentLoaded', init);
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 120);
+  }, { passive: true });
+  window.addEventListener('pointermove', e => {
+    if (e.pointerType === 'mouse') { mouseX = e.clientX; mouseY = e.clientY; }
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => { mouseX = -9999; mouseY = -9999; });
+  window.addEventListener('blur', () => { mouseX = -9999; mouseY = -9999; });
+  window.addEventListener('themechange', updateColors);
+  document.addEventListener('visibilitychange', () => { document.hidden ? stop() : start(); });
+
+  function init() {
+    updateColors();
+    resize();
+    start();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();

@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "jekyll-infops-theme"
-  spec.version       = "1.0.0"
+  spec.version       = "1.1.0"
   spec.authors       = ["50bvd"]
   spec.email         = [""]
 
@@ -17,11 +17,13 @@ Gem::Specification.new do |spec|
     f.match(%r!^(assets|_includes|_layouts|_sass|_data|pages|_posts|LICENSE|README)!i)
   end
 
-  spec.add_runtime_dependency "jekyll",                "~> 4.3"
-  spec.add_runtime_dependency "jekyll-sass-converter", "~> 3.0"
-  spec.add_runtime_dependency "jekyll-feed",           "~> 0.12"
-  spec.add_runtime_dependency "jekyll-sitemap"
-  spec.add_runtime_dependency "jekyll-seo-tag"
-  spec.add_runtime_dependency "jekyll-paginate"
-  spec.add_runtime_dependency "jekyll-relative-links"
+  spec.required_ruby_version = ">= 3.1"
+
+  spec.add_runtime_dependency "jekyll",                "~> 4.4"
+  spec.add_runtime_dependency "jekyll-sass-converter", "~> 3.1"
+  spec.add_runtime_dependency "jekyll-feed",           "~> 0.17"
+  spec.add_runtime_dependency "jekyll-sitemap",        "~> 1.4"
+  spec.add_runtime_dependency "jekyll-seo-tag",        "~> 2.9"
+  spec.add_runtime_dependency "jekyll-paginate",       "~> 1.1"
+  spec.add_runtime_dependency "jekyll-relative-links", "~> 0.7"
 end

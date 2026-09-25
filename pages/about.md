@@ -41,7 +41,7 @@ description: "About this blog and the jekyll-infops-theme."
 <table>
   <thead><tr><th>Component</th><th>Technology</th></tr></thead>
   <tbody>
-    <tr><td>Generator</td><td>Jekyll 4.3</td></tr>
+    <tr><td>Generator</td><td>Jekyll 4.4</td></tr>
     <tr><td>CSS</td><td>Modular SCSS</td></tr>
     <tr><td>Icons</td><td>Font Awesome 6.4</td></tr>
     <tr><td>Syntax</td><td>Prism.js</td></tr>

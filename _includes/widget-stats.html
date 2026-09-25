@@ -16,7 +16,7 @@
 {% endcomment %}
 {% assign a = site.analytics %}
 
-<div class="widget stats-widget">
+<div class="widget stats-widget reveal">
   <h3 class="widget-title">
     <i class="fas fa-chart-bar" aria-hidden="true"></i> Site Stats
   </h3>
@@ -57,7 +57,7 @@
          target="_blank" rel="noopener noreferrer" class="ga-link">
         <i class="fas fa-chart-line" aria-hidden="true"></i>
         GoatCounter
-        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+        <i class="fas fa-external-link-alt ga-ext" aria-hidden="true"></i>
       </a>
       {% endif %}
       {% if a.google_analytics_id and a.google_analytics_id != "" %}
@@ -65,7 +65,7 @@
          target="_blank" rel="noopener noreferrer" class="ga-link ga-link--google">
         <i class="fab fa-google" aria-hidden="true"></i>
         Google Analytics
-        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+        <i class="fas fa-external-link-alt ga-ext" aria-hidden="true"></i>
       </a>
       {% endif %}
       {% if a.plausible_domain and a.plausible_domain != "" %}
@@ -73,7 +73,7 @@
          target="_blank" rel="noopener noreferrer" class="ga-link">
         <i class="fas fa-chart-area" aria-hidden="true"></i>
         Plausible
-        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+        <i class="fas fa-external-link-alt ga-ext" aria-hidden="true"></i>
       </a>
       {% endif %}
       {% if a.umami_website_id and a.umami_website_id != "" and a.umami_src and a.umami_src != "" %}
@@ -81,7 +81,7 @@
          target="_blank" rel="noopener noreferrer" class="ga-link">
         <i class="fas fa-wave-square" aria-hidden="true"></i>
         Umami
-        <i class="fas fa-external-link-alt" style="font-size:.6rem;margin-left:auto;opacity:.6"></i>
+        <i class="fas fa-external-link-alt ga-ext" aria-hidden="true"></i>
       </a>
       {% endif %}
     </div>
@@ -94,9 +94,9 @@
 <script>
 (function() {
   'use strict';
-  var code = '{{ a.goatcounter_code }}';
+  var code = {{ a.goatcounter_code | jsonify }};
   var el   = document.getElementById('stat-visitors');
-  if (!el || !code || code.indexOf('YOUR') !== -1) return;
+  if (!el || !code || code.indexOf('YOUR') !== -1 || !/^[a-z0-9-]+$/i.test(code)) return;
 
   // GoatCounter expose les stats publiques via un endpoint JSON sans auth
   // si "Allow public access to stats" est activé dans Settings.
@@ -128,10 +128,13 @@
   .catch(function(err) {
     // 403 = stats non publiques, afficher lien vers dashboard
     if (err === 'auth-required') {
-      el.innerHTML = '<a href="https://' + code + '.goatcounter.com" '
-        + 'target="_blank" rel="noopener" '
-        + 'style="font-size:.7rem;color:var(--accent-blue);text-decoration:none;" '
-        + 'title="Enable public stats in GoatCounter settings">View →</a>';
+      var link = document.createElement('a');
+      link.href = 'https://' + code + '.goatcounter.com';
+      link.target = '_blank'; link.rel = 'noopener noreferrer';
+      link.className = 'stat-link';
+      link.title = 'Enable public stats in GoatCounter settings';
+      link.textContent = 'View →';
+      el.textContent = ''; el.appendChild(link);
     } else {
       el.textContent = '—';
     }
@@ -175,6 +178,7 @@
   animation:gc-spin .7s linear infinite;
 }
 @keyframes gc-spin { to { transform:rotate(360deg); } }
+.stat-link { font-size:.7rem; color:var(--accent-blue); text-decoration:none; -webkit-text-fill-color: var(--accent-blue); }
 .analytics-links { display:flex; flex-direction:column; gap:.4rem; }
 .ga-link {
   display:flex; align-items:center; gap:.5rem;
@@ -186,6 +190,7 @@
   font-size:.8rem; font-weight:600; text-decoration:none;
   transition:all var(--transition-fast);
 }
+.ga-ext { font-size:.6rem; margin-left:auto; opacity:.6; }
 .ga-link:hover { background:rgba(88,166,255,.15); transform:translateY(-1px); color:var(--accent-blue-hover); }
 .ga-link--google { background:rgba(234,67,53,.07); border-color:rgba(234,67,53,.2); color:#ea4335; }
 .ga-link--google:hover { background:rgba(234,67,53,.14); color:#d62516; }

@@ -38,10 +38,11 @@
         .catch(function(err) {
           error = true;
           console.error('[search] Failed to load ' + jsonUrl + ':', err);
+          var home = (document.querySelector('.navbar-brand a') || {}).href || '/';
           resultsDiv.innerHTML =
             '<div class="no-results">' +
             '<i class="fas fa-exclamation-triangle" aria-hidden="true"></i>' +
-            '<p>Search index unavailable. <a href="/">Return home</a>.</p>' +
+            '<p>Search index unavailable. <a href="' + esc(home) + '">Return home</a>.</p>' +
             '</div>';
         });
     }
@@ -50,7 +51,18 @@
     function esc(s) {
       return String(s || '')
         .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function norm(s) {
+      s = String(s || '').toLowerCase();
+      return s.normalize ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : s;
+    }
+
+    function safeUrl(u) {
+      // Only same-site relative paths or http(s) URLs end up in href
+      u = String(u || '');
+      return /^(\/|https?:\/\/)/i.test(u) ? u : '#';
     }
 
     // ── Run search ─────────────────────────────────────────────────────────
@@ -63,15 +75,18 @@
         return;
       }
 
-      var ql = q.toLowerCase();
+      // Every word must match (AND), accents ignored; title hits ranked first
+      var terms = norm(q).split(/\s+/).filter(Boolean);
 
-      var hits = posts.filter(function(p) {
-        return [p.title, p.content, p.tags, p.categories, p.excerpt]
-          .filter(Boolean)
-          .some(function(field) {
-            return field.toLowerCase().indexOf(ql) !== -1;
-          });
-      });
+      var hits = posts.map(function(p) {
+        var title = norm(p.title);
+        var hay   = [title, norm(p.tags), norm(p.categories), norm(p.excerpt), norm(p.content)].join(' ');
+        var ok = terms.every(function(t) { return hay.indexOf(t) !== -1; });
+        if (!ok) return null;
+        var score = terms.reduce(function(s, t) { return s + (title.indexOf(t) !== -1 ? 10 : 0) + (norm(p.tags).indexOf(t) !== -1 ? 3 : 0); }, 0);
+        return { p: p, score: score };
+      }).filter(Boolean).sort(function(a, b) { return b.score - a.score; })
+        .map(function(h) { return h.p; });
 
       if (countEl) {
         countEl.innerHTML =
@@ -95,13 +110,14 @@
           '<span><i class="fas fa-calendar" aria-hidden="true"></i> ' + esc(p.date) + '</span>' +
           (p.tags ? '<span><i class="fas fa-tag" aria-hidden="true"></i> ' + esc(p.tags) + '</span>' : '') +
           '</div>' +
-          '<h2 class="post-title"><a href="' + esc(p.url) + '">' + esc(p.title) + '</a></h2>' +
+          '<h2 class="post-title"><a href="' + esc(safeUrl(p.url)) + '">' + esc(p.title) + '</a></h2>' +
           (p.excerpt ? '<p class="post-excerpt">' + esc(p.excerpt) + '</p>' : '') +
-          '<a href="' + esc(p.url) + '" class="read-more">' +
+          '<a href="' + esc(safeUrl(p.url)) + '" class="read-more">' +
           'Read more <i class="fas fa-arrow-right" aria-hidden="true"></i>' +
           '</a>' +
           '</article>';
       }).join('');
+      if (typeof window.InfOpsReveal === 'function') window.InfOpsReveal(resultsDiv);
     }
 
     // ── Debounced live search ──────────────────────────────────────────────
@@ -111,6 +127,12 @@
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(function() {
         loadIndex(function() { runSearch(val); });
+        // Keep ?q= in the URL so results can be shared / survive a reload
+        try {
+          var u = new URL(window.location.href);
+          if (val.trim()) u.searchParams.set('q', val.trim()); else u.searchParams.delete('q');
+          history.replaceState(null, '', u);
+        } catch (e) {}
       }, 200);
     });
 
@@ -122,7 +144,7 @@
       loadIndex(function() { runSearch(urlQ); });
     }
 
-    // Focus the input
-    searchInput.focus();
+    // Focus the input (without jumping the page)
+    try { searchInput.focus({ preventScroll: true }); } catch (e) { searchInput.focus(); }
   });
 })();

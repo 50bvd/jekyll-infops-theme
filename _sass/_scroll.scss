@@ -1,0 +1,70 @@
+// =============================================================================
+// _scroll.scss — Scroll and navigation animations
+//   · .reveal / .fade-in: fade in when entering the viewport
+//     (hidden only while scroll-fx.js is active → without JS everything stays visible)
+//   · back-to-top button
+//   · native page transitions (View Transitions API, supporting browsers)
+// =============================================================================
+
+// ── Reveal on scroll ─────────────────────────────────────────────────────────
+.reveal-ready {
+  .reveal:not(.is-visible),
+  .fade-in:not(.is-visible) {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  // Reveal transition; dropped afterwards (.reveal-done) so each component's
+  // own hover transitions take over.
+  .reveal:not(.reveal-done),
+  .fade-in:not(.reveal-done) {
+    transition:
+      opacity .8s var(--ease-out-expo) var(--reveal-delay, 0s),
+      transform .8s var(--ease-out-expo) var(--reveal-delay, 0s);
+  }
+}
+
+// Former on-load .fade-in animation (replaced by the reveal)
+.fade-in { animation: none; }
+
+// ── Back to top ──────────────────────────────────────────────────────────────
+.back-to-top {
+  position: fixed; left: 2rem; bottom: calc(2rem + 58px); z-index: 1000;
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-secondary); color: var(--text-secondary);
+  border: 1px solid var(--border-color); box-shadow: var(--shadow-md);
+  cursor: pointer; font-size: 1rem;
+  opacity: 0; visibility: hidden; transform: translate3d(0, 12px, 0) scale(.9);
+  transition: opacity .35s ease, transform .35s var(--ease-out-expo), visibility .35s,
+              color var(--transition-fast), border-color var(--transition-fast);
+
+  &.is-visible { opacity: 1; visibility: visible; transform: none; }
+  &:hover { color: var(--accent-blue); border-color: var(--accent-blue); transform: translate3d(0, -2px, 0); }
+
+  // Reading progress ring
+  svg { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); transform: rotate(-90deg); pointer-events: none; }
+  circle { fill: none; stroke: var(--accent-blue); stroke-width: 2; stroke-linecap: round; opacity: .7; }
+}
+
+@media (max-width: 768px) {
+  .back-to-top { left: 1rem; bottom: calc(1rem + 50px); width: 40px; height: 40px; font-size: .9rem; }
+}
+
+// ── View Transitions (page navigation) ────────────────────────────────
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: vtOut .25s ease both; }
+::view-transition-new(root) { animation: vtIn .35s var(--ease-out-expo) both; }
+@keyframes vtOut { to   { opacity: 0; } }
+@keyframes vtIn  { from { opacity: 0; } }
+
+// Header and canvas stay put during the transition
+.main-header { view-transition-name: site-header; }
+#bg-canvas   { view-transition-name: bg-canvas; }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .reveal-ready {
+    .reveal:not(.is-visible), .fade-in:not(.is-visible) { opacity: 1; transform: none; }
+  }
+}

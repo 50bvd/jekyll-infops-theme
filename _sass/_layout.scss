@@ -378,7 +378,7 @@ body > * { position: relative; z-index: 1; }
 // Reading Progress Bar
 // --------------------------------------------------------------------------
 .reading-progress-container { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: transparent; z-index: 9999; }
-.reading-progress-bar { height: 100%; width: 0%; background: var(--gradient-primary); transition: width 0.1s linear; }
+.reading-progress-bar { height: 100%; width: 100%; background: var(--gradient-primary); transform: scaleX(0); transform-origin: 0 50%; will-change: transform; }
 
 // --------------------------------------------------------------------------
 // Post Footer
