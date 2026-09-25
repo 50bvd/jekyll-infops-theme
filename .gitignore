@@ -45,3 +45,6 @@ docker/certbot/
 
 # Obsolete — delete this folder when done cleaning up
 _obsolete/
+
+# Local bundler lockfile (not tracked: CI and Docker resolve the Gemfile)
+/Gemfile.lock
