@@ -112,6 +112,13 @@ curl -sI http://localhost:4000/
 curl -sI https://50bvd.com/
 ```
 
+{% capture term9 %}
+# curl -sI http://localhost:4000/
+HTTP/1.1 200 OK
+Server: WEBrick/1.9.2
+{% endcapture %}
+{% include terminal.html content=term9 title="root@srv-docker" prompt="root@srv-docker:~" caption="WEBrick answering behind HAProxy (the setup described in this article)" %}
+
 Any change on disk (article, layout, style) is picked up automatically within a few seconds — no separate build or redeploy to orchestrate.
 
 ## Result

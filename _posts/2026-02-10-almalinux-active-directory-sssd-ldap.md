@@ -82,7 +82,8 @@ realm list
 
 Expected output:
 
-```
+{% capture term14 %}
+# realm list
 domain.local
   type: kerberos
   realm-name: DOMAIN.LOCAL
@@ -97,7 +98,10 @@ domain.local
   required-package: samba-common-tools
   login-formats: %U@domain.local
   login-policy: allow-realm-logins
-```
+{% endcapture %}
+{% include terminal.html content=term14 title="root@alma9" prompt="root@alma9:~" caption="The server is a Kerberos member of the domain, with SSSD as client" %}
+
+{% include screenshot.html src="/assets/images/posts/almalinux-ad/02-aduc-computer-account.png" alt="The server computer account in Active Directory" caption="The server's computer account created by `realm join` in *Active Directory Users and Computers*" %}
 
 ## SSSD configuration
 
@@ -190,6 +194,8 @@ realm permit -g 'Linux-Users@domain.local'
 realm list
 ```
 
+{% include screenshot.html src="/assets/images/posts/almalinux-ad/01-aduc-linux-admins.png" alt="Linux-Admins group in Active Directory Users and Computers" caption="The **Linux-Admins** group in *Active Directory Users and Computers*" %}
+
 ## Sudo through Active Directory groups
 
 Create a sudoers file for your AD groups:
@@ -211,6 +217,12 @@ visudo -c -f /etc/sudoers.d/ad-admins
 su - admin-user@domain.local
 sudo whoami   # → root
 ```
+
+{% capture term2 %}
+$ sudo whoami
+root
+{% endcapture %}
+{% include terminal.html content=term2 title="SSH — admin-user@alma9" prompt="admin-user@alma9:~" caption="An AD user from **Linux-Admins** gets root through sudo" %}
 
 ## Common problems
 

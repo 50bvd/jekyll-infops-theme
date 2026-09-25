@@ -1,0 +1,29 @@
+{% comment %}
+  _includes/screenshot.html — an interface screenshot with caption and click-to-zoom.
+
+  {% include screenshot.html src="/assets/images/posts/pihole/03-adlists.png"
+       alt="Pi-hole Adlists page" caption="Group Management → Adlists" %}
+
+  · While the image file does not exist yet, nothing is rendered — unless
+    theme_config.show_screenshot_placeholders is true (e.g. on the preprod),
+    which shows a dashed box naming the file to capture.
+{% endcomment %}
+{% assign _file = site.static_files | where: "path", include.src | first %}
+{% if _file %}
+<figure class="shot">
+  <a class="shot-link" href="{{ include.src | relative_url }}" data-lightbox>
+    <img src="{{ include.src | relative_url }}" alt="{{ include.alt | escape }}" loading="lazy" decoding="async">
+  </a>
+  {% if include.caption %}<figcaption>{{ include.caption | markdownify | remove: "<p>" | remove: "</p>" | strip }}</figcaption>{% endif %}
+</figure>
+{% elsif site.theme_config.show_screenshot_placeholders %}
+<figure class="shot shot--missing" role="note">
+  <div class="shot-placeholder">
+    <i class="fas fa-camera" aria-hidden="true"></i>
+    <strong>Screenshot to add</strong>
+    <code>{{ include.src }}</code>
+    <span>{{ include.alt }}</span>
+  </div>
+  {% if include.caption %}<figcaption>{{ include.caption | markdownify | remove: "<p>" | remove: "</p>" | strip }}</figcaption>{% endif %}
+</figure>
+{% endif %}

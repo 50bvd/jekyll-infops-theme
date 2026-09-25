@@ -124,6 +124,17 @@ theme_config:
   show_post_nav:         true
   show_related_posts:    true
   show_reading_progress: true
+  show_screenshot_placeholders: false   # true: dashed boxes for screenshots not added yet (preprod)
+
+  # ── Article covers ─────────────────────────────────────────────────────
+  # Front matter `image:` (+ `image_light:`) = your own cover. Without it, a cover is
+  # generated from the title + tags (dark/light SVG, PNG for social cards if
+  # rsvg-convert is installed — it is in the Docker image).
+  covers:
+    enabled:       true
+    show_on_cards: true
+    show_on_posts: true
+    png:           true
 
   # ── Canvas background ──────────────────────────────────────────────────
   canvas:
@@ -247,6 +258,7 @@ exclude:
   - apache/
   - scripts/
   - DEPLOY.md
+  - SCREENSHOTS.md
   - _posts/README.md
 
 include:

@@ -58,9 +58,13 @@ The simplest method for a static site is the meta tag, added directly to the `<h
 
 {% include callout.html type="tip" title="Where to find the code" content="In Search Console: Settings → Property → Ownership verification → 'HTML tag' method. The code goes straight into the content attribute of the meta tag, nowhere else." %}
 
+{% include screenshot.html src="/assets/images/posts/seo/01-search-console-verification.png" alt="Google Search Console ownership verification with the HTML tag method" caption="Search Console → **Ownership verification** → *HTML tag*" %}
+
 ## Submitting the sitemap
 
 Once the property is verified in Search Console: **Sitemaps → Add a new sitemap** → enter `sitemap.xml` (the full URL isn't needed, just the relative path). The status changes to "Submitted", then after a few hours to "Success" with the number of discovered pages.
+
+{% include screenshot.html src="/assets/images/posts/seo/02-search-console-sitemaps.png" alt="Search Console sitemap submitted with Success status" caption="The sitemap in Search Console, status **Success** with the discovered pages" %}
 
 ## Checking
 
@@ -69,6 +73,15 @@ curl -s https://mydomain.com/robots.txt
 curl -s https://mydomain.com/sitemap.xml | head -20
 curl -s https://mydomain.com/ | grep google-site-verification
 ```
+
+{% capture term13 %}
+$ curl -s https://mydomain.com/robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://mydomain.com/sitemap.xml
+{% endcapture %}
+{% include terminal.html content=term13 title="robots.txt check" prompt="user@laptop:~" %}
 
 {% include callout.html type="warning" title="Deleting/re-creating a property" content="If you delete and re-create the property in Search Console, a new verification code is generated every time — the old meta tag stops working and must be replaced before running the verification again." %}
 

@@ -244,3 +244,91 @@
   &.open .floating-toc-content { display: block; }
 }
 @media (max-width: 1400px) { .floating-toc { display: none; } }
+
+// --------------------------------------------------------------------------
+// Terminal "screenshot" (_includes/terminal.html)
+// --------------------------------------------------------------------------
+.term-shot {
+  text-align: left;
+  margin: 1.75rem 0; border-radius: var(--radius-md); overflow: hidden;
+  background: #070d18; border: 1px solid rgba(88,166,255,.18);
+  box-shadow: 0 12px 32px rgba(0,0,0,.45), 0 0 0 1px rgba(88,166,255,.05);
+  font-family: var(--font-mono);
+}
+.term-shot-bar {
+  display: flex; align-items: center; gap: .8rem; padding: .55rem .9rem;
+  background: #0b1520; border-bottom: 1px solid rgba(88,166,255,.14);
+}
+.term-shot-dots { display: inline-flex; gap: 6px; }
+.term-shot-dots i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f56; }
+.term-shot-dots i:nth-child(2) { background: #ffbd2e; }
+.term-shot-dots i:nth-child(3) { background: #27ca3f; }
+.term-shot-title { flex: 1; text-align: center; margin-right: 45px; font-size: .75rem; color: rgba(88,166,255,.55); }
+.post-body .term-shot-body, .term-shot-body {
+  margin: 0; padding: 1rem 1.2rem; border: 0; border-radius: 0; background: transparent;
+  font-size: .82rem; line-height: 1.65; color: #c9d7ea; overflow-x: auto;
+}
+.term-shot-body code { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; white-space: pre; text-shadow: none; }
+.ts-prompt { color: #56d364; font-weight: 600; }
+.ts-prompt.ts-root { color: #f85149; }
+.ts-cmd  { color: #e6edf3; }
+.ts-out  { color: #9fb3c8; }
+.ts-err  { color: #ff7b72; }
+.term-shot figcaption, .shot figcaption {
+  padding: .55rem 1rem; font-size: .8rem; color: var(--text-muted); font-style: normal; text-align: left;
+  border-top: 1px solid var(--border-subtle); background: var(--bg-secondary);
+}
+[data-theme="light"] .term-shot { box-shadow: 0 8px 22px rgba(17,24,39,.18); }
+
+// --------------------------------------------------------------------------
+// Interface screenshot (_includes/screenshot.html) + lightbox
+// --------------------------------------------------------------------------
+.shot {
+  margin: 1.75rem 0; border-radius: var(--radius-md); overflow: hidden;
+  border: 1px solid var(--border-color); background: var(--bg-tertiary); box-shadow: var(--shadow-md);
+}
+.shot-link { display: block; cursor: zoom-in; }
+.post-body .shot img, .shot img { display: block; width: 100%; height: auto; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+.shot--missing { border-style: dashed; border-color: var(--accent-yellow); box-shadow: none; }
+.shot-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: 1.6rem 1rem;
+  text-align: center; color: var(--text-secondary); font-size: .85rem;
+  i { font-size: 1.4rem; color: var(--accent-yellow); }
+  strong { color: var(--accent-yellow); text-transform: uppercase; letter-spacing: .06em; font-size: .75rem; }
+}
+.lightbox {
+  position: fixed; inset: 0; z-index: 10050; display: flex; align-items: center; justify-content: center;
+  padding: 2rem; background: rgba(1,4,9,.88); cursor: zoom-out;
+  animation: fadeIn .2s ease;
+  img { max-width: 100%; max-height: 100%; border-radius: var(--radius-md); box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+}
+
+// --------------------------------------------------------------------------
+// Article covers (_includes/cover.html)
+// --------------------------------------------------------------------------
+.cover { display: block; position: relative; overflow: hidden; aspect-ratio: 1200 / 630; background: var(--bg-tertiary); }
+.cover-img { display: block; width: 100%; height: 100%; object-fit: cover; margin: 0; border-radius: 0; }
+.cover--themed .cover-img--light { display: none; }
+[data-theme="light"] .cover--themed {
+  .cover-img--dark  { display: none; }
+  .cover-img--light { display: block; }
+}
+.post-cover { border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin: -.5rem 0 2rem; box-shadow: var(--shadow-md); }
+
+.post-card.has-cover {
+  display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 0; padding: 0;
+  .post-card-body { padding: 2rem; min-width: 0; }
+  .post-card-cover {
+    order: 2; align-self: center; margin: 1.5rem 1.5rem 1.5rem 0;
+    border-radius: var(--radius-md); border: 1px solid var(--border-color);
+  }
+  .post-card-cover .cover-img { transition: transform .6s var(--ease-out-expo); }
+  &:hover .post-card-cover .cover-img { transform: scale(1.04); }
+}
+@media (max-width: 900px) {
+  .post-card.has-cover {
+    grid-template-columns: 1fr;
+    .post-card-cover { order: 0; margin: 0; border-radius: 0; border: 0; border-bottom: 1px solid var(--border-color); }
+    .post-card-body { padding: 1.5rem; }
+  }
+}

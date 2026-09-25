@@ -66,16 +66,19 @@ docker compose up -d
 docker compose exec deming php artisan migrate --force
 ```
 
+{% include screenshot.html src="/assets/images/posts/deming/01-login.png" alt="Deming login page" caption="Deming up and running, ready for LDAP logins" %}
+
 ## Bug #1 — Wrong LDAP AND/OR filter
 
 ### Symptom
 
 LDAP authentication fails when several attributes are used:
 
-```
-LDAP Error: Invalid filter syntax
-ldap_search(): Search: Bad search filter
-```
+{% capture term4 %}
+! LDAP Error: Invalid filter syntax
+! ldap_search(): Search: Bad search filter
+{% endcapture %}
+{% include terminal.html content=term4 title="storage/logs/laravel.log" prompt="deming" %}
 
 ### Cause
 
@@ -113,10 +116,11 @@ if (count($conditions) > 1) {
 
 The first time an LDAP user who isn't in the database yet logs in, auto-provisioning fails:
 
-```
-SQLSTATE[23000]: Integrity constraint violation:
-1062 Duplicate entry 'null' for key 'users_email_unique'
-```
+{% capture term5 %}
+! SQLSTATE[23000]: Integrity constraint violation:
+! 1062 Duplicate entry 'null' for key 'users_email_unique'
+{% endcapture %}
+{% include terminal.html content=term5 title="storage/logs/laravel.log" prompt="deming" %}
 
 ### Cause
 
@@ -179,6 +183,8 @@ git push origin fix/ldap-filter-and-or
 Both PRs were merged into release `2026.06.16`:
 - **PR #688** — Fix LDAP login filter AND/OR grouping
 - **PR #690** — Fix hardcoded LDAP auto-provision email fallback
+
+{% include screenshot.html src="/assets/images/posts/deming/02-pr-merged.png" alt="Merged pull request on the Deming repository" caption="The fix merged upstream in sourcentis/deming" %}
 
 {% include callout.html type="success" title="Open source" content="Contributing upstream benefits the whole community. If you find a bug while deploying an open-source project, take 30 minutes to submit a PR — it's often simple and very much appreciated." %}
 

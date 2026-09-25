@@ -32,6 +32,8 @@ dd if=proxmox-ve_8.4.iso of=/dev/sdX bs=4M status=progress
 
 When the Mac Pro starts, hold **Option** to pick the USB stick. The Mac Pro 3.1 boots in legacy BIOS mode — if the stick doesn't show up, try another USB port (the rear ports work better).
 
+{% include screenshot.html src="/assets/images/posts/proxmox-mac-pro/01-boot-picker.jpg" alt="Mac Pro boot picker showing the USB stick" caption="Holding **Option** at startup: the Mac Pro boot picker with the Proxmox USB stick" %}
+
 {% include callout.html type="warning" title="EFI boot" content="The Mac Pro 3.1 can be picky with some USB sticks. If it gets stuck, burn a DVD or use rEFInd as an intermediate boot loader." %}
 
 ## Bug — MSR IA32_DEBUGCTL (Harpertown)
@@ -62,6 +64,12 @@ cat /sys/module/kvm_intel/parameters/ignore_msrs
 # Make it permanent
 update-initramfs -u -k all
 ```
+
+{% capture term3 %}
+# cat /sys/module/kvm_intel/parameters/ignore_msrs
+Y
+{% endcapture %}
+{% include terminal.html content=term3 title="root@macpro" prompt="root@macpro:~" caption="`ignore_msrs` is active: KVM no longer crashes on Harpertown" %}
 
 After a reboot, VMs start and run stably.
 
@@ -111,6 +119,8 @@ pvesm add zfspool datastore \
 
 Or in the web interface: **Datacenter → Storage → Add → ZFS**.
 
+{% include screenshot.html src="/assets/images/posts/proxmox-mac-pro/02-add-zfs-storage.png" alt="Proxmox Add ZFS storage dialog" caption="**Datacenter → Storage → Add → ZFS** with the `datastore` pool" %}
+
 ## SSD as an L2ARC cache (optional)
 
 ```bash
@@ -154,6 +164,8 @@ After several months with 8-10 VMs running at the same time:
 | CPU temperature | 45-55°C |
 
 The Mac Pro's (axial, very quiet) cooling handles the heat perfectly, even under load.
+
+{% include screenshot.html src="/assets/images/posts/proxmox-mac-pro/03-node-summary.png" alt="Proxmox node summary graphs" caption="Node summary in Proxmox: CPU, RAM and load over several months" %}
 
 ## Conclusion
 

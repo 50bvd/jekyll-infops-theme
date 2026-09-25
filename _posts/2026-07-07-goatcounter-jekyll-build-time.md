@@ -16,18 +16,20 @@ GoatCounter is a lightweight, privacy-friendly alternative to Google Analytics. 
 
 **The official stats API** (`/api/v0/stats/total`) always requires a Bearer token, even with the dashboard set to public:
 
-```bash
-curl -s https://MYCODE.goatcounter.com/api/v0/stats/total
-# → {"error":"no Authorization header"}
-```
+{% capture term11 %}
+$ curl -s https://MYCODE.goatcounter.com/api/v0/stats/total
+{"error":"no Authorization header"}
+{% endcapture %}
+{% include terminal.html content=term11 title="Official API without a token" prompt="user@laptop:~" %}
 
 **The public `/counter/*.json` endpoint**, meant to be embedded without a token, works with `curl` but breaks with `fetch()` from the browser:
 
-```
-Access to fetch at 'https://mycode.goatcounter.com/counter//.json?...'
-from origin 'https://mydomain.com' has been blocked by CORS policy:
-No 'Access-Control-Allow-Origin' header is present
-```
+{% capture term12 %}
+! Access to fetch at 'https://mycode.goatcounter.com/counter//.json?...'
+! from origin 'https://mydomain.com' has been blocked by CORS policy:
+! No 'Access-Control-Allow-Origin' header is present
+{% endcapture %}
+{% include terminal.html content=term12 title="DevTools — Console" prompt="console" %}
 
 **The `<img>` variant with `/counter/*.svg`** gets around CORS in theory (images aren't subject to it) — but still fails with a `499`/`net::ERR_FAILED`, reproducible on both PC and mobile, unrelated to any local ad blocker.
 
@@ -92,6 +94,8 @@ analytics:
   goatcounter_code: "mycode"
 ```
 
+{% include screenshot.html src="/assets/images/posts/goatcounter/01-dashboard.png" alt="GoatCounter dashboard" caption="The GoatCounter dashboard the count comes from" %}
+
 ## Checking
 
 ```bash
@@ -101,6 +105,8 @@ docker logs infops-public | grep -i goatcounter   # no error = OK
 curl -s http://localhost:4000/ | grep -A3 "Visitors / month"
 # → the number must appear directly in the HTML, not "—"
 ```
+
+{% include screenshot.html src="/assets/images/posts/goatcounter/02-visitors-widget.png" alt="Visitors per month stat on the home page" caption="The **Visitors / month** stat, already in the HTML when the page loads" %}
 
 ## Result
 

@@ -112,6 +112,12 @@ docker run --rm -v portainer_data:/data alpine ls /data
 # → backups bin certs portainer.db ...
 ```
 
+{% capture term7 %}
+# docker run --rm -v portainer_data:/data alpine ls /data
+backups bin certs portainer.db ...
+{% endcapture %}
+{% include terminal.html content=term7 title="root@debian13" prompt="root@debian13:~" caption="The Portainer volume is back, with its database" %}
+
 ## Step 4 — Recreate the containers
 
 ### Portainer (without Docker Swarm)
@@ -148,6 +154,8 @@ volumes:
 ```bash
 docker compose -f /root/portainer-compose.yml up -d
 ```
+
+{% include screenshot.html src="/assets/images/posts/docker-migration/01-portainer.png" alt="Portainer dashboard on the new Debian 13 host" caption="Portainer running on Debian 13 with its restored settings and stacks" %}
 
 ### Stateless containers
 
@@ -207,6 +215,12 @@ docker ps --format "table {% raw %}{{.Names}}\t{{.Status}}\t{{.Ports}}{% endraw 
 curl -sk https://my-service.domain.com -o /dev/null -w "%{http_code}"
 # → 200
 ```
+
+{% capture term8 %}
+$ curl -sk https://my-service.domain.com -o /dev/null -w "%{http_code}"
+200
+{% endcapture %}
+{% include terminal.html content=term8 title="Final check" prompt="user@laptop:~" %}
 
 ## Rollback
 

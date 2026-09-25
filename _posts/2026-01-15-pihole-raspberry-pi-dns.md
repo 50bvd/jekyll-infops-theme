@@ -46,6 +46,8 @@ Pi-hole answers `0.0.0.0` for advertising domains — the device never loads the
 - Set a hostname (e.g. `pihole`)
 - Set a username/password
 
+{% include screenshot.html src="/assets/images/posts/pihole/01-imager-settings.png" alt="Raspberry Pi Imager advanced settings" caption="Raspberry Pi Imager → ⚙️: SSH, Wi-Fi, hostname and user set before flashing" %}
+
 **3.** Flash the SD card with **Raspberry Pi OS Lite (64-bit)**
 
 **4.** Insert the card and boot the Pi. Connect over SSH:
@@ -89,6 +91,8 @@ The interactive installer walks you through:
 
 At the end, write down the generated admin password.
 
+{% include screenshot.html src="/assets/images/posts/pihole/02-installer-done.png" alt="End of the Pi-hole installer" caption="The last installer screen shows the web interface address and the admin password" %}
+
 {% include callout.html type="warning" title="Admin password" content="If you miss the password, you can change it at any time with: pihole -a -p new-password" %}
 
 ## Post-installation setup
@@ -96,6 +100,8 @@ At the end, write down the generated admin password.
 ### Opening the web interface
 
 Open `http://192.168.1.100/admin` in your browser.
+
+{% include screenshot.html src="/assets/images/posts/pihole/03-dashboard.png" alt="Pi-hole dashboard" caption="The Pi-hole dashboard: total queries, blocked queries and blocklist size" %}
 
 ### Updating the blocklists
 
@@ -116,6 +122,8 @@ https://adaway.org/hosts.txt
 
 Then: **Tools → Update Gravity** to download the lists.
 
+{% include screenshot.html src="/assets/images/posts/pihole/04-adlists.png" alt="Pi-hole Adlists page" caption="**Group Management → Adlists** with the extra lists added" %}
+
 ## Making your router hand out Pi-hole as DNS
 
 This is the key step: every device on the network must use Pi-hole as its DNS server.
@@ -123,6 +131,8 @@ This is the key step: every device on the network must use Pi-hole as its DNS se
 **In your router's interface:**
 - DHCP settings → primary DNS: `192.168.1.100` (the Pi's IP)
 - Secondary DNS: leave empty or set `1.1.1.1` (fallback if Pi-hole goes down)
+
+{% include screenshot.html src="/assets/images/posts/pihole/05-router-dns.png" alt="Router DHCP settings with Pi-hole as DNS" caption="Router DHCP settings: the Pi-hole IP as primary DNS" %}
 
 On some routers, devices must be restarted to pick up the new DNS.
 
@@ -186,6 +196,12 @@ nslookup google.com
 # Linux/Mac:
 dig google.com | grep SERVER
 ```
+
+{% capture term1 %}
+$ nslookup google.com
+Server:  192.168.1.100
+{% endcapture %}
+{% include terminal.html content=term1 title="PowerShell — nslookup" prompt="PS C:\\>" caption="The **Server** line must show the Pi-hole IP" %}
 
 ### Pi-hole doesn't answer
 

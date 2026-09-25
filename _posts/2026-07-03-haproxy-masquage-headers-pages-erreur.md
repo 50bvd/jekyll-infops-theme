@@ -25,6 +25,12 @@ http-response del-header Server if !is_main_domain
 
 In an `http-response` context, `hdr(host)` is no longer valid: that fetch only exists on the request side. HAProxy rejects the rule with *"will never match because it only involves keywords that are incompatible with 'frontend http-response header rule'"*.
 
+{% capture term10 %}
+# haproxy -c -f /etc/haproxy/haproxy.cfg
+! ... will never match because it only involves keywords that are incompatible with 'frontend http-response header rule'
+{% endcapture %}
+{% include terminal.html content=term10 title="root@haproxy (OpenBSD, ksh)" prompt="root@haproxy:~" caption="The configuration check rejects `hdr(host)` in a response rule" %}
+
 The solution is to capture the host during the request in a transaction variable, then read it back on the response side:
 
 ```haproxy
@@ -56,6 +62,8 @@ http-response return status 404 content-type text/html \
 Repeat for each code you want (400, 403, 404, 408, 500, 502, 503, 504).
 
 {% include callout.html type="tip" title="return replaces the whole response" content="http-response return completely overwrites the original response, including security headers added by earlier rules — they have to be re-injected directly on the return line with hdr." %}
+
+{% include screenshot.html src="/assets/images/posts/haproxy/01-custom-404.png" alt="Custom error page served by HAProxy" caption="The same custom 404 page, whatever the backend behind the domain" %}
 
 ## Known limitation: SPAs that always answer 200
 

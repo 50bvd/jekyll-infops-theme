@@ -107,6 +107,8 @@ In the panel: **Admin → Nodes → Create a node**:
 - Daemon Port: `443` ← public port exposed by HAProxy
 - ✅ **Behind Proxy** checked ← critical
 
+{% include screenshot.html src="/assets/images/posts/pterodactyl/01-node-settings.png" alt="Pterodactyl node settings" caption="Node settings: FQDN, daemon port **443** and **Behind Proxy** checked" %}
+
 Copy the generated config into `/etc/pterodactyl/config.yml`.
 
 Make sure Wings listens in **HTTP** on **8080** (not 443):
@@ -161,13 +163,13 @@ backend wings_backend
 
 ## Checking
 
-```bash
-# Test Wings through HAProxy
-curl -sk https://node.domain.com/api/system -o /dev/null -w "%{http_code}"
-# → 401 (authentication required — Wings answers correctly)
+{% capture term6 %}
+$ curl -sk https://node.domain.com/api/system -o /dev/null -w "%{http_code}"
+401
+{% endcapture %}
+{% include terminal.html content=term6 title="Wings through HAProxy" prompt="user@laptop:~" caption="**401** = Wings answers through HAProxy (authentication required)" %}
 
-# The node should turn green in the panel
-```
+{% include screenshot.html src="/assets/images/posts/pterodactyl/02-node-online.png" alt="Pterodactyl node online" caption="The node turns green in the panel" %}
 
 ## Firewall on the Wings server
 

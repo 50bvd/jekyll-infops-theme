@@ -47,9 +47,9 @@
   {% capture script_src %}{{ script_src }} https://utteranc.es{% endcapture %}
   {% capture frame_src %}{{ frame_src }} https://utteranc.es{% endcapture %}
 {% elsif c.provider == "disqus" %}
-  {% capture script_src %}{{ script_src }} https://*.disqus.com https://*.disquscdn.com{% endcapture %}
+  {% capture script_src %}{{ script_src }} https://disqus.com https://*.disqus.com https://*.disquscdn.com{% endcapture %}
   {% capture style_src %}{{ style_src }} https://*.disquscdn.com{% endcapture %}
-  {% capture connect_src %}{{ connect_src }} https://*.disqus.com{% endcapture %}
+  {% capture connect_src %}{{ connect_src }} https://disqus.com https://*.disqus.com https://*.disquscdn.com{% endcapture %}
   {% capture frame_src %}{{ frame_src }} https://disqus.com https://*.disqus.com{% endcapture %}
 {% endif %}
 
