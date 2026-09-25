@@ -15,6 +15,7 @@ Each file registers one or more commands via `window.Terminal.register()`.
 | `snake.js` | 🐍 Snake |
 | `tetris.js` | 🧱 Tetris |
 | `2048.js` | 🔢 2048 |
+| `gba.js` | 🎮 Game Boy Advance emulator — `gba` loads a ROM from your computer (gpSP → WebAssembly, runs locally; see `tools/gba-emulator/`) |
 
 Games run on the shared engine `ctx.createGame()` (same window size for every
 game, scaled in fullscreen, fixed 60 Hz update, pause / replay / best score).

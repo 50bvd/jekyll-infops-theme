@@ -48,3 +48,6 @@ _obsolete/
 
 # Local bundler lockfile (not tracked: CI and Docker resolve the Gemfile)
 /Gemfile.lock
+
+# GBA emulator build workspace (tools/gba-emulator/build.sh)
+/tools/gba-emulator/.build/
