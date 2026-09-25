@@ -53,7 +53,7 @@ window.Terminal.register({
 
 ## Step 2 — Register it in default.html
 
-Open `_layouts/default.html` and add a script tag **after** `hero-terminal.js`:
+Open `_layouts/default.html` and add a script tag next to the other command scripts — inside the `{% raw %}{% if load_terminal %}{% endraw %}` block, so it is only loaded on pages that have a terminal:
 
 ```html
 <script src="/assets/js/terminal-commands/my-command.js" defer></script>

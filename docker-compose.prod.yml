@@ -1,19 +1,19 @@
 # =============================================================================
-# docker-compose.prod.yml — Mode PRODUCTION
-# Build le site statique et le sert via nginx.
+# docker-compose.prod.yml — PRODUCTION
+# Builds the static site and serves it with nginx.
 #
-# Usage :
+# Usage:
 #   docker compose -f docker-compose.prod.yml up -d --build
 #   docker compose -f docker-compose.prod.yml down
 #
-# Accès : http://localhost (port 80) ou via reverse proxy
+# Open: http://localhost (port 80), or put it behind a reverse proxy
 # =============================================================================
 
 services:
   jekyll-prod:
     build:
       context: .
-      target:  prod         # Stage "prod" du Dockerfile (nginx)
+      target:  prod         # "prod" stage of the Dockerfile (nginx)
     container_name: infops-prod
     ports:
       - "80:80"
@@ -28,8 +28,8 @@ services:
       timeout:  5s
       retries:  3
 
-  # ── Optionnel : reverse proxy Nginx avec SSL via Certbot ──────────────────
-  # Décommentez si vous deployez sur un VPS avec un domaine.
+  # ── Optional: TLS certificates with Certbot ───────────────────────────────
+  # Uncomment when deploying on a server with a domain name.
   #
   # certbot:
   #   image:   certbot/certbot:latest

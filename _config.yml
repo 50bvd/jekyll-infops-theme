@@ -78,23 +78,22 @@ theme_config:
     max_input:         256        # max characters per command
     max_lines:         500        # output lines kept in the DOM
 
-  # ── Terminal boot — neofetch affiché au démarrage ────────────────────────
-  # Laisser vide ("") pour masquer une ligne.
+  # ── Terminal boot — neofetch banner shown when the terminal starts ───────
+  # Leave a value empty ("") to hide its line.
   terminal_boot:
-    user:  "YOUR_USER"        # ex: loup
-    host:  "YOUR_HOST"        # ex: infops
-    os:    "YOUR_OS"          # ex: Jekyll 4.4 · AlmaLinux 10
-    shell: "YOUR_SHELL"       # ex: bash 5.2
-    role:  "YOUR_ROLE"        # ex: SysOps · Infrastructure  (laisser vide pour masquer)
-    line1: "YOUR_LINE1"       # ex: Org: AT&T              (laisser vide pour masquer)
-    line2: "YOUR_LINE2"       # ex: Stack: Proxmox · Docker  (laisser vide pour masquer)
-    motd:  "Type /help for commands"        # ex: Bienvenue. /help pour les commandes.
+    user:  "YOUR_USER"        # e.g. loup
+    host:  "YOUR_HOST"        # e.g. infops
+    os:    "YOUR_OS"          # e.g. Jekyll 4.4 · AlmaLinux 10
+    shell: "YOUR_SHELL"       # e.g. bash 5.2
+    role:  "YOUR_ROLE"        # e.g. SysOps · Infrastructure
+    line1: "YOUR_LINE1"       # e.g. Org: ACME
+    line2: "YOUR_LINE2"       # e.g. Stack: Proxmox · Docker
+    motd:  "Type /help for commands"        # message under the banner
     image: ""                 # logo image shown instead of the ASCII art, e.g. "/assets/images/logo.png"
     image_alt: ""
 
-    # ASCII art affiché à gauche du neofetch (9 lignes, ~32 chars de large max)
-    # Laisser vide pour utiliser le logo Ubuntu par défaut.
-    # Générateur : https://patorjk.com/software/taag/
+    # ASCII art shown left of the banner (up to ~9 lines, ~32 characters wide)
+    # Leave empty for the default logo. Generator: https://patorjk.com/software/taag/
     ascii: |
       YOUR_ASCII_LINE_1
       YOUR_ASCII_LINE_2
@@ -216,8 +215,9 @@ plugins:
   - jekyll-relative-links
 
 sass:
-  style:    compressed
-  sass_dir: _sass
+  style:     compressed
+  sass_dir:  _sass
+  sourcemap: development   # no .css.map in production builds
 
 liquid:
   error_mode:       warn

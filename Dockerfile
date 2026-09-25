@@ -30,10 +30,10 @@ WORKDIR /site
 # Gemfile.lock is optional: the glob keeps COPY from failing when it is absent.
 COPY Gemfile Gemfile.lock* ./
 
-# Installer les gems
+# Install the gems
 RUN bundle install --jobs 4 --retry 3
 
-# ─── Stage 2 : développement ─────────────────────────────────────────────────
+# ─── Stage 2 : development ───────────────────────────────────────────────────
 FROM base AS dev
 
 WORKDIR /site
@@ -89,13 +89,13 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
 
-# ─── Stage 4 : production (nginx léger) ──────────────────────────────────────
+# ─── Stage 4 : production (lightweight nginx) ────────────────────────────────
 FROM nginx:stable-alpine AS prod
 
-# Copier le site buildé
+# Built site
 COPY --from=builder /dist /usr/share/nginx/html
 
-# Config nginx optimisée pour un site statique Jekyll
+# nginx tuned for a static Jekyll site
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/security-headers.conf /etc/nginx/snippets/security-headers.conf
 

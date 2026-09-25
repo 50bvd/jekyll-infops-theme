@@ -25,6 +25,13 @@
     s.setAttribute('data-timestamp', String(Date.now()));
     (document.head || document.body).appendChild(s);
   }
+  // Disqus picks its colours from the page when it loads: reload the thread
+  // after a dark/light switch so it doesn't stay in the old theme.
+  window.addEventListener('themechange', function() {
+    if (!load.done || !window.DISQUS || typeof window.DISQUS.reset !== 'function') return;
+    setTimeout(function() { window.DISQUS.reset({ reload: true, config: window.disqus_config }); }, 350);
+  });
+
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function(entries) {
       if (entries.some(function(e) { return e.isIntersecting; })) { io.disconnect(); load(); }

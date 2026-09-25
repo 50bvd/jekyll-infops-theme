@@ -1,21 +1,21 @@
 {% comment %}
   _includes/callout.html
   ─────────────────────────────────────────────────────────────────────────
-  Blocs d'alerte stylisés utilisables dans les posts Markdown.
+  Styled alert boxes for Markdown posts.
 
-  USAGE dans un post .md :
+  USAGE in a .md post:
   ──────────────────────────
-  {% include callout.html type="note"    title="À savoir"    content="Votre texte ici." %}
-  {% include callout.html type="tip"     title="Astuce"      content="Votre texte ici." %}
-  {% include callout.html type="warning" title="Attention"   content="Votre texte ici." %}
-  {% include callout.html type="danger"  title="Danger"      content="Votre texte ici." %}
-  {% include callout.html type="success" title="Succès"      content="Votre texte ici." %}
-  {% include callout.html type="info"    title="Info"        content="Votre texte ici." %}
+  {% include callout.html type="note"    title="Good to know" content="Your text here." %}
+  {% include callout.html type="tip"     title="Tip"          content="Your text here." %}
+  {% include callout.html type="warning" title="Careful"      content="Your text here." %}
+  {% include callout.html type="danger"  title="Danger"       content="Your text here." %}
+  {% include callout.html type="success" title="Success"      content="Your text here." %}
+  {% include callout.html type="info"    title="Info"         content="Your text here." %}
 
-  Paramètres :
-    type    → note | tip | warning | danger | success | info  (défaut: note)
-    title   → texte du titre (optionnel)
-    content → texte du contenu (supporte le Markdown basique via markdownify)
+  Parameters:
+    type    → note | tip | warning | danger | success | info  (default: note)
+    title   → title text (optional)
+    content → body text (basic Markdown supported, via markdownify)
   ─────────────────────────────────────────────────────────────────────────
 {% endcomment %}
 
@@ -26,16 +26,16 @@
 {% case _type %}
   {% when "tip" %}
     {% assign _icon  = "fas fa-lightbulb" %}
-    {% assign _label = _title | default: "Astuce" %}
+    {% assign _label = _title | default: "Tip" %}
   {% when "warning" %}
     {% assign _icon  = "fas fa-exclamation-triangle" %}
-    {% assign _label = _title | default: "Attention" %}
+    {% assign _label = _title | default: "Warning" %}
   {% when "danger" %}
     {% assign _icon  = "fas fa-skull-crossbones" %}
     {% assign _label = _title | default: "Danger" %}
   {% when "success" %}
     {% assign _icon  = "fas fa-check-circle" %}
-    {% assign _label = _title | default: "Succès" %}
+    {% assign _label = _title | default: "Success" %}
   {% when "info" %}
     {% assign _icon  = "fas fa-info-circle" %}
     {% assign _label = _title | default: "Information" %}

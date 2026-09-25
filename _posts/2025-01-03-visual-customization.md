@@ -15,7 +15,7 @@ The entire visual appearance of jekyll-infops-theme is controlled by two files: 
 
 ## How the theming pipeline works
 
-At build time, `_includes/custom-styles.html` reads `_data/theme.yml` and injects a `<style id="infops-custom-vars">` block that overrides CSS custom properties defined in `_sass/_themes.scss`. Because CSS variables cascade, every component picks up the change automatically — cards, code blocks, tags, the terminal, the sidebar widget.
+At build time, `_includes/custom-styles.html` reads `_data/theme.yml` and injects a `<style id="infops-custom-vars">` block, right after the theme stylesheet, that overrides CSS custom properties defined in `_sass/_themes.scss` (only the values you set: an empty value keeps the default). Because CSS variables cascade, every component picks up the change automatically — cards, code blocks, tags, the terminal, the sidebar widget.
 
 The result: **change a hex value → rebuild → done.**
 
@@ -29,7 +29,7 @@ fonts:
   mono: ""   # leave empty for JetBrains Mono (default)
 ```
 
-Any [Google Fonts](https://fonts.google.com) name works. The theme requests only the weights it actually uses (300–900 for sans, 400/500/700 for mono), so page weight stays minimal.
+The default fonts are **self-hosted** (no request to Google). Any other [Google Fonts](https://fonts.google.com) name works: it is then loaded from Google Fonts with only the weights the theme uses, and allowed in the Content-Security-Policy automatically.
 
 ```yaml
 # Examples
@@ -59,7 +59,7 @@ colors:
   bg_tertiary:   "#21262d"   # inputs, hover states, code background
 ```
 
-{% include callout.html type="info" title="Light mode backgrounds" content="Light mode surfaces are built into `_sass/_themes.scss` as blue-grey tints. They are not controlled by `_data/theme.yml` — override them in `_sass/_themes.scss` if needed." %}
+{% include callout.html type="info" title="Light mode" content="Colours from `_data/theme.yml` apply to the dark theme. The light theme keeps its own contrast-checked palette (WCAG AA) in `_sass/_themes.scss` — override it there if needed." %}
 
 ### Terminal color at runtime
 

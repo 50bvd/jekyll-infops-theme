@@ -20,8 +20,15 @@
 {% assign inline_js = false %}
 {% if site.analytics.google_analytics_id and site.analytics.google_analytics_id != "" %}{% assign inline_js = true %}{% endif %}
 {% if page.mermaid or page.csp_inline_scripts %}{% assign inline_js = true %}{% endif %}
-{% capture script_src %}'self'{% if inline_js %} 'unsafe-inline'{% endif %} https://cdn.jsdelivr.net{% endcapture %}
-{% capture style_src %}'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com{% endcapture %}
+{% comment %} jsDelivr only on pages that load Mermaid / MathJax; Google Fonts only when a
+   custom font is set in _data/theme.yml (the default fonts are self-hosted) {% endcomment %}
+{% assign cdn = false %}
+{% if page.mermaid or page.math %}{% assign cdn = true %}{% endif %}
+{% assign gfonts = false %}
+{% if site.data.theme.fonts.sans and site.data.theme.fonts.sans != "" %}{% assign gfonts = true %}{% endif %}
+{% if site.data.theme.fonts.mono and site.data.theme.fonts.mono != "" %}{% assign gfonts = true %}{% endif %}
+{% capture script_src %}'self'{% if inline_js %} 'unsafe-inline'{% endif %}{% if cdn %} https://cdn.jsdelivr.net{% endif %}{% endcapture %}
+{% capture style_src %}'self' 'unsafe-inline'{% if gfonts %} https://fonts.googleapis.com{% endif %}{% endcapture %}
 {% capture connect_src %}'self'{% endcapture %}
 {% capture frame_src %}'self'{% endcapture %}
 
@@ -58,7 +65,7 @@
 {% if ex.connect %}{% capture connect_src %}{{ connect_src }} {{ ex.connect | join: " " }}{% endcapture %}{% endif %}
 {% if ex.frame   %}{% capture frame_src   %}{{ frame_src }} {{ ex.frame | join: " " }}{% endcapture %}{% endif %}
 {% capture img_src  %}'self' data: https:{% if ex.img %} {{ ex.img | join: " " }}{% endif %}{% endcapture %}
-{% capture font_src %}'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net{% if ex.font %} {{ ex.font | join: " " }}{% endif %}{% endcapture %}
+{% capture font_src %}'self' data:{% if gfonts %} https://fonts.gstatic.com{% endif %}{% if cdn %} https://cdn.jsdelivr.net{% endif %}{% if ex.font %} {{ ex.font | join: " " }}{% endif %}{% endcapture %}
 
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src {{ script_src | strip }}; style-src {{ style_src | strip }}; font-src {{ font_src | strip }}; img-src {{ img_src | strip }}; connect-src {{ connect_src | strip }}; frame-src {{ frame_src | strip }}; object-src 'none'; base-uri 'self'; form-action 'self'{% if sec.upgrade_insecure_requests != false %}; upgrade-insecure-requests{% endif %}">
 {% endif %}

@@ -31,7 +31,12 @@
           return res.json();
         })
         .then(function(data) {
-          posts = Array.isArray(data) ? data : [];
+          // Normalise once (lower case, no accents) instead of on every keystroke
+          posts = (Array.isArray(data) ? data : []).map(function(p) {
+            var title = norm(p.title), tags = norm(p.tags);
+            return { p: p, title: title, tags: tags,
+                     hay: [title, tags, norm(p.categories), norm(p.excerpt), norm(p.content)].join(' ') };
+          });
           ready = true;
           cb();
         })
@@ -78,13 +83,10 @@
       // Every word must match (AND), accents ignored; title hits ranked first
       var terms = norm(q).split(/\s+/).filter(Boolean);
 
-      var hits = posts.map(function(p) {
-        var title = norm(p.title);
-        var hay   = [title, norm(p.tags), norm(p.categories), norm(p.excerpt), norm(p.content)].join(' ');
-        var ok = terms.every(function(t) { return hay.indexOf(t) !== -1; });
-        if (!ok) return null;
-        var score = terms.reduce(function(s, t) { return s + (title.indexOf(t) !== -1 ? 10 : 0) + (norm(p.tags).indexOf(t) !== -1 ? 3 : 0); }, 0);
-        return { p: p, score: score };
+      var hits = posts.map(function(e) {
+        if (!terms.every(function(t) { return e.hay.indexOf(t) !== -1; })) return null;
+        var score = terms.reduce(function(s, t) { return s + (e.title.indexOf(t) !== -1 ? 10 : 0) + (e.tags.indexOf(t) !== -1 ? 3 : 0); }, 0);
+        return { p: e.p, score: score };
       }).filter(Boolean).sort(function(a, b) { return b.score - a.score; })
         .map(function(h) { return h.p; });
 

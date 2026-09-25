@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.4.0
+
+### Fixes
+- **`_data/theme.yml` options now work**: they were injected *before* the theme stylesheet, which overrode them, so colours, fonts, sidebar width, title gradient, Prism theme… had no effect. They are now applied after it, only when set (an empty value keeps the default — the file ships empty, so nothing is injected by default). Custom colours apply to the dark theme; the hover colour is derived automatically.
+- Only one Prism theme stylesheet is loaded (the chosen one; both were loaded before).
+- `posts.reading_speed` and `posts.excerpt_words` are now used; the unused `layout.section_gap` option was removed.
+- Disqus reloads in the right colours after a dark/light switch.
+- The floating table of contents closes when a heading is picked (it covered the text on phones).
+
+### Accessibility
+- Colour contrast raised to **WCAG AA** everywhere (automated check with axe-core: 0 violations on the main pages, both themes): muted text, links, tags, buttons, status badges, callouts and code colours in the light theme. New `--on-accent` token for text on accent backgrounds.
+- Footer headings are `h2` (heading order).
+
+### Performance & privacy
+- **Fonts self-hosted** (Inter and JetBrains Mono variable fonts, latin + latin-ext, preloaded): no more request to Google Fonts. Google Fonts is only used — and allowed in the CSP — when you pick another font.
+- Terminal commands and games (~150 KB of JS) are only loaded on pages with a terminal (`terminal: true` in front matter to add one elsewhere). The `window.Terminal` registry still exists on every page.
+- No CSS source map in production builds (109 KB, and it exposed the SCSS sources).
+- Reading time and word count computed at build time (no JavaScript, no layout shift); `reading-stats.js` removed.
+- Background canvas: particles and links drawn in a handful of batched paths per frame instead of thousands of draw calls.
+- Search index normalised once instead of on every keystroke; terminal output scrolls once per frame.
+- Stricter CSP: jsDelivr only on pages using Mermaid / MathJax, Google Fonts only for custom fonts.
+- The browser UI colour (`theme-color`) follows the site theme, not only the OS setting.
+
+### Housekeeping
+- All remaining French comments and texts translated to English; dead `assets/js/main.js` removed; duplicate light-theme code-block rules removed.
+- Deprecated `interest-cohort` removed from `Permissions-Policy` (browsers logged a warning).
+- GitHub Pages workflow installs `rsvg-convert`, so generated covers also get PNG social-card images on the demo.
+
 ## 1.3.0
 
 ### Terminal games
