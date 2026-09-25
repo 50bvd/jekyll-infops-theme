@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.3.0
+
+### Terminal games
+- New **game engine** `ctx.createGame(spec)`: every game gets the same window, sized to the viewport and the hero frame; in fullscreen the game is scaled up to the whole window (HiDPI-sharp, letterboxed). Fixed 60 Hz update (games no longer run faster on 120/144 Hz screens), pause (`P`, also when the tab is hidden), replay (`R`), best score per game, live resize, all listeners removed on exit.
+- **Snake**: speed in moves/second, buffered turns, golden apple bonus.
+- **Pong**: speeds in px/second, ball speeds up on each hit, smarter AI (bounce prediction, aiming error), first to 7.
+- **Tetris**: 7-bag, wall kicks, hold piece (`C`), ghost piece, lock delay, level gravity, line-clear flash, hard/soft drop scoring.
+- **Pac-Man**: smooth movement, buffered turns, ghosts actually leave their house (the door was a dead end), scatter/chase modes, chained ghost scores, levels.
+- Rendering optimised: static parts cached offscreen, no per-cell `shadowBlur`.
+- New game: **2048** (arrows / WASD / swipe, animated tiles).
+- The game window scrolls into view when a game starts; the hero no longer fades out or shifts while playing.
+
+### Terminal commands
+- New: `sl`, `hack`, `fortune`, `cowsay`, `joke`, `8ball`, `flip`, `roll`, `rps`, `sudo`, `neofetch`, `whoami`, `date`, `uptime`, `echo`, `history`, `theme`, `ls` (list articles) and `open <n>` (open one).
+- Command arguments keep their case (`echo Hello`); `/help` is sorted by command.
+- New API: `ctx.createGame()`, `ctx.history()`, `ctx.neofetch()`.
+
 ## 1.2.0
 
 ### Terminal
