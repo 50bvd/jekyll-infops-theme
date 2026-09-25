@@ -28,7 +28,8 @@
 
 {% comment %} ── Thème Prism.js ───────────────────────────────────────── {% endcomment %}
 {% if t.code.theme and t.code.theme != "" and t.code.theme != "prism-tomorrow" %}
-<link href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/{{ t.code.theme | url_encode }}.min.css" crossorigin="anonymous"
+{% assign prism_theme = t.code.theme | slugify %}
+<link href="{{ '/assets/vendor/prism/themes/' | append: prism_theme | append: '.min.css' | relative_url }}"
       rel="stylesheet" id="prism-theme">
 {% endif %}
 

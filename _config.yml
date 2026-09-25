@@ -164,6 +164,7 @@ theme_config:
   # ── Security ───────────────────────────────────────────────────────────
   security:
     csp: true                 # Content-Security-Policy <meta> (production builds only)
+    upgrade_insecure_requests: true   # set false if the site is served over plain HTTP
     csp_extra:                # extra allowed hosts, e.g. script: ["https://example.com"]
       script:  []
       style:   []

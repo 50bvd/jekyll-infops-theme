@@ -5,7 +5,7 @@ _site/
 .sass-cache/
 
 # Ruby / Bundler
-vendor/
+/vendor/   # Bundler (root only; assets/vendor/ is committed)
 .bundle/
 *.gem
 *.bak
