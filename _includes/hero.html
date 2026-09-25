@@ -1,5 +1,7 @@
 {% if site.theme_config.show_hero != false %}
 {% assign term_user = site.theme_config.terminal_user | default: "user@infops" %}
+{% assign hero = site.theme_config.hero %}
+{% assign term = site.theme_config.terminal %}
 <section class="hero" id="hero" aria-label="Site hero">
   <div class="hero-backdrop" aria-hidden="true">
     <span class="hero-orb hero-orb--1"></span>
@@ -9,10 +11,46 @@
   </div>
 
   <div class="hero-content" data-hero-parallax>
-    <h1 class="hero-title">{{ site.title | escape }}</h1>
-    <p class="hero-description">{{ site.tagline | default: site.description | escape }}</p>
+    {% if hero.include and hero.include != "" %}
+      {% comment %} Fully custom welcome block: _includes/<hero.include> {% endcomment %}
+      {% include {{ hero.include }} %}
+    {% elsif hero.logo and hero.logo != "" %}
+      {% assign logo_alt = hero.logo_alt | default: site.title %}
+      <h1 class="hero-title hero-title--logo">
+        <img class="hero-logo{% if hero.logo_dark and hero.logo_dark != '' %} hero-logo--light{% endif %}"
+             src="{{ hero.logo | relative_url }}" alt="{{ logo_alt | escape }}"
+             {% if hero.logo_width %}width="{{ hero.logo_width }}"{% endif %}
+             style="--hero-logo-max: {{ hero.logo_max_width | default: 420 | plus: 0 }}px"
+             fetchpriority="high" decoding="async">
+        {% if hero.logo_dark and hero.logo_dark != "" %}
+        <img class="hero-logo hero-logo--dark" src="{{ hero.logo_dark | relative_url }}" alt="{{ logo_alt | escape }}"
+             {% if hero.logo_width %}width="{{ hero.logo_width }}"{% endif %}
+             style="--hero-logo-max: {{ hero.logo_max_width | default: 420 | plus: 0 }}px"
+             fetchpriority="high" decoding="async">
+        {% endif %}
+      </h1>
+    {% else %}
+      <h1 class="hero-title">{{ hero.title | default: site.title | escape }}</h1>
+    {% endif %}
+    {% unless hero.subtitle == false %}
+    <p class="hero-description">{{ hero.subtitle | default: site.tagline | default: site.description | escape }}</p>
+    {% endunless %}
 
-    {% if site.theme_config.show_terminal != false %}
+    {% if site.theme_config.show_terminal != false and term.enabled != false %}
+    <div class="terminal-shell" id="terminal-shell"
+         data-mobile="{{ term.mobile | default: 'button' }}"
+         data-autofocus="{% if term.autofocus == false %}false{% else %}true{% endif %}"
+         data-persist-history="{% if term.persist_history == false %}false{% else %}true{% endif %}"
+         data-max-input="{{ term.max_input | default: 256 }}"
+         data-max-lines="{{ term.max_lines | default: 500 }}"
+         data-welcome="{{ term.welcome_command | escape }}"
+         data-disabled="{{ term.disabled_commands | join: ',' | escape }}">
+
+    <button type="button" class="terminal-launcher" id="terminal-launcher" aria-controls="hero-terminal">
+      <span class="terminal-launcher-prompt" aria-hidden="true">&gt;_</span>
+      <span>{{ term.launcher_label | default: "Open terminal" | escape }}</span>
+    </button>
+
     <div class="terminal-window" id="hero-terminal" role="region" aria-label="Interactive terminal">
       <div class="terminal-header">
         <div class="terminal-dots">
@@ -50,6 +88,8 @@
       </div>
 
       <canvas id="term-game-canvas" class="term-game-canvas" style="display:none"></canvas>
+      <button type="button" class="term-game-exit" id="term-game-exit" aria-label="Quit game">✕ quit</button>
+    </div>
     </div>
     {% endif %}
 

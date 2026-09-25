@@ -174,3 +174,106 @@ body.term-fullscreen .back-to-top { display: none !important; }
   .terminal-window::after { animation: none; }
   .terminal-window, .terminal-window.fullscreen { animation: none; }
 }
+
+// ── Custom accent color (set by the `color` command) ─────────────────────────
+// Declared after the theme rules so it wins; no <style> injection needed (CSP-friendly).
+.terminal-window.has-custom-color::before {
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+    rgba(var(--term-color), .025) 2px, rgba(var(--term-color), .025) 4px);
+}
+.terminal-window.has-custom-color::after {
+  background: linear-gradient(to bottom, transparent 45%, rgba(var(--term-color), .035) 48%,
+    rgba(var(--term-color), .07) 50%, rgba(var(--term-color), .035) 52%, transparent 55%);
+}
+
+// ── Shell: launcher button + device-dependent visibility ─────────────────────
+.terminal-shell { position: relative; }
+
+.terminal-launcher {
+  display: none;
+  align-items: center; gap: .7rem;
+  margin: 0 auto 2.2rem; padding: .85rem 1.4rem;
+  font-family: var(--font-mono); font-size: .92rem; font-weight: 500;
+  color: rgba(88,166,255,.95);
+  background: #070d18;
+  border: 1px solid rgba(88,166,255,.3); border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 1px rgba(88,166,255,.06), 0 14px 30px rgba(0,0,0,.35), 0 0 40px rgba(88,166,255,.08);
+  cursor: pointer;
+  animation: heroRise .7s var(--ease-out-expo) both;
+  transition: transform .3s var(--ease-out-expo), box-shadow .3s ease, border-color .2s ease;
+  &:hover { transform: translateY(-2px); border-color: rgba(88,166,255,.6); }
+  &:active { transform: scale(.98); }
+}
+.terminal-launcher-prompt {
+  font-weight: 700;
+  animation: termBlink 1.2s step-end infinite;
+}
+[data-theme="light"] .terminal-launcher {
+  color: #1d4ed8; background: #f5f8ff; border-color: rgba(37,99,235,.25);
+  box-shadow: 0 10px 24px rgba(37,99,235,.12);
+}
+
+// Closed by the user (any device) → launcher only
+.terminal-shell.is-closed {
+  .terminal-window { display: none; }
+  .terminal-launcher { display: inline-flex; }
+}
+
+// Phones: not shown at page load (pure CSS → no flash), launcher instead
+@media (max-width: 768px) and (pointer: coarse) {
+  .terminal-shell[data-mobile="button"]:not(.is-open) {
+    .terminal-window { display: none; }
+    .terminal-launcher { display: inline-flex; }
+  }
+  .terminal-shell[data-mobile="hide"] { display: none; }
+  .terminal-shell[data-mobile="hide"] ~ .hero-cta { margin-top: .5rem; }
+}
+
+// ── Phone fullscreen: whole visual viewport, above the header ────────────────
+.terminal-window.fullscreen.is-mobile-fs {
+  top: 0 !important;          // overridden inline with visualViewport.offsetTop
+  height: 100dvh;
+  z-index: 10001 !important;
+  font-size: .82rem;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  .terminal-header { padding: .8rem 1rem; }
+  .dot { width: 18px; height: 18px; }                 // bigger touch targets
+  .terminal-dots { gap: 12px; }
+  .dot-icon { opacity: 1; width: 9px; height: 9px; }
+  .terminal-body { padding: .8rem 1rem .4rem; font-size: .8rem; }
+  .terminal-input-row { padding: .6rem 1rem .8rem; }
+  // iOS zooms into inputs < 16px: keep the (invisible) input at 16px
+  .terminal-input-ghost { font-size: 16px; }
+}
+
+// ── Games on touch devices ───────────────────────────────────────────────────
+.term-game-canvas { touch-action: none; }
+.term-game-exit {
+  display: none;
+  position: absolute; right: .8rem; bottom: .8rem; z-index: 20;
+  padding: .45rem .8rem; border-radius: var(--radius-md);
+  font-family: var(--font-mono); font-size: .8rem;
+  color: rgba(var(--term-color), .95);
+  background: rgba(0,0,0,.45);
+  border: 1px solid rgba(var(--term-color), .35);
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .terminal-window.is-playing .term-game-exit { display: block; }
+}
+
+// ── Boot logo image (terminal_boot.image) ────────────────────────────────────
+.term-neofetch {
+  display: flex; align-items: center; gap: 1.2rem;
+  margin: .2rem 0 .4rem;
+}
+.term-neofetch-logo {
+  width: clamp(72px, 22%, 140px); height: auto; flex-shrink: 0;
+  border-radius: var(--radius-md);
+  image-rendering: auto;
+}
+.term-neofetch-info { min-width: 0; }
+@media (max-width: 420px) {
+  .term-neofetch { flex-direction: column; align-items: flex-start; gap: .6rem; }
+}

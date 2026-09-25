@@ -162,3 +162,21 @@ body.has-hero .main-header:not(.is-scrolled):not(:has(.navbar-menu.active)) {
   .hero-orb, .hero-scroll-mouse span { animation: none; }
   .hero-content { transform: none; opacity: 1; }
 }
+
+// ── Logo instead of the title text (theme_config.hero.logo) ──────────────────
+.hero-title--logo {
+  display: flex; justify-content: center;
+  background: none; -webkit-text-fill-color: initial;
+  animation: heroRise 1s var(--ease-out-expo) .05s both;
+}
+.hero-logo {
+  width: auto; max-width: min(var(--hero-logo-max, 420px), 80vw);
+  max-height: 34vh; height: auto;
+  border-radius: 0;
+  filter: drop-shadow(0 12px 40px rgba(88,166,255,.18));
+}
+.hero-logo--dark { display: none; }
+[data-theme="dark"] {
+  .hero-logo--light { display: none; }
+  .hero-logo--dark  { display: block; }
+}

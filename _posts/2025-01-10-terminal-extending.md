@@ -80,6 +80,10 @@ The `ctx` object is passed to every command's `run` function.
 | `ctx.getAccentColor()` | Returns `{r, g, b}` — current user/theme accent |
 | `ctx.isFullscreen()` | `true` if terminal is in fullscreen mode |
 | `ctx.gameLoop.set(handle)` | Set rAF handle |
+| `ctx.isTouch()` | `true` on touch devices (phones, tablets) |
+| `ctx.isPhone()` | `true` on phones (small touch screen) |
+
+Outside of commands, `window.Terminal.open()` and `window.Terminal.close()` open or close the terminal (e.g. from a button elsewhere on the page).
 
 ### CSS classes for `printLine`
 
@@ -186,6 +190,25 @@ help: ['command syntax', 'Description']          // regular command
 help: ['command syntax', 'Description', 'games'] // listed under Games section
 ```
 
+### Touch controls for games
+
+On phones and tablets, the terminal translates gestures on the game canvas into the key events your game already listens to, so a keyboard game works on touch screens without extra code:
+
+- **swipe** → `ArrowLeft` / `ArrowRight` / `ArrowUp` / `ArrowDown`
+- **tap** → the key named in `touch.tap` (nothing by default)
+- **drag** (with `touch.drag: true`) → `mousemove` events instead of swipes, for pointer-driven games
+
+An on-screen **quit** button replaces the `Esc` key.
+
+```javascript
+window.Terminal.register({
+  name: 'tetris',
+  help: ['tetris', 'Play Tetris', 'games'],
+  touch: { tap: 'ArrowUp' },   // tap = rotate
+  run: function(args, ctx) { /* … */ }
+});
+```
+
 ---
 
 ## Customizing the neofetch boot screen
@@ -214,3 +237,32 @@ theme_config:
 ```
 
 Leave any field as `""` to hide that line. Leave `ascii` empty to use the default Ubuntu-style logo.
+
+To show your **logo image** instead of the ASCII art, set `image` (same-origin or `https://` URLs only):
+
+```yaml
+  terminal_boot:
+    image:     "/assets/images/logo.png"
+    image_alt: "My logo"
+```
+
+---
+
+## Terminal behaviour options
+
+```yaml
+theme_config:
+  terminal:
+    mobile:            "button"   # phones: button (opens on tap) | show | hide
+    launcher_label:    "Open terminal"
+    autofocus:         true       # desktop only — never on touch devices
+    persist_history:   true       # ↑/↓ history kept for the browser tab
+    welcome_command:   "help"     # command run right after boot ("" = none)
+    disabled_commands: [matrix]   # hidden from /help and not runnable
+    max_input:         256        # max characters per command
+    max_lines:         500        # output lines kept in the DOM
+```
+
+- **Phones**: with `mobile: "button"` the terminal is not shown at page load; an *Open terminal* button opens it full screen, sized to the visible area so the on-screen keyboard never hides the prompt.
+- **Desktop**: double-click the title bar to toggle fullscreen. Closing the terminal (red dot or `exit`) leaves the *Open terminal* button to bring it back.
+- **Shortcuts**: `Tab` autocomplete · `↑/↓` history · `Ctrl+L` clear · `Ctrl+C` stop · `Esc` quit game / fullscreen.

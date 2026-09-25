@@ -71,6 +71,7 @@
 
   window.Terminal.register({
     name:'tetris', help:['tetris','Play Tetris  (arrows + space)','games'],
+    touch: { tap: 'ArrowUp' },   // touch: swipe = move / drop, tap = rotate
     run: function(args, ctx) {
       ctx.stopGame(); ctx.hideOutput();
       var COLS=10;

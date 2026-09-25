@@ -20,8 +20,8 @@ window.Terminal.register({
 
     // Fixed column widths — must match the border characters exactly
     var C1 = 20;  // command column (inner)
-    var C2 = 26;  // description column (inner)
-    var W  = C1 + C2 + 3;  // total inner width (2 cols + 3 separators)
+    var C2 = 40;  // description column (inner)
+    var W  = C1 + C2 + 1;  // full-width row: both columns + the middle separator
 
     function pad(s, n) {
       var out = s || '';
@@ -42,6 +42,20 @@ window.Terminal.register({
       return '│' + pad(' ' + text, W) + '│';
     }
 
+    // Narrow screens (phones): compact two-line entries instead of the box table
+    var out = document.getElementById('terminal-output');
+    var narrow = (ctx.isPhone && ctx.isPhone()) || (out && out.clientWidth && out.clientWidth < 520);
+    if (narrow) {
+      var compact = ['Available commands', ''];
+      regular.forEach(function(r) { compact.push('  ' + r[0], '      ' + r[1]); });
+      if (games.length) {
+        compact.push('', 'Games', '');
+        games.forEach(function(r) { compact.push('  ' + r[0], '      ' + r[1]); });
+      }
+      ctx.printLines(compact, 'term-out');
+      return;
+    }
+
     var lines = [
       top,
       fullRow('InfOps Terminal  ·  available commands'),
@@ -52,7 +66,7 @@ window.Terminal.register({
 
     if (games.length) {
       lines.push(divL);
-      lines.push(fullRow('🎮  Games'));
+      lines.push(fullRow('Games'));
       lines.push(divL);
       games.forEach(function(r) { lines.push(row(r[0], r[1])); });
     }
