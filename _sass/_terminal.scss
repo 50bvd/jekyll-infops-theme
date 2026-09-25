@@ -291,6 +291,78 @@ body.term-fullscreen .back-to-top { display: none !important; }
 }
 .terminal-window:has(.gba-pad) .term-game-exit { top: calc(var(--term-header-h, 3.4rem) + .6rem); bottom: auto; }
 
+// Emulator menu (library, settings, saves) — a panel over the game window
+.gba-menu {
+  position: absolute; inset: var(--term-header-h, 2.8rem) 0 0 0; z-index: 25;
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+  background: rgba(2,6,14,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility 0s linear .2s;
+  &.is-open { opacity: 1; visibility: visible; transition: opacity .2s ease; }
+  &.is-open .gba-menu-box { transform: none; }
+}
+.gba-menu-box {
+  width: min(560px, 100%); max-height: 100%; display: flex; flex-direction: column;
+  background: var(--bg-secondary); color: var(--text-primary);
+  border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  transform: translateY(10px) scale(.98); transition: transform .3s cubic-bezier(.16,1,.3,1);
+  font-family: var(--font-sans); text-align: left;
+}
+.gba-menu-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .75rem 1rem; border-bottom: 1px solid var(--border-color);
+  strong { font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.gba-menu-body {
+  padding: .9rem 1rem 1rem; overflow-y: auto; overscroll-behavior: contain;
+  h4 { margin: 1rem 0 .5rem; font: 600 .7rem var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+  h4:first-child { margin-top: 0; }
+  > .gba-mbtn { margin-top: .6rem; }
+}
+.gba-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .5rem; }
+.gba-mbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  padding: .55rem .8rem; border-radius: var(--radius-md); cursor: pointer;
+  font: 500 .85rem var(--font-sans); color: var(--text-primary);
+  background: var(--bg-tertiary); border: 1px solid var(--border-color);
+  transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+  &:hover { border-color: var(--accent-blue); transform: translateY(-1px); }
+  &.is-primary { background: var(--accent-blue); color: var(--on-accent); border-color: transparent; font-weight: 600; }
+  &.gba-close { padding: .25rem .55rem; background: none; border-color: transparent; color: var(--text-muted); }
+}
+.gba-muted { margin: .5rem 0 0; font-size: .78rem; color: var(--text-muted); line-height: 1.5; }
+.gba-foot { margin-top: 1rem; }
+.gba-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .45rem 0; border-bottom: 1px solid var(--border-subtle); font-size: .85rem;
+  input[type="checkbox"] { width: 1.1rem; height: 1.1rem; accent-color: var(--accent-blue); }
+  input[type="range"] { width: 45%; accent-color: var(--accent-blue); }
+  select { padding: .25rem .5rem; border-radius: var(--radius-sm); background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+}
+.gba-binds { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); column-gap: 1.2rem; }
+.gba-bind { min-width: 7.5rem; padding: .3rem .6rem; font: 600 .78rem var(--font-mono);
+  &.is-capturing { border-color: var(--accent-blue); color: var(--accent-blue); animation: termBlink 1s step-end infinite; } }
+.gba-library {
+  ul { list-style: none; margin: .5rem 0 0; padding: 0; max-height: 15rem; overflow-y: auto; }
+  li { margin: 0 0 .3rem; }
+}
+.gba-filter {
+  width: 100%; padding: .45rem .7rem; border-radius: var(--radius-md);
+  background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); font-size: .85rem;
+}
+.gba-lib-item { width: 100%; justify-content: space-between; text-align: left; }
+.gba-lib-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gba-progress-title { margin: 0 0 .7rem; font-weight: 600; }
+.gba-progress { height: 10px; border-radius: 999px; background: var(--bg-tertiary); overflow: hidden; border: 1px solid var(--border-color); }
+.gba-progress-fill {
+  height: 100%; width: 0; background: var(--gradient-primary); transition: width .2s ease;
+  &.is-indeterminate { width: 35%; animation: gbaIndet 1.1s ease-in-out infinite; }
+}
+@keyframes gbaIndet { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+.gba-progress-text { font-family: var(--font-mono); }
+.gba-pad .gba-menu-btn { right: .8rem; top: .6rem; bottom: auto; min-width: 2.6rem; min-height: 2.6rem; }
+[data-theme="light"] .gba-menu { background: rgba(30,37,48,.28); }
+@media (prefers-reduced-motion: reduce) { .gba-menu, .gba-menu-box { transition: none; } }
+
 // ── Boot logo image (terminal_boot.image) ────────────────────────────────────
 .term-neofetch {
   display: flex; align-items: center; gap: 1.2rem;

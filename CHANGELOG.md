@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.0
+
+### Search
+- Suggestions redesigned: the panel fades / slides open, its height follows the results smoothly and results appear one after another, with the article cover, highlighted title, an excerpt around the match, date and tags, plus keyboard hints. One or two letters match the start of words only (no more highlighted letters everywhere). The search index now carries the covers.
+
+### GBA emulator
+- **Menu** (F1, or ☰ on touch screens): ROM from this computer, continue the last game, optional **server library** (`theme_config.gba.library`, JSON list, filter, download with a progress bar: %, size, speed, cancel), settings; in game: resume, save / load state, reset, saves.
+- **Saves on your computer**: download / import `.sav`, and in Chrome / Edge link a `.sav` file that is updated automatically while playing and read back next time.
+- **Settings**: key bindings for every action, smoothing (anti-aliasing), pixel-perfect scaling, scanlines, colour correction, frame blending, FPS counter, volume / mute, fast-forward speed.
+- `.zip` ROMs, `.sav` drag & drop, `gba settings`. Core options can now change while playing (`gba_set_option`).
+- Engine: `integerScale` and `pauseOverlay` game options, `g.relayout()`.
+
 ## 1.5.1
 
 - **Softer light theme**: muted "paper" blue-grey surfaces instead of near-white ones, softer ink for the text, lighter shadows and background particles. Still WCAG AA everywhere (axe-core: 0 violations).
