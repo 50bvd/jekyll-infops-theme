@@ -16,6 +16,7 @@
   min-height: 100vh;
   min-height: 100svh;
   overflow: hidden;
+  overflow: clip;      // not a scroll container: focus/scrollIntoView can never shift the hero
   isolation: isolate;
 }
 
@@ -79,6 +80,8 @@
   transform-origin: 50% 30%;
 }
 .hero.is-parallax .hero-content { will-change: transform, opacity; }
+// A game is running in the hero terminal: no parallax/fade on the play area
+.hero:has(.terminal-window.is-playing) .hero-content { transform: none; opacity: 1; }
 
 .hero-title {
   font-size: clamp(2.4rem, 6.5vw, 4.6rem);

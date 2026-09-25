@@ -17,6 +17,8 @@ window.Terminal.register({
       if (def.help[2] === 'games') games.push(def.help);
       else regular.push(def.help);
     });
+    function byLabel(a, b) { return a[0].localeCompare(b[0]); }
+    regular.sort(byLabel); games.sort(byLabel);
 
     // Fixed column widths — must match the border characters exactly
     var C1 = 20;  // command column (inner)

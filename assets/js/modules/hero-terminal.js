@@ -69,6 +69,7 @@
   var _savedWinH = '';
   var _savedMaxW = '';
   var _booted    = false;
+  var _engine    = null;    // running game created with ctx.createGame()
 
   // ── Registry + ctx (public API) ───────────────────────────────────────────
   var commands = {};
@@ -94,6 +95,9 @@
     isFullscreen: function() { return _isFs; },
     isTouch:      function() { return isTouch; },
     isPhone:      isPhone,
+    createGame:   function(spec) { return createGame(spec); },
+    history:      function() { return history.slice(); },
+    neofetch:     function() { neofetch(); },
 
     // Always current accent {r,g,b} — read every frame in games
     getAccentColor: function() {
@@ -325,7 +329,7 @@
     saveHistory();
     printLine('$ ' + raw, 'term-out-dim');
     if (handleEasterEgg(raw)) return;
-    runCommand(raw.toLowerCase());
+    runCommand(raw);
   }
 
   function loadHistory() {
@@ -476,6 +480,7 @@
     document.body.classList.add('term-fullscreen');
     if (overlay) overlay.classList.add('active');
     _setFsIcon(true); setTimeout(focusInput, 50);
+    if (_engine) requestAnimationFrame(function() { if (_engine) _engine.layout(); });
   }
 
   function exitFullscreen() {
@@ -492,6 +497,7 @@
     _fsPlaceholder = null;
     if (overlay) overlay.classList.remove('active');
     _setFsIcon(false); setTimeout(focusInput, 50);
+    if (_engine) requestAnimationFrame(function() { if (_engine) _engine.layout(); });
   }
 
   function _setFsIcon(fs) {
@@ -533,6 +539,7 @@
   // `quit` = true lets the running game clean up its own listeners (it listens
   // for Escape on document) before the terminal tears the canvas down.
   function stopGame(quit) {
+    if (_engine) { var eng = _engine; _engine = null; eng.destroy(); }
     if (quit === true && _gameLoop && !_quitting) {
       _quitting = true;
       try { sendKey('Escape'); } finally { _quitting = false; }
@@ -544,6 +551,208 @@
     exitGameMode(); showOutput();
     if (_isFs && win.classList.contains('is-mobile-fs')) fitVisualViewport();
     setTimeout(focusInput, 50);
+  }
+
+
+  // ── Game engine (ctx.createGame) ──────────────────────────────────────────
+  // Games describe a fixed LOGICAL resolution (spec.width × spec.height) and
+  // draw in those units; the engine:
+  //   · gives every game the same window: sized to the viewport and the hero
+  //     frame, the whole window in fullscreen — content is scaled to fit and
+  //     centred, HiDPI-sharp (devicePixelRatio);
+  //   · runs update() at a fixed 60 Hz whatever the monitor refresh rate
+  //     (games used to run 2.4× faster on 144 Hz screens), render() once per frame;
+  //   · handles pause (P, tab hidden), restart (R / Enter after game over),
+  //     quit (Esc), best scores (localStorage), resize and fullscreen live,
+  //     and removes every listener on exit.
+  //
+  // spec = { name, width, height, keys: [...keys the game uses],
+  //          init(g), update(g, dt), render(c, g), onKey(g, key, down, e),
+  //          onPointer(g, x, y) }
+  // g    = { W, H, t, score, best, over, paused, data, color(a), light(),
+  //          end(message, won), restart(), print(text, cls) }
+  var STEP = 1 / 60;
+
+  function gameStage() {
+    var hdr  = win.querySelector('.terminal-header');
+    var hdrH = hdr ? hdr.offsetHeight : 44;
+    if (_isFs) return { w: win.clientWidth, h: Math.max(160, win.clientHeight - hdrH) };
+    var docW  = document.documentElement.clientWidth;
+    var host  = (_fsPlaceholder && _fsPlaceholder.parentNode) || win.parentNode;
+    var hostW = host && host.clientWidth ? host.clientWidth : docW;
+    var w = Math.max(280, Math.min(900, docW - 32, Math.max(hostW, 720)));
+    var navH = (document.querySelector('.main-header') || {}).offsetHeight || 60;
+    var maxH = window.innerHeight - navH - hdrH - 48;
+    var h = Math.max(240, Math.min(Math.round(w * 0.62), maxH));
+    return { w: w, h: h, hdrH: hdrH };
+  }
+
+  function createGame(spec) {
+    var def = _game;                   // command being run (touch settings…), reset by stopGame()
+    stopGame();
+    _game = def;
+    hideOutput();
+    if (isPhone() && !_isFs) enterFullscreen();
+
+    var c2d = canvas.getContext('2d', { alpha: false });
+    var dpr = 1, scale = 1, ox = 0, oy = 0, cssW = 0, cssH = 0;
+    var raf = null, last = 0, acc = 0;
+    var keys = {};
+    var bestKey = 'infops-best-' + spec.name;
+    var g = {
+      W: spec.width, H: spec.height, t: 0, score: 0, best: 0, over: false, won: false,
+      paused: false, message: '', data: {}, keys: keys,
+      color: function(a) { var c = ctx.getAccentColor(); return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + (a == null ? 1 : a) + ')'; },
+      accent: function() { return ctx.getAccentColor(); },
+      light: function() { return document.documentElement.getAttribute('data-theme') === 'light'; },
+      print: printLine,
+      end: function(msg, won) {
+        if (g.over) return;
+        g.over = true; g.won = !!won; g.message = msg || (won ? 'YOU WIN' : 'GAME OVER');
+        var record = g.score > g.best;
+        if (record) { g.best = g.score; try { localStorage.setItem(bestKey, String(g.best)); } catch (e) {} }
+        printLine(spec.name.toUpperCase() + ' — ' + g.message + ' · score ' + g.score + (record ? ' · new best!' : ' · best ' + g.best),
+          won ? 'term-out-bold' : 'term-out-error');
+      },
+      restart: function() { g.over = false; g.won = false; g.paused = false; g.score = 0; g.t = 0; g.message = ''; g.data = {}; spec.init(g); },
+      cache: {}
+    };
+    try { g.best = parseInt(localStorage.getItem(bestKey) || '0', 10) || 0; } catch (e) { g.best = 0; }
+
+    // Offscreen layers games can cache static drawings in (walls, grids…)
+    g.layer = function(id, draw, deps) {
+      var k = id + '|' + (deps || '');
+      var L = g.cache[id];
+      if (!L || L.k !== k) {
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(g.W * scale * dpr); cv.height = Math.round(g.H * scale * dpr);
+        var lc = cv.getContext('2d');
+        lc.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
+        draw(lc, g);
+        L = g.cache[id] = { k: k, cv: cv };
+      }
+      return L.cv;
+    };
+
+    function layout() {
+      var st = gameStage();
+      if (!_isFs) {
+        _gameMode = true;
+        win.classList.add('game-mode');
+        win.style.maxWidth = st.w + 'px';
+        win.style.height   = (st.h + (st.hdrH || 44)) + 'px';
+      }
+      var s2 = gameStage();              // re-measure once the window has its size
+      cssW = Math.round(s2.w); cssH = Math.round(s2.h);
+      dpr   = Math.min(window.devicePixelRatio || 1, 2);
+      scale = Math.min(cssW / g.W, cssH / g.H);
+      ox = (cssW - g.W * scale) / 2; oy = (cssH - g.H * scale) / 2;
+      canvas.style.display = 'block';
+      canvas.style.width  = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+      canvas.width  = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      g.cache = {};                      // cached layers depend on the scale
+      g.scale = scale;
+    }
+
+    function drawOverlay(title, sub) {
+      c2d.fillStyle = 'rgba(2,6,14,.62)';
+      c2d.fillRect(0, 0, g.W, g.H);
+      c2d.textAlign = 'center';
+      c2d.fillStyle = g.over && !g.won ? '#ff7b72' : g.color(1);
+      c2d.font = 'bold ' + Math.round(g.H * 0.085) + 'px "JetBrains Mono", monospace';
+      c2d.fillText(title, g.W / 2, g.H / 2 - g.H * 0.02);
+      c2d.fillStyle = 'rgba(230,237,243,.92)';
+      c2d.font = Math.round(g.H * 0.04) + 'px "JetBrains Mono", monospace';
+      c2d.fillText(sub, g.W / 2, g.H / 2 + g.H * 0.07);
+      c2d.textAlign = 'left';
+    }
+
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      _gameLoop = raf;
+      var dt = Math.min(0.25, (now - last) / 1000 || 0); last = now;
+      if (!g.paused && !g.over) {
+        acc += dt;
+        while (acc >= STEP) { g.t += STEP; spec.update(g, STEP); acc -= STEP; if (g.over) break; }
+      } else acc = 0;
+
+      // letterbox background, then the game in logical units
+      c2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c2d.fillStyle = g.light() ? '#dfe7f3' : '#02060d';
+      c2d.fillRect(0, 0, cssW, cssH);
+      c2d.setTransform(dpr * scale, 0, 0, dpr * scale, dpr * ox, dpr * oy);
+      c2d.save();
+      c2d.beginPath(); c2d.rect(0, 0, g.W, g.H); c2d.clip();
+      spec.render(c2d, g);
+      if (g.over) drawOverlay(g.message, 'score ' + g.score + '  ·  best ' + g.best + '  ·  R to replay  ·  Esc to quit');
+      else if (g.paused) drawOverlay('PAUSED', 'P to resume  ·  Esc to quit');
+      c2d.restore();
+    }
+
+    var handled = {};
+    (spec.keys || []).concat(['Escape', 'p', 'P', 'r', 'R', 'Enter']).forEach(function(k) { handled[k] = true; });
+
+    function onKeyDown(e) {
+      if (e.key === 'Escape' || (e.ctrlKey && (e.key === 'c' || e.key === 'C'))) { e.preventDefault(); stopGame(); return; }
+      if (e.key === 'p' || e.key === 'P') { if (!g.over) g.paused = !g.paused; e.preventDefault(); return; }
+      if (g.over && (e.key === 'r' || e.key === 'R' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); g.restart(); return; }
+      if (handled[e.key]) e.preventDefault();
+      keys[e.key] = true;
+      if (!g.paused && !g.over && spec.onKey) spec.onKey(g, e.key, true, e);
+    }
+    function onKeyUp(e) {
+      keys[e.key] = false;
+      if (spec.onKey) spec.onKey(g, e.key, false, e);
+    }
+    function onMouse(e) {
+      if (!spec.onPointer || g.paused || g.over) return;
+      var r = canvas.getBoundingClientRect();
+      spec.onPointer(g, (e.clientX - r.left - ox) / scale, (e.clientY - r.top - oy) / scale);
+    }
+    function onResize() { layout(); }
+    function onVisibility() { if (document.hidden && !g.over) g.paused = true; }
+
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+    document.addEventListener('mousemove', onMouse);
+    window.addEventListener('resize', onResize, { passive: true });
+    document.addEventListener('visibilitychange', onVisibility);
+
+    _engine = {
+      layout: layout,
+      destroy: function() {
+        if (raf) cancelAnimationFrame(raf);
+        raf = null;
+        document.removeEventListener('keydown', onKeyDown);
+        document.removeEventListener('keyup', onKeyUp);
+        document.removeEventListener('mousemove', onMouse);
+        window.removeEventListener('resize', onResize);
+        document.removeEventListener('visibilitychange', onVisibility);
+        if (spec.exit) try { spec.exit(g); } catch (e) {}
+        g.cache = {};
+      }
+    };
+
+    layout();
+    if (!_isFs) {                        // bring the whole game window on screen
+      var wr = win.getBoundingClientRect(), st0 = gameStage();
+      var winH = st0.h + (st0.hdrH || 44);  // target height (the window may still be animating)
+      var navH = (document.querySelector('.main-header') || {}).offsetHeight || 0;
+      if (wr.top + winH > window.innerHeight || wr.top < navH) {
+        var y = window.scrollY + wr.top - navH - Math.max(8, (window.innerHeight - navH - winH) / 2);
+        window.scrollTo({ top: Math.max(0, y), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      }
+    }
+    spec.init(g);
+    printLine((spec.title || spec.name.toUpperCase()) + ' — ' + (spec.controls || '') + ' · P pause · Esc quit' + (g.best ? ' · best ' + g.best : ''), 'term-out-bold');
+    last = performance.now();
+    win.classList.add('is-playing');
+    raf = requestAnimationFrame(frame);
+    _gameLoop = raf;
+    try { canvas.focus({ preventScroll: true }); } catch (e) {}
+    return g;
   }
 
   // Games: keep arrow keys / space from scrolling the page while playing
@@ -589,7 +798,7 @@
 
   // ── Command dispatch ──────────────────────────────────────────────────────
   function runCommand(raw) {
-    var parts = raw.split(/\s+/), name = parts[0].replace(/^\//, ''), args = parts.slice(1);
+    var parts = raw.split(/\s+/), name = parts[0].replace(/^\//, '').toLowerCase(), args = parts.slice(1);
     if (name === 'exit' || name === 'quit') {
       printLine('logout', 'term-out-dim');
       setTimeout(closeTerminal, 400);
@@ -644,6 +853,18 @@
       }
     } catch (e) {}
 
+    neofetch();
+
+    if (cfg.welcome) setTimeout(function() {
+      printLine('$ ' + cfg.welcome, 'term-out-dim');
+      runCommand(cfg.welcome);
+    }, 250);
+
+    if (cfg.autofocus && !isTouch) setTimeout(focusInput, 150);
+  }
+
+  // neofetch-style banner (boot screen, and the `neofetch` command)
+  function neofetch() {
     var user  = metaVal('term-boot-user')  || 'YOUR_USER';
     var host  = metaVal('term-boot-host')  || 'YOUR_HOST';
     var os    = metaVal('term-boot-os')    || 'YOUR_OS';
@@ -724,13 +945,6 @@
     printLine('', 'term-out-dim');
     printLine('  ' + motd, 'term-out-bold');
     printLine('', 'term-out-dim');
-
-    if (cfg.welcome) setTimeout(function() {
-      printLine('$ ' + cfg.welcome, 'term-out-dim');
-      runCommand(cfg.welcome.toLowerCase());
-    }, 250);
-
-    if (cfg.autofocus && !isTouch) setTimeout(focusInput, 150);
   }
 
   window.addEventListener('resize', updateNavH, { passive: true });
