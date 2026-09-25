@@ -4,7 +4,7 @@
 
 - **Softer light theme**: darker blue-grey surfaces (no near-white areas left), softer text and accent, calmer hero glow, code blocks and terminal in the same tones. Syntax colours darkened to stay above WCAG AA on the new backgrounds.
 - **Day / night toggle**: a new animated sun / moon icon (the sun's rays fold in and a shadow slides over it to form the moon), honours reduced motion.
-- **GBA emulator**: when a game cannot start, the menu now shows why (HTTP 403: file permissions, 404: missing file, network error…) instead of failing silently; library names with spaces are shown decoded.
+- **GBA emulator**: when a game cannot start, the menu now shows why (HTTP 403: file permissions, 404: missing file, network error…) instead of failing silently; library names with spaces are shown decoded, and file names containing `#`, `?` or `%` now download correctly.
 
 ## 1.6.1
 
