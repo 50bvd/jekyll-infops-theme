@@ -24,21 +24,11 @@
   </script>
 
   {% elsif c.provider == "disqus" and c.disqus_shortname and c.disqus_shortname != "" %}
-  <div id="disqus_thread"></div>
-  <script>
-    var disqus_config = function () {
-      this.page.url        = {{ page.url | absolute_url | jsonify }};
-      this.page.identifier = {{ page.url | jsonify }};
-    };
-    (function() {
-      var shortname = {{ c.disqus_shortname | jsonify }};
-      if (!/^[a-z0-9-]+$/i.test(shortname)) return;
-      var d = document, s = d.createElement('script');
-      s.src = 'https://' + shortname + '.disqus.com/embed.js';
-      s.setAttribute('data-timestamp', +new Date());
-      (d.head || d.body).appendChild(s);
-    })();
-  </script>
+  <div id="disqus_thread"
+       data-shortname="{{ c.disqus_shortname | escape }}"
+       data-url="{{ page.url | absolute_url | escape }}"
+       data-identifier="{{ page.url | escape }}"></div>
+  <script src="{{ '/assets/js/modules/comments-disqus.js' | relative_url }}" defer></script>
 
   {% else %}
   <p class="comments-notice">

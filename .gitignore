@@ -5,7 +5,8 @@ _site/
 .sass-cache/
 
 # Ruby / Bundler
-vendor/
+# Bundler install dir (root only — assets/vendor/ holds committed front-end libs)
+/vendor/
 .bundle/
 *.gem
 *.bak

@@ -7,6 +7,8 @@ url: ""                 # relative URLs: works on any host/port (http://server:8
 theme_config:
   seo:
     noindex: true       # <meta name="robots" content="noindex"> on every page
+  security:
+    upgrade_insecure_requests: false   # preprod is plain HTTP (http://server:8081)
 
 analytics:              # never count preprod visits
   goatcounter_code:    ""
