@@ -73,22 +73,22 @@
 // apart, softened text. Every text colour is ≥ 4.5:1 (WCAG AA) on them.
 [data-theme="light"] {
   // Surface scale — blue-grey tones, no warm beige
-  --bg-primary:    #dfe3e9;   // page
-  --bg-secondary:  #e8ebf0;   // header, footer, article
-  --bg-tertiary:   #d3d8e0;   // inputs, pills, widget headers
-  --bg-surface:    #eaedf1;   // cards, widgets, code
+  --bg-primary:    #d6d9de;   // page
+  --bg-secondary:  #dde0e5;   // header, footer, article
+  --bg-tertiary:   #caced5;   // inputs, pills, widget headers
+  --bg-surface:    #e1e3e7;   // cards, widgets, code
 
   // Text
-  --text-primary:   #1e2530;   // soft ink, not pure black
-  --text-secondary: #3b4452;
-  --text-muted:     #4f5866;
+  --text-primary:   #1f252d;   // soft ink, not pure black
+  --text-secondary: #37404c;
+  --text-muted:     #49525f;
 
-  --border-color:  #c5cbd4;
-  --border-subtle: #d3d8e0;
+  --border-color:  #bcc1c9;
+  --border-subtle: #caced5;
 
   // Accents — vivid, high contrast
-  --accent-blue:       #1e4fc4;   // ≥ 4.9:1 on every surface
-  --accent-blue-hover: #1a3f9c;
+  --accent-blue:       #1c47a8;   // ≥ 4.9:1 on every surface
+  --accent-blue-hover: #163a8a;
   --on-accent:         #ffffff;
   --accent-green:      #166534;   // darker shades: readable as text (≥ 4.5:1)
   --accent-red:        #b91c1c;
@@ -105,15 +105,15 @@
   --shadow-sm:   0 1px 3px rgba(30,37,48,.08);
   --shadow-md:   0 4px 12px rgba(30,37,48,.09);
   --shadow-lg:   0 8px 28px rgba(30,37,48,.11);
-  --shadow-glow: 0 0 24px rgba(37,99,235,.15);
+  --shadow-glow: 0 0 24px rgba(28,71,168,.12);
 
-  --scrollbar-track:       #dfe3e9;
+  --scrollbar-track:       #d6d9de;
   --scrollbar-thumb:       #b3bac5;
   --scrollbar-thumb-hover: #8a93a1;
 
-  --code-bg:     #e4e8ee;
-  --code-border: #c5cbd4;
-  --code-text:   #1e2530;
+  --code-bg:     #dcdfe4;
+  --code-border: #bcc1c9;
+  --code-text:   #1f252d;
 
   --status-success: #166534;
   --status-warning: #854d0e;
@@ -129,7 +129,7 @@
 [data-theme="light"] {
   // Navbar
   .main-header {
-    background: rgba(232,235,240,.88);
+    background: rgba(221,224,229,.9);
     border-color: var(--border-color);
   }
 
@@ -177,7 +177,7 @@
 
   // Footer
   .footer {
-    background: #d9dee5;
+    background: #d0d4da;
     border-color: var(--border-color);
   }
 
