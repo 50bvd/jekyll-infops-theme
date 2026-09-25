@@ -23,8 +23,8 @@ author:
 # Google Search Console ownership (jekyll-seo-tag outputs the meta tag).
 # Put the code from your old layout here:
 #   grep -r google-site-verification /root/50bvd-site/_layouts /root/50bvd-site/_includes
-# webmaster_verifications:
-#   google: "YOUR_CODE"
+webmaster_verifications:
+  google: "fNnk7xUW4fqMha3TuzOvvHOzKUp0rqgXSydLfdxkFzQ"
 
 analytics:
   goatcounter_code: "50bvd"
