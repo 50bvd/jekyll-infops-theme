@@ -37,7 +37,7 @@
     syncThemeColor(theme);
     if (persist) store.set(theme);
     const btn  = document.getElementById('theme-toggle-btn');
-    const icon = btn && btn.querySelector('.toggle-icon');
+    const icon = btn && btn.querySelector('.toggle-icon');           // custom layouts with the old emoji markup
     if (icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
     if (btn)  btn.setAttribute('aria-label',
       theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
