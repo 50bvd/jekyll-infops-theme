@@ -28,7 +28,7 @@
        data-shortname="{{ c.disqus_shortname | escape }}"
        data-url="{{ page.url | absolute_url | escape }}"
        data-identifier="{{ page.url | escape }}"></div>
-  <script src="{{ '/assets/js/modules/comments-disqus.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/modules/comments-disqus.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 
   {% else %}
   <p class="comments-notice">

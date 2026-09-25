@@ -38,7 +38,9 @@
 
   var scriptSrc = (document.currentScript && document.currentScript.src) || '';
   var base = scriptSrc ? scriptSrc.replace(/js\/terminal-commands\/gba\.js.*$/, '') : '/assets/';
-  var coreUrl = base + 'vendor/gpsp/gpsp.js';
+  // same ?v=<build> as this script: gpsp.js and gpsp.wasm must always match
+  var ver = (scriptSrc.match(/\?v=[\w.-]+/) || [''])[0];
+  var coreUrl = base + 'vendor/gpsp/gpsp.js' + ver;
   var libMeta = document.querySelector('meta[name="gba-library"]');
   var libraryUrl = libMeta ? libMeta.getAttribute('content') : '';
 
@@ -70,7 +72,8 @@
       s.src = coreUrl; s.async = true;
       s.onload = function() {
         if (typeof window.createGpsp !== 'function') { reject(new Error('core did not load')); return; }
-        window.createGpsp().then(function(M) { M._gba_init(); resolve(M); }, reject);
+        window.createGpsp({ locateFile: function(f) { return base + 'vendor/gpsp/' + f + ver; } })
+          .then(function(M) { M._gba_init(); resolve(M); }, reject);
       };
       s.onerror = function() { reject(new Error('cannot download ' + coreUrl)); };
       document.head.appendChild(s);
@@ -577,7 +580,13 @@
       var msg = String((e && e.message) || e);
       note(msg);
       ctx.printLine('gba: ' + msg, 'term-out-error');
-      if (/WebAssembly|CompileError|unsafe-eval/i.test(msg)) ctx.printLine('gba: this page does not allow WebAssembly (Content-Security-Policy)', 'term-out-dim');
+      if (/unsafe-eval|Content Security/i.test(msg)) {
+        var av = /kaspersky/i.test(msg) ? 'Kaspersky' : /eset|avast|avg|bitdefender|norton/i.exec(msg);
+        ctx.printLine(av
+          ? 'gba: your antivirus (' + av + ') rewrites the security policy of web pages and blocks WebAssembly here. ' +
+            'Add ' + location.hostname + ' to its exclusions (or turn off its script injection) and reload.'
+          : 'gba: this page does not allow WebAssembly (Content-Security-Policy)', 'term-out-warn');
+      }
       screen = 'home';
       if (!menu.classList.contains('is-open')) showMenu(); else render();
     }
