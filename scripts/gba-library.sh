@@ -32,6 +32,11 @@ custom_name() {
   printf '%s' "${line#*= }"
 }
 
+# Files copied by hand (scp, root umask 077…) are often unreadable by the
+# Apache user (HTTP 403 in the emulator): make the folder and ROMs readable.
+chmod 755 "$DIR"
+find "$DIR" -maxdepth 1 -type f \( -iname '*.gba' -o -iname '*.zip' -o -name names.txt \) -exec chmod 644 {} +
+
 tmp=$(mktemp "$DIR/.roms.json.XXXXXX")
 {
   echo '{ "roms": ['
