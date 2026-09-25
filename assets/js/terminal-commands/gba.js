@@ -276,7 +276,7 @@
     var S = session = {
       M: null, info: null, keys: 0, running: false, fast: false, acc: 0, frameTime: 1 / 59.7275,
       fpsCount: 0, fpsT: 0, fps: 0, toast: '', toastT: 0, sramSnap: null, saveTimer: 0,
-      fileHandle: null, pendingHandle: null, g: null, pad: null, capture: null
+      fileHandle: null, pendingHandle: null, g: null, pad: null, capture: null, error: ""
     };
     var off = document.createElement('canvas'); off.width = W; off.height = H;
     var octx = off.getContext('2d'), img = octx.createImageData(W, H), pix = new Uint32Array(img.data.buffer), table = lut();
@@ -421,6 +421,12 @@
       var body = h('div', 'gba-menu-body');
       box.appendChild(body);
 
+      if (S.error) {
+        var err = h('div', 'gba-error', null, { role: 'alert' });
+        err.appendChild(h('strong', null, 'Could not start the game'));
+        err.appendChild(h('span', null, S.error));
+        body.appendChild(err);
+      }
       if (screen === 'progress') { renderProgress(body); return; }
       if (screen === 'settings') { renderSettings(body); return; }
 
@@ -578,6 +584,10 @@
 
     function fail(e) {
       var msg = String((e && e.message) || e);
+      if (/HTTP 403/.test(msg)) msg = 'The server refused the file (HTTP 403): it is not readable by the web server — check its permissions (chmod 644).';
+      else if (/HTTP 404/.test(msg)) msg = 'File not found on the server (HTTP 404): refresh the ROM list.';
+      else if (/Failed to fetch|NetworkError/i.test(msg)) msg = 'Download failed (network, or blocked by an extension / antivirus).';
+      S.error = msg;
       note(msg);
       ctx.printLine('gba: ' + msg, 'term-out-error');
       if (/unsafe-eval|Content Security/i.test(msg)) {
@@ -590,7 +600,7 @@
       screen = 'home';
       if (!menu.classList.contains('is-open')) showMenu(); else render();
     }
-    function start(bytes, name) { return loadRom(bytes, name).catch(fail); }
+    function start(bytes, name) { S.error = ''; return loadRom(bytes, name).catch(fail); }
     function readLocal(f) {
       if (/\.(sav|srm)$/i.test(f.name)) { f.arrayBuffer().then(function(b) { importSave(new Uint8Array(b)); if (menu.classList.contains('is-open')) render(); }); return; }
       if (!/\.(gba|agb|bin|mb|zip)$/i.test(f.name)) { fail('expected a .gba or .zip file'); return; }
@@ -598,10 +608,11 @@
       f.arrayBuffer().then(function(b) { start(new Uint8Array(b), f.name); });
     }
     function fetchRom(x) {
+      S.error = '';
       dl = { name: x.name, size: x.size, ctrl: new AbortController(), t0: performance.now(), update: function() {} };
       screen = 'progress'; render();
       download(x.file, function(got, total) { dl.update(got, total || x.size); }, dl.ctrl.signal)
-        .then(function(bytes) { return start(bytes, x.file.split('/').pop()); })
+        .then(function(bytes) { return start(bytes, x.name); })
         .catch(function(e) { if (e && e.name === 'AbortError') { screen = 'home'; render(); } else fail(e); });
     }
     S.showMenu = showMenu; S.start = start; S.readLocal = readLocal;

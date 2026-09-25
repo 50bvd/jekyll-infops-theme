@@ -148,7 +148,7 @@
   box-shadow: 0 0 0 1px rgba(37,99,235,.12), 0 4px 16px rgba(17,24,39,.1);
 
   .code-block-header {
-    background: #d9dee6 !important;
+    background: #d0d4db !important;
     border-bottom: 1px solid var(--border-color) !important;
     &::before { color: rgba(37,99,235,.3) !important; }
     .code-lang {
@@ -177,15 +177,15 @@
   pre { filter: none !important; color: #1a2535 !important; }
 
   // GitHub Light tokens
-  .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #57606a !important; }
+  .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #4f5866 !important; }
   .token.punctuation                          { color: #24292e !important; }
   .token.property, .token.tag, .token.boolean,
-  .token.number, .token.constant, .token.symbol, .token.deleted { color: #005cc5 !important; }
+  .token.number, .token.constant, .token.symbol, .token.deleted { color: #0550ae !important; }
   .token.selector, .token.attr-name, .token.string, .token.char,
   .token.builtin, .token.inserted             { color: #032f62 !important; }
   .token.operator, .token.entity, .token.url  { color: #b31d28 !important; }
   .token.atrule, .token.attr-value, .token.keyword { color: #b31d28 !important; font-weight: 600; }
-  .token.function, .token.class-name          { color: #6f42c1 !important; }
+  .token.function, .token.class-name          { color: #6639ba !important; }
   .token.regex, .token.important, .token.variable { color: #953800 !important; }
   code { color: #24292e !important; }
 }
@@ -217,10 +217,26 @@
   position: fixed; bottom: 2rem; left: 2rem; z-index: 1000;
   width: 46px; height: 46px; border-radius: 50%;
   background: var(--bg-secondary); border: 1px solid var(--border-color);
-  color: var(--text-primary); cursor: pointer;
+  color: #e3b341; cursor: pointer;                       // dark theme: a warm sun
   display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
-  box-shadow: var(--shadow-md); transition: all var(--transition-normal);
-  &:hover { transform: scale(1.1) rotate(15deg); box-shadow: var(--shadow-lg); border-color: var(--accent-blue); color: var(--accent-blue); }
+  box-shadow: var(--shadow-md);
+  transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .2s ease, border-color .2s ease, color .4s ease, background-color .3s ease;
+  &:hover { transform: scale(1.08); box-shadow: var(--shadow-lg); border-color: currentColor; }
+  &:active { transform: scale(.94); }
+}
+// Sun ⇄ moon morph (transforms only: smooth everywhere)
+.sun-moon { overflow: visible; }
+.sun-moon-core   { transform-origin: 12px 12px; transition: transform .5s cubic-bezier(.16,1,.3,1); }
+.sun-moon-shadow { transition: transform .5s cubic-bezier(.16,1,.3,1); }
+.sun-moon-rays   { transform-origin: 12px 12px; transition: transform .5s cubic-bezier(.16,1,.3,1), opacity .3s ease; }
+[data-theme="light"] {
+  .theme-toggle { color: #5b5fc7; }                      // light theme: a soft indigo moon
+  .sun-moon-core   { transform: scale(1.45); }
+  .sun-moon-shadow { transform: translate(-7px, -1px); } // bites the disc → crescent
+  .sun-moon-rays   { transform: rotate(-45deg) scale(.4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle, .sun-moon-core, .sun-moon-shadow, .sun-moon-rays { transition: none; }
 }
 
 // --------------------------------------------------------------------------
@@ -281,7 +297,7 @@
 // Light theme: the terminal captures follow the theme (they stayed dark before)
 [data-theme="light"] {
   .term-shot { background: var(--code-bg); border-color: var(--border-color); box-shadow: 0 6px 18px rgba(30,37,48,.1); }
-  .term-shot-bar { background: #d9dee6; border-bottom-color: var(--border-color); }
+  .term-shot-bar { background: #d0d4db; border-bottom-color: var(--border-color); }
   .term-shot-title { color: var(--text-muted); }
   .term-shot-body, .post-body .term-shot-body { color: var(--text-primary); }
   .ts-prompt { color: #166534; }
