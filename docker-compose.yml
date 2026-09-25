@@ -1,27 +1,27 @@
 # =============================================================================
-# docker-compose.yml — Mode DÉVELOPPEMENT
-# Lance Jekyll avec livereload et monte les sources en volume.
+# docker-compose.yml — DEVELOPMENT
+# Runs Jekyll with LiveReload, sources mounted as a volume.
 #
-# Usage :
-#   docker compose up          → démarrer
-#   docker compose up --build  → rebuild si Gemfile/Dockerfile changé
-#   docker compose down        → arrêter
+# Usage:
+#   docker compose up          → start
+#   docker compose up --build  → rebuild after a Gemfile/Dockerfile change
+#   docker compose down        → stop
 #
-# Accès : http://localhost:4000
+# Open: http://localhost:4000
 # =============================================================================
 
 services:
   jekyll:
     build:
       context: .
-      target:  dev          # Stage "dev" du Dockerfile
+      target:  dev          # "dev" stage of the Dockerfile
     container_name: infops-dev
     volumes:
-      # Monte les sources en live — les changements sont pris en compte immédiatement
+      # Live sources: changes are picked up immediately
       - .:/site
-      # Cache des gems isolé du host
+      # Gem cache, kept apart from the host
       - gem_cache:/usr/local/bundle
-      # Cache Jekyll pour les builds incrémentaux
+      # Jekyll cache for incremental builds
       - jekyll_cache:/site/.jekyll-cache
     ports:
       # Local only: jekyll serve (WEBrick) is a dev server, never expose it publicly
@@ -31,7 +31,7 @@ services:
       - JEKYLL_ENV=development
       - TZ=Europe/Paris
     restart: unless-stopped
-    # Optionnel : limites ressources
+    # Optional: resource limits
     # deploy:
     #   resources:
     #     limits:

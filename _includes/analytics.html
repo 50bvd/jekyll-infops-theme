@@ -1,9 +1,9 @@
 {% comment %}
   _includes/analytics.html
-  Charge les scripts de tracking EN PRODUCTION uniquement (JEKYLL_ENV=production).
-  En dev local (jekyll serve), aucun script n'est injecté.
-  Plusieurs services peuvent être actifs simultanément.
-  Configuration dans _config.yml sous la clé `analytics:`.
+  Loads the tracking scripts in PRODUCTION only (JEKYLL_ENV=production);
+  nothing is injected with a local `jekyll serve`.
+  Several services can be enabled at the same time.
+  Configured in _config.yml under `analytics:`.
 {% endcomment %}
 {% if jekyll.environment == "production" %}
 {% assign a = site.analytics %}

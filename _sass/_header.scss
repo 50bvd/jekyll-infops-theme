@@ -96,7 +96,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--on-accent);
   cursor: pointer;
   font-size: 0.75rem;
   transition: background var(--transition-fast), transform var(--transition-fast);

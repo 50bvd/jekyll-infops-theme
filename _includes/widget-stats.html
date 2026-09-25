@@ -1,17 +1,10 @@
 {% comment %}
   widget-stats.html
   ─────────────────────────────────────────────────────────────────────────────
-  GoatCounter note:
-  L'API /api/v0/stats/total nécessite une clé API (token) pour les requêtes
-  cross-origin (CORS). Sans token, elle retourne 403.
-  Solution : utiliser le compteur public GoatCounter qui expose un endpoint
-  JSON sans authentification via le pixel de comptage.
-
-  Alternative recommandée : activer "Public stats" dans GoatCounter
-  (Settings → Allow public access to stats) puis utiliser /api/v0/stats/total
-  avec le header Authorization.
-
-  Pour l'instant on affiche le total statique Jekyll + lien dashboard.
+  GoatCounter: the "Visitors" figure is fetched by
+  assets/js/modules/goatcounter-widget.js from the public stats API
+  (GoatCounter → Settings → "Allow public access to stats"). Without public
+  stats it shows a link to the dashboard instead.
   ─────────────────────────────────────────────────────────────────────────────
 {% endcomment %}
 {% assign a = site.analytics %}

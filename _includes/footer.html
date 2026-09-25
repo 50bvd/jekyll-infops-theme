@@ -57,7 +57,7 @@
 
       <!-- Navigation -->
       <div class="footer-col">
-        <h4 class="footer-heading">Navigation</h4>
+        <h2 class="footer-heading">Navigation</h2>
         <ul class="footer-links">
           {% for item in tc.navigation %}
             <li>
@@ -73,7 +73,7 @@
 
       <!-- Recent Posts -->
       <div class="footer-col">
-        <h4 class="footer-heading">Recent Posts</h4>
+        <h2 class="footer-heading">Recent Posts</h2>
         <ul class="footer-links">
           {% for post in site.posts limit:4 %}
             <li>
@@ -88,7 +88,7 @@
 
       <!-- Subscribe -->
       <div class="footer-col">
-        <h4 class="footer-heading">Subscribe</h4>
+        <h2 class="footer-heading">Subscribe</h2>
         <p class="footer-text">Stay up to date with the latest articles.</p>
         {% if tc.footer.show_rss != false %}
         <a href="{{ '/feed.xml' | relative_url }}" class="footer-rss-btn"

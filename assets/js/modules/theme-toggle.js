@@ -23,8 +23,18 @@
     return mq && mq.matches ? 'light' : 'dark';
   }
 
+  // Browser UI colour (mobile address bar…) follows the site theme, not only the OS
+  function syncThemeColor(theme) {
+    const bg = getComputedStyle(root).getPropertyValue('--bg-primary').trim() || (theme === 'dark' ? '#0d1117' : '#eef2f8');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
+      m.removeAttribute('media');
+      m.setAttribute('content', bg);
+    });
+  }
+
   function apply(theme, persist) {
     root.setAttribute('data-theme', theme);
+    syncThemeColor(theme);
     if (persist) store.set(theme);
     const btn  = document.getElementById('theme-toggle-btn');
     const icon = btn && btn.querySelector('.toggle-icon');

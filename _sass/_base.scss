@@ -1,5 +1,5 @@
 // =============================================================================
-// _base.scss — Reset, typographie, éléments HTML fondamentaux
+// _base.scss — reset, typography, base HTML elements
 // =============================================================================
 
 *,
@@ -200,14 +200,14 @@ input, textarea, select {
 
 .skip-to-content {
   position: absolute; left: -9999px; z-index: 999;
-  padding: 1rem 1.5rem; background: var(--accent-blue); color: white;
+  padding: 1rem 1.5rem; background: var(--accent-blue); color: var(--on-accent);
   text-decoration: none; border-radius: 0 0 var(--radius-md) 0;
   &:focus { left: 0; top: 0; }
 }
 
 :focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
-::selection      { background: var(--accent-blue); color: white; }
-::-moz-selection { background: var(--accent-blue); color: white; }
+::selection      { background: var(--accent-blue); color: var(--on-accent); }
+::-moz-selection { background: var(--accent-blue); color: var(--on-accent); }
 
 .tag {
   display: inline-flex; align-items: center; gap: 0.3rem;
@@ -231,7 +231,7 @@ input, textarea, select {
   cursor: pointer;
   transition: transform .35s var(--ease-out-expo), box-shadow .35s var(--ease-out-expo),
               background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-  &-primary   { background:var(--accent-blue);color:#fff; &:hover{background:var(--accent-blue-hover);transform:translateY(-2px);box-shadow:var(--shadow-md);color:#fff;} }
+  &-primary   { background:var(--accent-blue);color:var(--on-accent); &:hover{background:var(--accent-blue-hover);transform:translateY(-2px);box-shadow:var(--shadow-md);color:var(--on-accent);} }
   &-secondary { background:transparent;color:var(--accent-blue);border:1px solid var(--accent-blue); &:hover{background:rgba(88,166,255,.1);transform:translateY(-2px);} }
   &-ghost     { background:transparent;color:var(--text-secondary); &:hover{background:var(--bg-secondary);color:var(--text-primary);} }
 }

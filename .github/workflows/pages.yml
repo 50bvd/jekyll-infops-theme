@@ -31,6 +31,10 @@ jobs:
           ruby-version: "3.4"
           bundler-cache: true
 
+      # Article covers: SVG → PNG for Open Graph / Twitter cards (optional)
+      - name: Install rsvg-convert
+        run: sudo apt-get install -y --no-install-recommends librsvg2-bin
+
       - name: Build with Jekyll
         run: bundle exec jekyll build
         env:

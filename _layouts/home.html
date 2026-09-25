@@ -1,7 +1,7 @@
 ---
 layout: default
 ---
-
+{% assign excerpt_words = site.data.theme.posts.excerpt_words | default: 30 | plus: 0 %}
 {% include hero.html %}
 
 <div class="main-container">
@@ -28,7 +28,7 @@ layout: default
           <h2 class="post-title">
             <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
           </h2>
-          <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: 30 }}</p>
+          <p class="post-excerpt">{{ post.excerpt | strip_html | truncatewords: excerpt_words }}</p>
           <a href="{{ post.url | relative_url }}" class="read-more">
             Read more <i class="fas fa-arrow-right" aria-hidden="true"></i>
           </a>

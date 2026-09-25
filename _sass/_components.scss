@@ -1,5 +1,5 @@
 // =============================================================================
-// _components.scss — Composants réutilisables
+// _components.scss — reusable components
 // =============================================================================
 
 // --------------------------------------------------------------------------
@@ -85,7 +85,7 @@
     }
     .copy-btn {
       background: transparent; border: 1px solid rgba(88,166,255,.22); border-radius: 3px;
-      padding: 0.22rem 0.65rem; color: rgba(88,166,255,.6); font-size: 0.72rem; cursor: pointer;
+      padding: 0.22rem 0.65rem; color: rgba(88,166,255,.9); font-size: 0.72rem; cursor: pointer;
       display: flex; align-items: center; gap: 0.3rem; transition: all var(--transition-fast);
       font-family: var(--font-mono); white-space: nowrap;
       i { font-size: 0.68rem; }
@@ -152,11 +152,11 @@
     border-bottom: 1px solid rgba(37,99,235,.18) !important;
     &::before { color: rgba(37,99,235,.3) !important; }
     .code-lang {
-      color: rgba(37,99,235,.8) !important;
+      color: #1d4ed8 !important;
       &::before { color: rgba(37,99,235,.4) !important; }
     }
     .copy-btn {
-      border-color: rgba(37,99,235,.2) !important; color: rgba(37,99,235,.6) !important;
+      border-color: rgba(29,78,216,.3) !important; color: #1d4ed8 !important;
       &:hover  { border-color: rgba(37,99,235,.7) !important; color: var(--accent-blue) !important; background: rgba(37,99,235,.06) !important; }
       &.copied { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; }
     }
@@ -171,22 +171,22 @@
   .code-line-numbers {
     background: rgba(37,99,235,.04) !important;
     border-right-color: rgba(37,99,235,.12) !important;
-    span { color: rgba(37,99,235,.35) !important; }
+    span { color: #64748b !important; }
   }
 
   pre { filter: none !important; color: #1a2535 !important; }
 
   // GitHub Light tokens
-  .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #6a737d !important; }
+  .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #57606a !important; }
   .token.punctuation                          { color: #24292e !important; }
   .token.property, .token.tag, .token.boolean,
   .token.number, .token.constant, .token.symbol, .token.deleted { color: #005cc5 !important; }
   .token.selector, .token.attr-name, .token.string, .token.char,
   .token.builtin, .token.inserted             { color: #032f62 !important; }
-  .token.operator, .token.entity, .token.url  { color: #d73a49 !important; }
-  .token.atrule, .token.attr-value, .token.keyword { color: #d73a49 !important; font-weight: 600; }
+  .token.operator, .token.entity, .token.url  { color: #cf222e !important; }
+  .token.atrule, .token.attr-value, .token.keyword { color: #cf222e !important; font-weight: 600; }
   .token.function, .token.class-name          { color: #6f42c1 !important; }
-  .token.regex, .token.important, .token.variable { color: #e36209 !important; }
+  .token.regex, .token.important, .token.variable { color: #953800 !important; }
   code { color: #24292e !important; }
 }
 

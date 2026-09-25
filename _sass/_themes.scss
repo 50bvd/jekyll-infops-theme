@@ -11,13 +11,14 @@
 
   --text-primary:   #e6edf3;
   --text-secondary: #8b949e;
-  --text-muted:     #6e7681;
+  --text-muted:     #848d97;   // ≥ 4.5:1 on every dark surface (WCAG AA)
 
   --border-color:  #30363d;
   --border-subtle: #21262d;
 
   --accent-blue:       #58a6ff;
   --accent-blue-hover: #79b8ff;
+  --on-accent:         #0d1117;   // text on accent-coloured backgrounds (7.5:1)
   --accent-green:      #56d364;
   --accent-red:        #f85149;
   --accent-yellow:     #e3b341;
@@ -77,17 +78,18 @@
   // Text
   --text-primary:   #111827;   // near-black
   --text-secondary: #374151;
-  --text-muted:     #6b7280;
+  --text-muted:     #555e6c;   // ≥ 4.5:1 on every light surface (WCAG AA)
 
   --border-color:  #c5d0e6;
   --border-subtle: #d8e0ef;
 
   // Accents — vivid, high contrast
-  --accent-blue:       #2563eb;
-  --accent-blue-hover: #1d4ed8;
-  --accent-green:      #16a34a;
-  --accent-red:        #dc2626;
-  --accent-yellow:     #ca8a04;
+  --accent-blue:       #1d4ed8;   // ≥ 5:1 on the blue-grey surfaces
+  --accent-blue-hover: #1e40af;
+  --on-accent:         #ffffff;
+  --accent-green:      #166534;   // darker shades: readable as text (≥ 4.5:1)
+  --accent-red:        #b91c1c;
+  --accent-yellow:     #854d0e;
   --accent-purple:     #7c3aed;
   --accent-orange:     #ea580c;
   --accent-cyan:       #0891b2;
@@ -110,10 +112,10 @@
   --code-border: #b8c6df;
   --code-text:   #111827;
 
-  --status-success: #16a34a;
-  --status-warning: #ca8a04;
-  --status-error:   #dc2626;
-  --status-info:    #2563eb;
+  --status-success: #166534;
+  --status-warning: #854d0e;
+  --status-error:   #b91c1c;
+  --status-info:    #1d4ed8;
 
   // Canvas — blue particles, more visible on light bg
   --canvas-particle: rgba(37,99,235,.25);
@@ -148,29 +150,7 @@
     border-color: var(--border-color);
   }
 
-  // Code block wrappers — use cool grey (not CRT green on white)
-  .code-block-wrapper {
-    box-shadow: 0 0 0 1px rgba(37,99,235,.12), 0 4px 16px rgba(17,24,39,.1);
-  }
-  .code-block-header {
-    background: #dce4f2 !important;
-    border-color: #b8c6df !important;
-    // Override green lang label to blue
-    .code-lang { color: rgba(37,99,235,.7) !important; }
-    .copy-btn {
-      border-color: rgba(37,99,235,.25) !important;
-      color: rgba(37,99,235,.6) !important;
-      &:hover { border-color: rgba(37,99,235,.7) !important; color: var(--accent-blue) !important; background: rgba(37,99,235,.06) !important; }
-      &.copied { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; }
-    }
-  }
-  .code-block-body {
-    background: #eef2f8 !important;
-    // remove green scanlines
-    &::after { background: transparent !important; }
-  }
-  .code-block-wrapper pre { filter: none !important; }
-  .code-line-numbers span { color: rgba(37,99,235,.3) !important; }
+  // Code blocks: see the light-theme section of _components.scss
 
   // Nav links
   .nav-link:hover, .nav-link.active {

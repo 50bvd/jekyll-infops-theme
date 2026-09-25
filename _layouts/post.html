@@ -26,16 +26,20 @@ layout: default
           <i class="fas fa-user" aria-hidden="true"></i>
           {{ page.author | default: site.author.name }}
         </span>
+        {% comment %} Computed at build time: no JavaScript, no layout shift {% endcomment %}
+        {% assign words = content | strip_html | number_of_words %}
+        {% assign wpm = site.data.theme.posts.reading_speed | default: 200 | plus: 0 %}
+        {% assign minutes = words | plus: wpm | minus: 1 | divided_by: wpm | at_least: 1 %}
         {% if cfg.reading_time %}
         <span class="reading-time">
           <i class="fas fa-clock" aria-hidden="true"></i>
-          <span id="reading-time">…</span>
+          <span id="reading-time">{{ minutes }} min read</span>
         </span>
         {% endif %}
         {% if cfg.word_count %}
         <span class="word-count">
           <i class="fas fa-align-left" aria-hidden="true"></i>
-          <span id="word-count">…</span>
+          <span id="word-count">{{ words }} words</span>
         </span>
         {% endif %}
       </div>
