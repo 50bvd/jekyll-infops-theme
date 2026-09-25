@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 {% assign default_theme = site.theme_config.default_theme | default: 'dark' %}
+{% comment %} Cache busting: assets keep their names, so every build adds ?v=<build time>
+   to local CSS / JS URLs — browsers fetch the new files right after a deployment {% endcomment %}
+{% capture av %}?v={{ site.time | date: '%s' }}{% endcapture %}
 <html lang="{{ site.lang | default: 'en' }}" data-theme="{% if default_theme == 'light' %}light{% else %}dark{% endif %}" data-theme-default="{{ default_theme }}" data-toc-min="{{ site.theme_config.toc_min_headings | default: 1 }}">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +13,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   {% if site.theme_config.seo.noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
   {% include csp.html %}
-  <meta name="search-json-url" content="{{ '/search.json' | relative_url }}">
+  <meta name="search-json-url" content="{{ '/search.json' | relative_url }}{{ av }}">
   {% if site.theme_config.gba.library and site.theme_config.gba.library != "" %}<meta name="gba-library" content="{{ site.theme_config.gba.library | relative_url }}">{% endif %}
 
   <!-- Terminal boot config — injected from _config.yml → theme_config.terminal_boot -->
@@ -34,7 +37,7 @@
   {% endif %}
 
   {% comment %} Blocking on purpose: sets the theme before first paint (no flash) {% endcomment %}
-  <script src="{{ '/assets/js/theme-init.js' | relative_url }}"></script>
+  <script src="{{ '/assets/js/theme-init.js' | relative_url }}{{ av }}"></script>
 
   {% comment %} jekyll-seo-tag : <title>, description, canonical, Open Graph, Twitter card, JSON-LD {% endcomment %}
   {% seo %}
@@ -46,9 +49,9 @@
 
   {% comment %} Font Awesome 6.7.2 and Prism 1.30.0 are served from the site itself (assets/vendor/) — no CDN needed {% endcomment %}
   {% assign prism_theme = site.data.theme.code.theme | default: 'prism-tomorrow' | slugify %}
-  <link rel="stylesheet" href="{{ '/assets/vendor/fontawesome/css/all.min.css' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/vendor/prism/themes/' | append: prism_theme | append: '.min.css' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/vendor/fontawesome/css/all.min.css' | relative_url }}{{ av }}">
+  <link rel="stylesheet" href="{{ '/assets/vendor/prism/themes/' | append: prism_theme | append: '.min.css' | relative_url }}{{ av }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}{{ av }}">
   {% comment %} After style.css on purpose: options from _data/theme.yml override the theme {% endcomment %}
   {% include custom-styles.html %}
   <link rel="icon" type="image/svg+xml" href="{{ '/assets/images/favicon.svg' | relative_url }}">
@@ -108,28 +111,28 @@
   <div id="site-notification" class="notification" role="status" aria-live="polite"></div>
 
   <!-- code-blocks MUST load before Prism so it can sanitise html/xml blocks first -->
-  <script src="{{ '/assets/js/modules/code-blocks.js'      | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/modules/code-blocks.js'      | relative_url }}{{ av }}" defer></script>
 
-  <script src="{{ '/assets/vendor/prism/prism-core.min.js' | relative_url }}" defer></script>
-  <script src="{{ '/assets/vendor/prism/plugins/autoloader/prism-autoloader.min.js' | relative_url }}" defer></script>
+  <script src="{{ '/assets/vendor/prism/prism-core.min.js' | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/vendor/prism/plugins/autoloader/prism-autoloader.min.js' | relative_url }}{{ av }}" defer></script>
 
-  <script src="{{ '/assets/js/modules/notifications.js'    | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/theme-toggle.js'     | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/canvas.js'           | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/navbar.js'           | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/scroll-fx.js'        | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/system-status.js'    | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/goatcounter-widget.js' | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/reading-progress.js' | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/toc.js'              | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/search.js'           | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/search-suggest.js'   | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/lazy-load.js'        | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/lightbox.js'         | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/modules/active-nav.js'       | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/modules/notifications.js'    | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/theme-toggle.js'     | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/canvas.js'           | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/navbar.js'           | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/scroll-fx.js'        | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/system-status.js'    | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/goatcounter-widget.js' | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/reading-progress.js' | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/toc.js'              | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/search.js'           | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/search-suggest.js'   | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/lazy-load.js'        | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/lightbox.js'         | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/modules/active-nav.js'       | relative_url }}{{ av }}" defer></script>
 
   <!-- Terminal engine: always loaded so window.Terminal.register() works on every page -->
-  <script src="{{ '/assets/js/modules/hero-terminal.js'    | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/modules/hero-terminal.js'    | relative_url }}{{ av }}" defer></script>
 
   {% comment %} Commands and games only where there is a terminal to run them (home hero,
      or any page with `terminal: true` in its front matter) — saves ~150 KB elsewhere {% endcomment %}
@@ -138,16 +141,16 @@
   {% if page.terminal %}{% assign load_terminal = true %}{% endif %}
   {% if load_terminal %}
 
-  <script src="{{ '/assets/js/terminal-commands/help.js'    | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/system.js'  | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/color.js'   | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/fun.js'     | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/pong.js'    | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/pacman.js'  | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/snake.js'   | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/tetris.js'  | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/2048.js'    | relative_url }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/gba.js'     | relative_url }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/help.js'    | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/system.js'  | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/color.js'   | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/fun.js'     | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/pong.js'    | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/pacman.js'  | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/snake.js'   | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/tetris.js'  | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/2048.js'    | relative_url }}{{ av }}" defer></script>
+  <script src="{{ '/assets/js/terminal-commands/gba.js'     | relative_url }}{{ av }}" defer></script>
   {% endif %}
 
 </body>

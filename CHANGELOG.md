@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.1
+
+- **Cache busting**: every local CSS / JS URL (and the emulator's `gpsp.js` / `gpsp.wasm`) carries `?v=<build time>`, so browsers load the new files right after a deployment instead of mixing cached old ones with new ones (which broke the search panel and the emulator).
+- **CSP header vs antivirus**: the Apache / nginx header now has its own broad `script-src` (the per-page `<meta>` policy stays the strict one). Antivirus products that rewrite the header to inject their script (Kaspersky…) used to add a restrictive `script-src` that blocked WebAssembly; they now only append their host. When it still happens, the emulator names the antivirus and explains what to do.
+
 ## 1.6.0
 
 ### Search
