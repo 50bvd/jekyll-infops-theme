@@ -6,8 +6,8 @@
 title:       "jekyll-infops-theme"
 tagline:     "DevOps · SysOps · Infrastructure"
 description: "A modern Jekyll theme for DevOps and SysOps engineers."
-baseurl:     "/jekyll-infops-theme"
-url:         "https://50bvd.github.io"
+baseurl:     ""                       # personal server: site served at the domain root
+url:         "https://50bvd.com"
 lang:        "en"
 timezone:    "Europe/Paris"
 
@@ -159,6 +159,7 @@ theme_config:
 
   seo:
     image: "/assets/images/og-default.png"
+    noindex: false   # true = ask search engines not to index (used by the preprod build)
 
   # ── Security ───────────────────────────────────────────────────────────
   security:
@@ -238,6 +239,13 @@ exclude:
   - CHANGELOG.md
   - CONTRIBUTING.md
   - jekyll-infops-theme.gemspec
+  # Deployment files — never published with the site
+  - Dockerfile
+  - docker/
+  - "docker-compose*.yml"
+  - apache/
+  - scripts/
+  - DEPLOY.md
 
 include:
   - .htaccess

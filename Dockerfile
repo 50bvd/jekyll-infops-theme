@@ -53,6 +53,35 @@ COPY . .
 
 RUN JEKYLL_ENV=production bundle exec jekyll build --destination /dist
 
+# ─── Export of the built site (used by scripts/deploy.sh) ────────────────────
+#   docker build --target site-export --output type=local,dest=_deploy .
+FROM scratch AS site-export
+COPY --from=builder /dist /
+
+# ─── Preprod build (noindex, no analytics, relative URLs) ────────────────────
+FROM base AS builder-preprod
+
+WORKDIR /site
+COPY . .
+
+RUN JEKYLL_ENV=production bundle exec jekyll build \
+      --config _config.yml,_config.preprod.yml --destination /dist
+
+# ─── Preprod : Apache httpd (same rules as the production vhost) ─────────────
+FROM httpd:2.4-alpine AS preprod
+
+COPY apache/security-headers.conf apache/site-common.conf /usr/local/apache2/conf/infops/
+COPY apache/preprod-httpd.conf /usr/local/apache2/conf/infops/preprod-httpd.conf
+RUN echo "Include conf/infops/preprod-httpd.conf" >> /usr/local/apache2/conf/httpd.conf \
+ && rm -rf /usr/local/apache2/htdocs/*
+
+COPY --from=builder-preprod /dist /usr/local/apache2/htdocs
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
+
 # ─── Stage 4 : production (nginx léger) ──────────────────────────────────────
 FROM nginx:stable-alpine AS prod
 

@@ -1,0 +1,29 @@
+# =============================================================================
+# docker-compose.preprod.yml — PREPROD of 50bvd.com (Apache httpd container)
+#
+#   docker compose -f docker-compose.preprod.yml up -d --build
+#
+# Listens on 127.0.0.1:8081 only. To reach it from outside, either:
+#   · an SSH tunnel:  ssh -L 8081:127.0.0.1:8081 you@server  → http://localhost:8081
+#   · or a reverse-proxy vhost on the host Apache (see apache/README.md)
+# Pages are served with "noindex" (meta + X-Robots-Tag), without analytics/comments.
+# =============================================================================
+
+services:
+  preprod:
+    build:
+      context: .
+      target:  preprod
+    container_name: 50bvd-preprod
+    ports:
+      - "127.0.0.1:8081:80"
+    environment:
+      - TZ=Europe/Paris
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /usr/local/apache2/logs
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE, SETUID, SETGID]
+    security_opt:
+      - no-new-privileges:true
