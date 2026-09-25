@@ -8,6 +8,7 @@
   --bg-primary:    #0d1117;
   --bg-secondary:  #161b22;
   --bg-tertiary:   #21262d;
+  --bg-surface:    #161b22;
 
   --text-primary:   #e6edf3;
   --text-secondary: #8b949e;
@@ -67,25 +68,27 @@
   --canvas-line:     rgba(88,166,255,.14);
 }
 
-// ── Light — cool blue-grey palette ────────────────────────────────────────
-// Not white. Surfaces are layered blue-grey tints (like Notion / Linear).
+// ── Light — soft "paper" blue-grey palette ────────────────────────────────
+// Deliberately never white: muted, low-glare surfaces layered a few shades
+// apart, softened text. Every text colour is ≥ 4.5:1 (WCAG AA) on them.
 [data-theme="light"] {
   // Surface scale — blue-grey tones, no warm beige
-  --bg-primary:    #eef2f8;   // soft blue-grey base
-  --bg-secondary:  #e4eaf4;   // cards, sidebar
-  --bg-tertiary:   #d8e0ef;   // code, inputs, widget headers
+  --bg-primary:    #dfe3e9;   // page
+  --bg-secondary:  #e8ebf0;   // header, footer, article
+  --bg-tertiary:   #d3d8e0;   // inputs, pills, widget headers
+  --bg-surface:    #eaedf1;   // cards, widgets, code
 
   // Text
-  --text-primary:   #111827;   // near-black
-  --text-secondary: #374151;
-  --text-muted:     #555e6c;   // ≥ 4.5:1 on every light surface (WCAG AA)
+  --text-primary:   #1e2530;   // soft ink, not pure black
+  --text-secondary: #3b4452;
+  --text-muted:     #4f5866;
 
-  --border-color:  #c5d0e6;
-  --border-subtle: #d8e0ef;
+  --border-color:  #c5cbd4;
+  --border-subtle: #d3d8e0;
 
   // Accents — vivid, high contrast
-  --accent-blue:       #1d4ed8;   // ≥ 5:1 on the blue-grey surfaces
-  --accent-blue-hover: #1e40af;
+  --accent-blue:       #1e4fc4;   // ≥ 4.9:1 on every surface
+  --accent-blue-hover: #1a3f9c;
   --on-accent:         #ffffff;
   --accent-green:      #166534;   // darker shades: readable as text (≥ 4.5:1)
   --accent-red:        #b91c1c;
@@ -99,18 +102,18 @@
   --gradient-green:   linear-gradient(135deg, #16a34a, #0891b2);
   --gradient-purple:  linear-gradient(135deg, #7c3aed, #2563eb);
 
-  --shadow-sm:   0 1px 4px rgba(17,24,39,.1);
-  --shadow-md:   0 4px 14px rgba(17,24,39,.12);
-  --shadow-lg:   0 8px 32px rgba(17,24,39,.14);
+  --shadow-sm:   0 1px 3px rgba(30,37,48,.08);
+  --shadow-md:   0 4px 12px rgba(30,37,48,.09);
+  --shadow-lg:   0 8px 28px rgba(30,37,48,.11);
   --shadow-glow: 0 0 24px rgba(37,99,235,.15);
 
-  --scrollbar-track:       #dce4f0;
-  --scrollbar-thumb:       #b0bdd4;
-  --scrollbar-thumb-hover: #8090b0;
+  --scrollbar-track:       #dfe3e9;
+  --scrollbar-thumb:       #b3bac5;
+  --scrollbar-thumb-hover: #8a93a1;
 
-  --code-bg:     #dce4f2;
-  --code-border: #b8c6df;
-  --code-text:   #111827;
+  --code-bg:     #e4e8ee;
+  --code-border: #c5cbd4;
+  --code-text:   #1e2530;
 
   --status-success: #166534;
   --status-warning: #854d0e;
@@ -118,31 +121,31 @@
   --status-info:    #1d4ed8;
 
   // Canvas — blue particles, more visible on light bg
-  --canvas-particle: rgba(37,99,235,.25);
-  --canvas-line:     rgba(37,99,235,.1);
+  --canvas-particle: rgba(30,79,196,.18);
+  --canvas-line:     rgba(30,79,196,.07);
 }
 
 // ── Light mode surface overrides ───────────────────────────────────────────
 [data-theme="light"] {
   // Navbar
   .main-header {
-    background: rgba(232,240,252,.86);
+    background: rgba(232,235,240,.88);
     border-color: var(--border-color);
   }
 
   // Post cards — layered blue-white
   .post-card {
-    background: #f5f8ff;
+    background: var(--bg-surface);
     border-color: var(--border-color);
-    box-shadow: 0 2px 8px rgba(37,99,235,.06), 0 0 0 1px var(--border-color);
+    box-shadow: 0 1px 4px rgba(30,37,48,.05), 0 0 0 1px var(--border-color);
   }
   .post-card:hover {
-    box-shadow: 0 6px 24px rgba(37,99,235,.12), 0 0 0 1px var(--accent-blue);
+    box-shadow: 0 6px 20px rgba(30,37,48,.1), 0 0 0 1px var(--accent-blue);
   }
 
   // Sidebar widgets
   .widget {
-    background: #f0f5ff;
+    background: var(--bg-surface);
     border-color: var(--border-color);
   }
   .widget-title {
@@ -174,12 +177,12 @@
 
   // Footer
   .footer {
-    background: #dce4f0;
+    background: #d9dee5;
     border-color: var(--border-color);
   }
 
   // Search input
-  .search-input { background: #f0f5ff !important; }
+  .search-input { background: var(--bg-surface) !important; }
 
   // Status badges — keep coloured dots visible
   .status-badge.online  { background: rgba(22,163,74,.12); }

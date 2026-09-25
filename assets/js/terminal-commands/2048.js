@@ -17,7 +17,7 @@
     2: '#2a3a52', 4: '#31476a', 8: '#e3874a', 16: '#ec6d3f', 32: '#f0553b', 64: '#f23b2b',
     128: '#e8c547', 256: '#e9c02f', 512: '#eab81a', 1024: '#6fcf6a', 2048: '#39c5cf'
   };
-  var TILE_LIGHT = { 2: '#e4e9f2', 4: '#d6deeb' };
+  var TILE_LIGHT = { 2: '#eceef2', 4: '#dfe3ea' };
 
   function pos(i) { return GAP + i * (CS + GAP); }
   function ease(t) { return 1 - Math.pow(1 - Math.min(1, t), 3); }
@@ -129,7 +129,7 @@
         render: function(c, g) {
           var d = g.data, light = g.light(), ac = g.accent();
           c.drawImage(g.layer('board', function(l) {
-            l.fillStyle = light ? '#f0f4fc' : '#050a12'; l.fillRect(0, 0, W, H);
+            l.fillStyle = light ? '#e3e6eb' : '#050a12'; l.fillRect(0, 0, W, H);
             l.fillStyle = light ? '#c9d3e3' : '#0c1624';
             round(l, BX, BY, BOARD, BOARD, 12); l.fill();
             l.fillStyle = light ? '#dbe2ee' : '#132034';

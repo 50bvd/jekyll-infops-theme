@@ -114,10 +114,11 @@ code {
 }
 
 // Light — high specificity to beat Prism and other resets
-[data-theme="light"] code {
-  background: rgba(37,99,235,.08) !important;
-  color: #1d4ed8 !important;
-  border: 1px solid rgba(37,99,235,.18) !important;
+// (inline code only: code inside a <pre> block keeps the block's colours)
+[data-theme="light"] :not(pre) > code {
+  background: rgba(30,79,196,.08) !important;
+  color: var(--accent-blue) !important;
+  border: 1px solid rgba(30,79,196,.18) !important;
   text-shadow: none !important;
 }
 
