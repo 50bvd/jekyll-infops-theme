@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#eef2f8" media="(prefers-color-scheme: light)">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  {% if site.theme_config.seo.noindex %}<meta name="robots" content="noindex, nofollow">{% endif %}
   {% include csp.html %}
   <meta name="search-json-url" content="{{ '/search.json' | relative_url }}">
 

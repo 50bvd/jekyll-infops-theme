@@ -24,8 +24,9 @@ services:
       # Cache Jekyll pour les builds incrémentaux
       - jekyll_cache:/site/.jekyll-cache
     ports:
-      - "4000:4000"    # Site
-      - "35729:35729"  # LiveReload WebSocket
+      # Local only: jekyll serve (WEBrick) is a dev server, never expose it publicly
+      - "127.0.0.1:4000:4000"    # Site
+      - "127.0.0.1:35729:35729"  # LiveReload WebSocket
     environment:
       - JEKYLL_ENV=development
       - TZ=Europe/Paris

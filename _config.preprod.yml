@@ -1,0 +1,19 @@
+# =============================================================================
+# _config.preprod.yml — overrides for the PREPROD build (Docker container)
+# Used as: jekyll build --config _config.yml,_config.preprod.yml
+# =============================================================================
+url: ""                 # relative URLs: works on any host/port (http://server:8081, preprod.50bvd.com…)
+
+theme_config:
+  seo:
+    noindex: true       # <meta name="robots" content="noindex"> on every page
+
+analytics:              # never count preprod visits
+  goatcounter_code:    ""
+  google_analytics_id: ""
+  plausible_domain:    ""
+  umami_website_id:    ""
+  umami_src:           ""
+
+comments:
+  provider: ""          # no Utterances issues created from preprod
