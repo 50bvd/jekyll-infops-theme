@@ -6,8 +6,8 @@
 title:       "jekyll-infops-theme"
 tagline:     "DevOps · SysOps · Infrastructure"
 description: "A modern Jekyll theme for DevOps and SysOps engineers."
-baseurl:     "/jekyll-infops-theme"
-url:         "https://50bvd.github.io"
+baseurl:     ""                       # personal server: site served at the domain root
+url:         ""                       # set your domain, e.g. "https://example.com" (canonical, RSS, sitemap)
 lang:        "en"
 timezone:    "Europe/Paris"
 
