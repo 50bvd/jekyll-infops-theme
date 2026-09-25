@@ -1,0 +1,12 @@
+{% comment %}
+  _includes/cover.html — article cover (custom image or generated, see _plugins/cover_images.rb)
+  {% include cover.html post=post class="post-card-cover" link=true %}
+{% endcomment %}
+{% assign _p = include.post %}
+{% if _p.cover and site.theme_config.covers.enabled != false %}
+{% assign _alt = _p.cover_alt | default: _p.title %}
+{% if include.link %}<a href="{{ _p.url | relative_url }}" class="cover {{ include.class }}{% if _p.cover_light %} cover--themed{% endif %}" tabindex="-1" aria-hidden="true">{% else %}<div class="cover {{ include.class }}{% if _p.cover_light %} cover--themed{% endif %}">{% endif %}
+  <img class="cover-img cover-img--dark" src="{{ _p.cover | relative_url }}" alt="{% unless include.link %}{{ _alt | escape }}{% endunless %}" width="1200" height="630" loading="{{ include.loading | default: 'lazy' }}" decoding="async">
+  {% if _p.cover_light %}<img class="cover-img cover-img--light" src="{{ _p.cover_light | relative_url }}" alt="{% unless include.link %}{{ _alt | escape }}{% endunless %}" width="1200" height="630" loading="{{ include.loading | default: 'lazy' }}" decoding="async">{% endif %}
+{% if include.link %}</a>{% else %}</div>{% endif %}
+{% endif %}

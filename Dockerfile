@@ -20,6 +20,10 @@ RUN apk add --no-cache \
       zlib-dev \
       gcompat
 
+# Article covers: SVG → PNG for social cards (optional — covers stay SVG without it)
+RUN apk add --no-cache font-dejavu \
+ && (apk add --no-cache rsvg-convert || apk add --no-cache librsvg || echo "rsvg-convert unavailable: covers will be SVG only")
+
 WORKDIR /site
 
 # Copy gem files first (Docker layer cache).

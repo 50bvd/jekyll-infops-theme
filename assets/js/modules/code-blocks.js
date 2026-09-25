@@ -36,6 +36,7 @@ window.Prism.manual = true;
   // Called before Prism highlights, so Prism never sees raw < > in html blocks.
   function sanitiseHtmlBlocks() {
     document.querySelectorAll('code[class*="language-"]').forEach(function(code) {
+      if (code.closest('.term-shot')) return;
       var cls = code.className || '';
       var m = cls.match(/language-([a-z]+)/i);
       var lang = m ? m[1].toLowerCase() : '';
@@ -68,7 +69,7 @@ window.Prism.manual = true;
       '.post-body pre, .post-content pre, article pre, .content pre, .code-block-src pre'
     ).forEach(function(pre) {
       if (pre.closest('.code-block-wrapper')) return;
-      if (pre.closest('.sidebar, nav, .widget, .toc-content')) return;
+      if (pre.closest('.sidebar, nav, .widget, .toc-content, .term-shot')) return;
       if (!pre.textContent.trim()) return;
 
       var code   = pre.querySelector('code');

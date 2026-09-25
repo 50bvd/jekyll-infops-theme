@@ -17,7 +17,9 @@ layout: default
       {% assign category_posts = site.categories[page.category] %}
       {% if category_posts.size > 0 %}
         {% for post in category_posts %}
-          <article class="post-card fade-in">
+          <article class="post-card fade-in{% if post.cover and site.theme_config.covers.show_on_cards != false %} has-cover{% endif %}">
+            {% if site.theme_config.covers.show_on_cards != false %}{% include cover.html post=post class="post-card-cover" link=true %}{% endif %}
+            <div class="post-card-body">
             <div class="post-meta">
               <span><i class="fas fa-calendar" aria-hidden="true"></i> {{ post.date | date: "%B %d, %Y" }}</span>
               <span><i class="fas fa-user" aria-hidden="true"></i> {{ post.author | default: site.author.name }}</span>
@@ -32,6 +34,7 @@ layout: default
             <a href="{{ post.url | relative_url }}" class="read-more">
               Read more <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
+            </div>
           </article>
         {% endfor %}
       {% else %}
