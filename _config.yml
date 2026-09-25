@@ -257,6 +257,7 @@ exclude:
   - "docker-compose*.yml"
   - apache/
   - scripts/
+  - tools/
   - DEPLOY.md
   - SCREENSHOTS.md
   - _posts/README.md

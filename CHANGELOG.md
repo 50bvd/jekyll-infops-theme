@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.0
+
+### Search
+- **Instant suggestions** under the navbar search box: matches appear while typing (title hits first, matched words highlighted, date and tags), ↑/↓ + Enter to open one, "See all results" for the full search page. The index is only fetched when the box gets focus. `/` or Ctrl+K focuses the search from anywhere. Accessible combobox, results built without `innerHTML`.
+
+### Terminal
+- **Game Boy Advance emulator**: `gba` opens a ROM from your computer (file picker, or drop the file on the terminal), `gba last` reloads the last one. It is **gpSP** — the emulator of the GP2X / PSP scene — compiled to WebAssembly (interpreter core, built-in open-source BIOS), running entirely in the browser: the ROM is never uploaded. Sound, battery saves kept per game, quick states (F2 / F4), fast forward (hold Space), on-screen pad on touch screens, same window / fullscreen as the other games. The emulator (~500 KB) is only downloaded on first use. Sources, build script and licences in `tools/gba-emulator/` (GPL-2.0).
+- CSP: `'wasm-unsafe-eval'` on pages with a terminal only (allows compiling WebAssembly, not JavaScript `eval`). Apache / nginx configs serve `.wasm` with the right type, compressed and cached.
+
 ## 1.4.0
 
 ### Fixes

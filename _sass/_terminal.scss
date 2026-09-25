@@ -263,6 +263,34 @@ body.term-fullscreen .back-to-top { display: none !important; }
   .terminal-window.is-playing .term-game-exit { display: block; }
 }
 
+// ── GBA emulator (terminal-commands/gba.js) ──────────────────────────────────
+.terminal-window.is-dropping { outline: 2px dashed rgba(var(--term-color), .8); outline-offset: -6px; }
+.gba-pad {
+  position: absolute; inset: auto 0 0 0; z-index: 19; height: 46%;
+  pointer-events: none; user-select: none; -webkit-user-select: none; touch-action: none;
+  .gba-btn {
+    position: absolute; pointer-events: auto; touch-action: none;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 3rem; min-height: 3rem; padding: 0 .6rem;
+    font: 700 .85rem var(--font-mono); color: rgba(255,255,255,.9);
+    background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.35); border-radius: 999px;
+    -webkit-tap-highlight-color: transparent;
+    &.is-down { background: rgba(var(--term-color), .55); }
+  }
+  .gba-up    { left: 3.6rem; bottom: 7rem; }
+  .gba-down  { left: 3.6rem; bottom: 1rem; }
+  .gba-left  { left: .6rem;  bottom: 4rem; }
+  .gba-right { left: 6.6rem; bottom: 4rem; }
+  .gba-a     { right: .8rem; bottom: 5rem; min-width: 3.6rem; min-height: 3.6rem; }
+  .gba-b     { right: 4.9rem; bottom: 2.6rem; min-width: 3.6rem; min-height: 3.6rem; }
+  .gba-l     { left: .6rem;  bottom: 10.5rem; }
+  .gba-r     { right: .8rem; bottom: 10.5rem; }
+  .gba-select, .gba-start { bottom: .4rem; min-height: 2rem; font-size: .7rem; }
+  .gba-select { left: 50%; transform: translateX(-110%); }
+  .gba-start  { left: 50%; transform: translateX(10%); }
+}
+.terminal-window:has(.gba-pad) .term-game-exit { top: calc(var(--term-header-h, 3.4rem) + .6rem); bottom: auto; }
+
 // ── Boot logo image (terminal_boot.image) ────────────────────────────────────
 .term-neofetch {
   display: flex; align-items: center; gap: 1.2rem;
