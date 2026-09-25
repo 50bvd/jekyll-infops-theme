@@ -51,7 +51,10 @@ FROM base AS builder
 WORKDIR /site
 COPY . .
 
-RUN JEKYLL_ENV=production bundle exec jekyll build --destination /dist
+# SITE_CONFIG: extra config layered on _config.yml (the personal server uses _config.perso.yml)
+ARG SITE_CONFIG=_config.perso.yml
+RUN JEKYLL_ENV=production bundle exec jekyll build \
+      --config "_config.yml,${SITE_CONFIG}" --destination /dist
 
 # ─── Export of the built site (used by scripts/deploy.sh) ────────────────────
 #   docker build --target site-export --output type=local,dest=_deploy .
@@ -65,7 +68,7 @@ WORKDIR /site
 COPY . .
 
 RUN JEKYLL_ENV=production bundle exec jekyll build \
-      --config _config.yml,_config.preprod.yml --destination /dist
+      --config _config.yml,_config.perso.yml,_config.preprod.yml --destination /dist
 
 # ─── Preprod : Apache httpd (same rules as the production vhost) ─────────────
 FROM httpd:2.4-alpine AS preprod

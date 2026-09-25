@@ -9,12 +9,12 @@
 # Requirements on the server: git, Docker (with buildx), Apache 2.4, rsync.
 # No Ruby needed: Jekyll runs inside Docker.
 #
-# Overridable: WEB_ROOT (default /var/www/50bvd.com), BRANCH (default site/perso)
+# Overridable: WEB_ROOT (default /var/www/50bvd.com), BRANCH (default main)
 # =============================================================================
 set -euo pipefail
 
 WEB_ROOT="${WEB_ROOT:-/var/www/50bvd.com}"
-BRANCH="${BRANCH:-site/perso}"
+BRANCH="${BRANCH:-main}"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_DIR"
 

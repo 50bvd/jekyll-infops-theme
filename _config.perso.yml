@@ -1,0 +1,9 @@
+# =============================================================================
+# _config.perso.yml — overrides for https://50bvd.com (home server)
+#
+# _config.yml stays set up for the GitHub Pages demo; the Docker builds used by
+# scripts/deploy.sh add this file on top:
+#   jekyll build --config _config.yml,_config.perso.yml
+# =============================================================================
+url:     "https://50bvd.com"
+baseurl: ""               # served from the domain root
