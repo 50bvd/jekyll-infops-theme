@@ -22,12 +22,12 @@ The old site lives in `/root/50bvd-site` (mounted into the container).
 cd /opt/50bvd
 git fetch origin && git checkout site/perso && git pull
 
-# 1. Articles and images from the old site
-cp -r  /root/50bvd-site/_posts/.          _posts/
+# 1. Images from the old site (articles and settings are already in this branch,
+#    translated to English — do NOT copy the old _posts/ over them)
 cp -rn /root/50bvd-site/assets/images/.   assets/images/     # -n: keep the theme's files
 
-# 2. Your settings: compare, then copy your values into _config.perso.yml
-diff /root/50bvd-site/_config.yml _config.yml
+# 2. Google Search Console code (if your old layout had one) → _config.perso.yml
+grep -r google-site-verification /root/50bvd-site/_layouts /root/50bvd-site/_includes
 
 # 3. Check everything on the preprod
 ./scripts/deploy.sh preprod
@@ -37,9 +37,9 @@ diff /root/50bvd-site/_config.yml _config.yml
 docker compose -f /root/50bvd-site/docker-compose.public.yml down
 ./scripts/deploy.sh prod
 
-# 5. Save your articles in Git
-git add _posts assets/images _config.perso.yml
-git commit -m "content: import articles from the old site"
+# 5. Save the images in Git
+git add assets/images _config.perso.yml
+git commit -m "content: import images from the old site"
 git push origin site/perso
 ```
 

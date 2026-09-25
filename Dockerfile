@@ -15,6 +15,7 @@ RUN apk add --no-cache \
       build-base \
       git \
       tzdata \
+      ca-certificates \
       libffi-dev \
       yaml-dev \
       zlib-dev \

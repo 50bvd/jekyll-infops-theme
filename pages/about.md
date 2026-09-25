@@ -2,7 +2,7 @@
 layout: default
 title: About
 permalink: /about/
-description: "About this blog and the jekyll-infops-theme."
+description: "About 50bvd — systems and infrastructure administrator, homelab and open source."
 ---
 
 <div class="main-container">
@@ -14,53 +14,48 @@ description: "About this blog and the jekyll-infops-theme."
       </header>
       <div class="post-body">
 
-{% if site.author.bio %}<p>{{ site.author.bio }}</p>{% endif %}
+<p>Hi, I'm <strong>50bvd</strong>. {{ site.author.bio }}</p>
 
-<h2>jekyll-infops-theme</h2>
+<p>This blog collects the guides I write while building and running my own infrastructure: what worked, what broke, and how I fixed it — with real configurations rather than theory.</p>
 
-<p>A modern, customizable Jekyll theme built for DevOps, SysOps and infrastructure engineers.</p>
-
-<h3>Features</h3>
+<h2>What I write about</h2>
 
 <ul>
-  <li><strong>Interactive terminal</strong> — type <code>help</code> in the hero section to explore commands and games</li>
-  <li><strong>Dark / Light mode</strong> — persisted via <code>localStorage</code>, no flash on reload</li>
-  <li><strong>Canvas background</strong> — particles that react to cursor movement</li>
-  <li><strong>Client-side search</strong> — instant full-text, no external service</li>
-  <li><strong>Syntax highlighting</strong> — Prism.js with a copy button on every block</li>
-  <li><strong>Table of Contents</strong> — auto-generated from headings, scroll-aware</li>
-  <li><strong>Reading progress</strong> — progress bar while reading articles</li>
-  <li><strong>Callout blocks</strong> — <code>note</code>, <code>tip</code>, <code>info</code>, <code>warning</code>, <code>danger</code>, <code>success</code></li>
-  <li><strong>Analytics</strong> — GoatCounter / GA4 / Plausible / Umami (production only)</li>
-  <li><strong>Comments</strong> — Utterances (GitHub Issues) or Disqus</li>
-  <li><strong>Accessible</strong> — skip-link, ARIA labels, reduced-motion support</li>
+  <li><strong>Infrastructure &amp; Linux</strong> — Active Directory integration, migrations, Docker in production</li>
+  <li><strong>Homelab &amp; virtualization</strong> — Proxmox, ZFS, repurposed hardware</li>
+  <li><strong>Networking &amp; reverse proxies</strong> — HAProxy, DNS, TLS</li>
+  <li><strong>Security &amp; compliance</strong> — hardening, ISMS tooling</li>
+  <li><strong>Open source</strong> — deploying projects and contributing fixes upstream</li>
 </ul>
 
-<h3>Tech stack</h3>
+<h2>My stack</h2>
 
 <table>
-  <thead><tr><th>Component</th><th>Technology</th></tr></thead>
+  <thead><tr><th>Area</th><th>Tools</th></tr></thead>
   <tbody>
-    <tr><td>Generator</td><td>Jekyll 4.4</td></tr>
-    <tr><td>CSS</td><td>Modular SCSS</td></tr>
-    <tr><td>Icons</td><td>Font Awesome 6.4</td></tr>
-    <tr><td>Syntax</td><td>Prism.js</td></tr>
-    <tr><td>Feed</td><td>jekyll-feed</td></tr>
-    <tr><td>SEO</td><td>jekyll-seo-tag</td></tr>
+    <tr><td>Virtualization</td><td>Proxmox VE, KVM, ZFS</td></tr>
+    <tr><td>Containers</td><td>Docker, Docker Compose, Portainer</td></tr>
+    <tr><td>Network</td><td>HAProxy, FortiGate, OpenBSD, Pi-hole</td></tr>
+    <tr><td>Systems</td><td>Debian, AlmaLinux / RHEL, Windows Server, Active Directory</td></tr>
   </tbody>
 </table>
 
-<h3>Contribute</h3>
+<h2>Open source</h2>
 
-{% if site.author.github and site.author.github != "YOUR_USERNAME" %}
-<p>Source code: <a href="https://github.com/{{ site.author.github }}/jekyll-infops-theme" target="_blank" rel="noopener">github.com/{{ site.author.github }}</a>.
-Issues and pull requests are welcome.</p>
-{% else %}
-<p>See <code>README.md</code> for contribution instructions.</p>
-{% endif %}
+<ul>
+  <li><a href="https://github.com/50bvd/jekyll-infops-theme">jekyll-infops-theme</a> — the Jekyll theme this site runs on</li>
+  <li><a href="https://github.com/50bvd/clipboardfilter">ClipboardFilter</a> — secure multi-system clipboard filtering tool</li>
+  <li><a href="https://github.com/50bvd/gpubios_rewrite_vfio">gpubios_rewrite_vfio</a> — rewrites an NVIDIA vBIOS dump for VFIO passthrough</li>
+  <li>Contributions to <a href="https://github.com/sourcentis/deming">Deming</a> (LDAP fixes, PR #688 and #690)</li>
+</ul>
+
+<h2>Contact</h2>
+
+<p>You can find me on <a href="https://github.com/{{ site.author.github }}">GitHub</a>. Comments are open at the bottom of each article.</p>
 
       </div>
     </article>
   </div>
+
   {% include sidebar.html %}
 </div>

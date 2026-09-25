@@ -1,14 +1,75 @@
 # =============================================================================
-# _config.perso.yml — overrides for https://50bvd.com (home server)
+# _config.perso.yml — 50bvd.com (home server)
 #
-# _config.yml stays set up for the GitHub Pages demo; the Docker builds used by
-# scripts/deploy.sh add this file on top:
+# _config.yml stays set up for the theme's GitHub Pages demo; the Docker builds
+# used by scripts/deploy.sh layer this file on top:
 #   jekyll build --config _config.yml,_config.perso.yml
+# Nested keys are merged: only what differs from _config.yml needs to be here.
 # =============================================================================
-url:     "https://50bvd.com"
-baseurl: ""               # served from the domain root
 
-# Comments: the theme's Utterances setup would open GitHub issues in the theme
-# repository. Point it to a repo of yours (with the utterances app installed) or keep it off.
+title:       "50bvd IT Guides"
+tagline:     "SysOps · Infrastructure · Homelab"
+description: "Technical blog — systems administration, infrastructure, homelab and open source."
+url:         "https://50bvd.com"
+baseurl:     ""               # served from the domain root
+lang:        "en"
+
+author:
+  name:   "50bvd"
+  bio:    "Systems and infrastructure administrator. Into homelabs, Linux, Docker and reverse engineering."
+  avatar: "/assets/images/avatar.jpg"
+  github: "50bvd"
+
+# Google Search Console ownership (jekyll-seo-tag outputs the meta tag).
+# Put the code from your old layout here:
+#   grep -r google-site-verification /root/50bvd-site/_layouts /root/50bvd-site/_includes
+# webmaster_verifications:
+#   google: "YOUR_CODE"
+
+analytics:
+  goatcounter_code: "50bvd"
+
 comments:
-  provider: ""
+  provider:         "disqus"
+  disqus_shortname: "50bvd"
+
+theme_config:
+  default_theme: "dark"
+  terminal_user: "50bvd@homelab"
+
+  terminal_boot:
+    user:  "50bvd"
+    host:  "macpro"
+    os:    "Debian 13 · Proxmox 8.4"
+    shell: "bash 5.2"
+    role:  "SysOps · Infrastructure"
+    line1: "Stack: Proxmox · Docker · HAProxy"
+    line2: "Net:   FortiGate · OpenBSD · ZFS"
+    motd:  "Welcome. Type /help for commands."
+    ascii: |
+      ███████╗ ██████╗ ██████╗ ██╗   ██╗██████╗
+      ██╔════╝██╔═████╗██╔══██╗██║   ██║██╔══██╗
+      ███████╗██║██╔██║██████╔╝██║   ██║██║  ██║
+      ╚════██║████╔╝██║██╔══██╗╚██╗ ██╔╝██║  ██║
+      ███████║╚██████╔╝██████╔╝ ╚████╔╝ ██████╔╝
+      ╚══════╝ ╚═════╝ ╚═════╝   ╚═══╝  ╚═════╝
+            SysOps · Homelab · DevOps
+            github.com/50bvd
+
+  navigation:
+    - title: "Home"
+      url:   "/"
+      icon:  "fas fa-home"
+    - title: "Archives"
+      url:   "/archives/"
+      icon:  "fas fa-archive"
+    - title: "Tags"
+      url:   "/tags/"
+      icon:  "fas fa-tags"
+    - title: "About"
+      url:   "/about/"
+      icon:  "fas fa-user"
+    - title: "GitHub"
+      url:   "https://github.com/50bvd"
+      icon:  "fab fa-github"
+      external: true

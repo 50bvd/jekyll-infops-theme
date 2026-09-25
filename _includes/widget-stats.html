@@ -32,7 +32,15 @@
         <div class="stat-label">Tags</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="stat-visitors">—</div>
+        {% if site.goatcounter_visitors %}
+          {% if site.goatcounter_visitors >= 1000 %}
+            <div class="stat-value">{{ site.goatcounter_visitors | divided_by: 1000.0 | round: 1 }}k</div>
+          {% else %}
+            <div class="stat-value">{{ site.goatcounter_visitors }}</div>
+          {% endif %}
+        {% else %}
+          <div class="stat-value" id="stat-visitors">—</div>
+        {% endif %}
         <div class="stat-label">Visitors / month</div>
       </div>
       <div class="stat-card">
@@ -90,7 +98,8 @@
 </div>
 
 <!-- ─── GoatCounter visitors fetch ─────────────────────────────────────── -->
-{% if a.goatcounter_code and a.goatcounter_code != "" %}
+{% comment %} Browser-side fallback, only when the build-time count (_plugins/goatcounter_stats.rb) is missing {% endcomment %}
+{% if a.goatcounter_code and a.goatcounter_code != "" and site.goatcounter_visitors == nil %}
 <script>
 (function() {
   'use strict';
