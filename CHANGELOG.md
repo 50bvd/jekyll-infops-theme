@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.2.0
+
+### Terminal
+- **Phones**: the terminal is no longer shown at page load (pure CSS, no flash). An *Open terminal* button opens it full screen, sized to the visual viewport so the on-screen keyboard never covers the prompt. Bigger touch targets, no iOS zoom on focus.
+- **Touch controls** for games: swipe → arrow keys, tap / drag per game (`touch` option in `Terminal.register`), on-screen *quit* button.
+- **Desktop**: double-click the title bar for fullscreen; closing the terminal leaves an *Open terminal* button to bring it back (it used to disappear until reload).
+- Boot screen can show a **logo image** instead of the ASCII art (`terminal_boot.image`); ASCII art is skipped on narrow phones.
+- `/help` table fixed (misaligned right border) and shown as a compact list on phones.
+- New options under `theme_config.terminal`: `mobile`, `launcher_label`, `autofocus`, `persist_history`, `welcome_command`, `disabled_commands`, `max_input`, `max_lines`.
+- New API: `Terminal.open()`, `Terminal.close()`, `ctx.isTouch()`, `ctx.isPhone()`. Existing API unchanged.
+
+### Home page
+- The hero title can be replaced by a **logo image** (`theme_config.hero.logo`, optional `logo_dark` variant), a custom title/subtitle, or a fully custom include (`hero.include`).
+
+### Security
+- **Content-Security-Policy `<meta>` tag** for production builds (GitHub Pages cannot send headers). Third-party hosts are only allowed when the matching feature is configured; extra hosts via `security.csp_extra`.
+- The terminal no longer injects `<style>` elements (custom colors use CSS variables).
+- Terminal input: length limit, control characters stripped from pasted text, persisted history validated on load, boot logo limited to same-origin / `https` URLs.
+- Terminal boot values from `_config.yml` are HTML-escaped in the page `<head>`.
+
 ## 1.1.0
 
 ### Home page & animations

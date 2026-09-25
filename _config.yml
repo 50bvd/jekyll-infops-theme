@@ -55,7 +55,28 @@ theme_config:
 
   show_hero:     true
   show_terminal: true
-  terminal_user: "user@infops"   # label affiché dans le header du terminal
+  terminal_user: "user@infops"   # label shown in the terminal title bar
+
+  # ── Hero (home page welcome block) ───────────────────────────────────────
+  hero:
+    title:          ""        # text override (default: site.title)
+    subtitle:       ""        # text override (default: tagline) — false to hide
+    logo:           ""        # image replacing the title text, e.g. "/assets/images/logo.svg"
+    logo_dark:      ""        # optional variant used in dark mode
+    logo_alt:       ""        # alt text (default: site.title)
+    logo_max_width: 420       # px
+    include:        ""        # fully custom block: file name in _includes/ (e.g. "my-hero.html")
+
+  # ── Terminal behaviour ───────────────────────────────────────────────────
+  terminal:
+    mobile:            "button"   # phones: button (opens on tap) | show | hide
+    launcher_label:    "Open terminal"
+    autofocus:         true       # desktop only — never on touch devices
+    persist_history:   true       # ↑/↓ history kept for the browser tab (sessionStorage)
+    welcome_command:   ""         # command run after boot, e.g. "help"
+    disabled_commands: []         # e.g. [pacman, matrix]
+    max_input:         256        # max characters per command
+    max_lines:         500        # output lines kept in the DOM
 
   # ── Terminal boot — neofetch affiché au démarrage ────────────────────────
   # Laisser vide ("") pour masquer une ligne.
@@ -68,6 +89,8 @@ theme_config:
     line1: "YOUR_LINE1"       # ex: Org: AT&T              (laisser vide pour masquer)
     line2: "YOUR_LINE2"       # ex: Stack: Proxmox · Docker  (laisser vide pour masquer)
     motd:  "Type /help for commands"        # ex: Bienvenue. /help pour les commandes.
+    image: ""                 # logo image shown instead of the ASCII art, e.g. "/assets/images/logo.png"
+    image_alt: ""
 
     # ASCII art affiché à gauche du neofetch (9 lignes, ~32 chars de large max)
     # Laisser vide pour utiliser le logo Ubuntu par défaut.
@@ -136,6 +159,17 @@ theme_config:
 
   seo:
     image: "/assets/images/og-default.png"
+
+  # ── Security ───────────────────────────────────────────────────────────
+  security:
+    csp: true                 # Content-Security-Policy <meta> (production builds only)
+    csp_extra:                # extra allowed hosts, e.g. script: ["https://example.com"]
+      script:  []
+      style:   []
+      connect: []
+      img:     []
+      frame:   []
+      font:    []
 
 # ---------------------------------------------------------------------------
 # SEO

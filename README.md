@@ -94,6 +94,19 @@ theme_config:
       ██║██║ ╚████║██║
       ╚═╝╚═╝  ╚═══╝╚═╝
 
+  # Home page welcome block — show a logo instead of the title text
+  hero:
+    logo: "/assets/images/logo.svg"
+
+  # Terminal behaviour (phones get an "Open terminal" button)
+  terminal:
+    mobile:          "button"   # button | show | hide
+    welcome_command: ""         # e.g. "help"
+
+  # Content-Security-Policy <meta> tag (production builds)
+  security:
+    csp: true
+
 analytics:
   goatcounter_code: "myblog"  # free, no cookies
 

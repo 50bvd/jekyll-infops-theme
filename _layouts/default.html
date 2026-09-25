@@ -8,20 +8,25 @@
   <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#eef2f8" media="(prefers-color-scheme: light)">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  {% include csp.html %}
   <meta name="search-json-url" content="{{ '/search.json' | relative_url }}">
 
   <!-- Terminal boot config — injected from _config.yml → theme_config.terminal_boot -->
   {% assign boot = site.theme_config.terminal_boot %}
   {% assign default_motd = "Type /help for all commands." %}
-  <meta name="term-boot-user"   content="{{ boot.user   | default: 'YOUR_USER' }}">
-  <meta name="term-boot-host"   content="{{ boot.host   | default: 'YOUR_HOST' }}">
-  <meta name="term-boot-os"     content="{{ boot.os     | default: 'YOUR_OS' }}">
-  <meta name="term-boot-shell"  content="{{ boot.shell  | default: 'YOUR_SHELL' }}">
-  <meta name="term-boot-role"   content="{{ boot.role   | default: 'YOUR_ROLE' }}">
-  <meta name="term-boot-line1"  content="{{ boot.line1  | default: '' }}">
-  <meta name="term-boot-line2"  content="{{ boot.line2  | default: '' }}">
-  <meta name="term-boot-motd"   content="{{ boot.motd   | default: default_motd }}">
+  <meta name="term-boot-user"   content="{{ boot.user   | default: 'YOUR_USER' | escape }}">
+  <meta name="term-boot-host"   content="{{ boot.host   | default: 'YOUR_HOST' | escape }}">
+  <meta name="term-boot-os"     content="{{ boot.os     | default: 'YOUR_OS' | escape }}">
+  <meta name="term-boot-shell"  content="{{ boot.shell  | default: 'YOUR_SHELL' | escape }}">
+  <meta name="term-boot-role"   content="{{ boot.role   | default: 'YOUR_ROLE' | escape }}">
+  <meta name="term-boot-line1"  content="{{ boot.line1  | default: '' | escape }}">
+  <meta name="term-boot-line2"  content="{{ boot.line2  | default: '' | escape }}">
+  <meta name="term-boot-motd"   content="{{ boot.motd   | default: default_motd | escape }}">
   <meta name="term-boot-posts"  content="{{ site.posts | size }}">
+  {% if boot.image and boot.image != "" %}
+  <meta name="term-boot-image"     content="{{ boot.image | relative_url }}">
+  <meta name="term-boot-image-alt" content="{{ boot.image_alt | default: site.title | escape }}">
+  {% endif %}
   {% if boot.ascii and boot.ascii != "" %}
   <meta name="term-boot-ascii"  content="{{ boot.ascii | strip | escape }}">
   {% endif %}

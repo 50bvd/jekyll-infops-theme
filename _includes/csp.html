@@ -1,0 +1,58 @@
+{% comment %}
+  _includes/csp.html — Content-Security-Policy as a <meta> tag.
+  GitHub Pages cannot send HTTP headers, so this is the only way to get a CSP there.
+  (With the Docker/nginx setup the same policy is also sent as a header.)
+
+  · Emitted in production only (jekyll serve's LiveReload would be blocked otherwise).
+  · Third-party hosts are added only when the matching feature is configured.
+  · Extra hosts: theme_config.security.csp_extra.{script,style,connect,img,frame,font}
+  · Disable entirely with theme_config.security.csp: false
+{% endcomment %}
+{% assign sec = site.theme_config.security %}
+{% if jekyll.environment == "production" and sec.csp != false %}
+{% assign a  = site.analytics %}
+{% assign c  = site.comments %}
+{% assign ex = sec.csp_extra %}
+
+{% capture script_src %}'self' 'unsafe-inline' https://cdn.jsdelivr.net{% endcapture %}
+{% capture style_src %}'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com{% endcapture %}
+{% capture connect_src %}'self'{% endcapture %}
+{% capture frame_src %}'self'{% endcapture %}
+
+{% if a.goatcounter_code and a.goatcounter_code != "" %}
+  {% capture script_src %}{{ script_src }} https://gc.zgo.at{% endcapture %}
+  {% capture connect_src %}{{ connect_src }} https://{{ a.goatcounter_code }}.goatcounter.com{% endcapture %}
+{% endif %}
+{% if a.google_analytics_id and a.google_analytics_id != "" %}
+  {% capture script_src %}{{ script_src }} https://www.googletagmanager.com{% endcapture %}
+  {% capture connect_src %}{{ connect_src }} https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com{% endcapture %}
+{% endif %}
+{% if a.plausible_domain and a.plausible_domain != "" %}
+  {% capture script_src %}{{ script_src }} https://plausible.io{% endcapture %}
+  {% capture connect_src %}{{ connect_src }} https://plausible.io{% endcapture %}
+{% endif %}
+{% if a.umami_src and a.umami_src != "" %}
+  {% assign up = a.umami_src | split: "/" %}
+  {% capture umami_origin %}{{ up[0] }}//{{ up[2] }}{% endcapture %}
+  {% capture script_src %}{{ script_src }} {{ umami_origin }}{% endcapture %}
+  {% capture connect_src %}{{ connect_src }} {{ umami_origin }}{% endcapture %}
+{% endif %}
+{% if c.provider == "utterances" %}
+  {% capture script_src %}{{ script_src }} https://utteranc.es{% endcapture %}
+  {% capture frame_src %}{{ frame_src }} https://utteranc.es{% endcapture %}
+{% elsif c.provider == "disqus" %}
+  {% capture script_src %}{{ script_src }} https://*.disqus.com https://*.disquscdn.com{% endcapture %}
+  {% capture style_src %}{{ style_src }} https://*.disquscdn.com{% endcapture %}
+  {% capture connect_src %}{{ connect_src }} https://*.disqus.com{% endcapture %}
+  {% capture frame_src %}{{ frame_src }} https://disqus.com https://*.disqus.com{% endcapture %}
+{% endif %}
+
+{% if ex.script  %}{% capture script_src  %}{{ script_src }} {{ ex.script | join: " " }}{% endcapture %}{% endif %}
+{% if ex.style   %}{% capture style_src   %}{{ style_src }} {{ ex.style | join: " " }}{% endcapture %}{% endif %}
+{% if ex.connect %}{% capture connect_src %}{{ connect_src }} {{ ex.connect | join: " " }}{% endcapture %}{% endif %}
+{% if ex.frame   %}{% capture frame_src   %}{{ frame_src }} {{ ex.frame | join: " " }}{% endcapture %}{% endif %}
+{% capture img_src  %}'self' data: https:{% if ex.img %} {{ ex.img | join: " " }}{% endif %}{% endcapture %}
+{% capture font_src %}'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net{% if ex.font %} {{ ex.font | join: " " }}{% endif %}{% endcapture %}
+
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src {{ script_src | strip }}; style-src {{ style_src | strip }}; font-src {{ font_src | strip }}; img-src {{ img_src | strip }}; connect-src {{ connect_src | strip }}; frame-src {{ frame_src | strip }}; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+{% endif %}

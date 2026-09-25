@@ -16,6 +16,7 @@
 
   window.Terminal.register({
     name: 'pong', help: ['pong', 'Play Pong  (mouse / W·S)', 'games'],
+    touch: { drag: true },       // touch: drag a finger to move the paddle
     run: function(args, ctx) {
       ctx.stopGame(); ctx.hideOutput();
 

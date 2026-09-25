@@ -2,16 +2,26 @@
  * modules/hero-terminal.js — Terminal engine (registry + ctx API)
  *
  * Public API (unchanged, see _posts/2025-01-10-terminal-extending.md):
- *   window.Terminal.register({ name, aliases, help, run(args, ctx) })
+ *   window.Terminal.register({ name, aliases, help, run(args, ctx), touch? })
  *   window.Terminal.commands
  *   window.Terminal.ctx
+ *   window.Terminal.open() / .close()          (new)
  *
  * The registry is ALWAYS defined, even on pages without the hero terminal,
  * so command files loaded site-wide never throw "window.Terminal is undefined".
+ *
+ * Window management by device:
+ *   · desktop : inline window · double-click title bar = fullscreen · close → "Open terminal" launcher
+ *   · phone   : hidden at page load (CSS, no flash) → launcher button opens it full-viewport,
+ *               sized to the visual viewport so the on-screen keyboard never hides the prompt;
+ *               games get swipe / tap / drag controls and an on-screen quit button.
+ *   · config  : _config.yml → theme_config.terminal (read from data-* on #terminal-shell)
  */
 'use strict';
 (function() {
 
+  var shell    = document.getElementById('terminal-shell');
+  var launcher = document.getElementById('terminal-launcher');
   var input    = document.getElementById('terminal-input');
   var output   = document.getElementById('terminal-output');
   var canvas   = document.getElementById('term-game-canvas');
@@ -20,23 +30,58 @@
   var overlay  = document.getElementById('term-fs-overlay');
   var mirror   = document.getElementById('terminal-typed-text');
   var area     = document.getElementById('terminal-input-area');
+  var gameExit = document.getElementById('term-game-exit');
 
-  var STORAGE_COLOR = 'infops-term-color';
-  var RGB_RE        = /^\d{1,3},\d{1,3},\d{1,3}$/;
-  var HEX_RE        = /^[0-9a-f]{6}$/i;
+  var STORAGE_COLOR   = 'infops-term-color';
+  var STORAGE_HISTORY = 'infops-term-history';
+  var RGB_RE          = /^\d{1,3},\d{1,3},\d{1,3}$/;
+  var HEX_RE          = /^[0-9a-f]{6}$/i;
+  var CTRL_CHARS_RE   = /[\u0000-\u001f\u007f-\u009f]/g;
+
+  // ── Config (data-* attributes rendered from _config.yml) ─────────────────────
+  var cfg = (function() {
+    var d = (shell && shell.dataset) || {};
+    return {
+      mobile:         d.mobile || 'button',                    // button | show | hide
+      autofocus:      d.autofocus !== 'false',
+      persistHistory: d.persistHistory !== 'false',
+      maxInput:       Math.max(16, Math.min(1000, parseInt(d.maxInput || '256', 10) || 256)),
+      maxLines:       Math.max(50, Math.min(5000, parseInt(d.maxLines || '500', 10) || 500)),
+      welcome:        (d.welcome || '').trim(),
+      disabled:       (d.disabled || '').toLowerCase().split(/[\s,]+/).filter(Boolean)
+    };
+  })();
+
+  var mq = function(q) { return window.matchMedia ? window.matchMedia(q) : { matches: false }; };
+  var phoneMQ = mq('(max-width: 768px) and (pointer: coarse)');
+  var isTouch = mq('(pointer: coarse)').matches || ('ontouchstart' in window);
+  function isPhone() { return phoneMQ.matches; }
 
   var history    = [];
   var histIdx    = -1;
   var _gameLoop  = null;
+  var _game      = null;    // definition of the command currently running a game
+  var _quitting  = false;
   var _isFs      = false;
   var _fsPlaceholder = null;
   var _userColor = null;  // "r,g,b" string or null
   var _gameMode  = false;
   var _savedWinH = '';
   var _savedMaxW = '';
+  var _booted    = false;
 
   // ── Registry + ctx (public API) ───────────────────────────────────────────
   var commands = {};
+  function isEnabled(name) { return cfg.disabled.indexOf(name) === -1; }
+  function enabledCommands() {
+    var out = {};
+    Object.keys(commands).forEach(function(k) {
+      var def = commands[k];
+      if (isEnabled(k) && isEnabled(String(def.name).toLowerCase())) out[k] = def;
+    });
+    return out;
+  }
+
   var ctx = {
     printLine:   printLine,
     printLines:  printLines,
@@ -47,6 +92,8 @@
     canvas:      canvas,
     inputRow:    inputRow,
     isFullscreen: function() { return _isFs; },
+    isTouch:      function() { return isTouch; },
+    isPhone:      isPhone,
 
     // Always current accent {r,g,b} — read every frame in games
     getAccentColor: function() {
@@ -97,7 +144,13 @@
     },
 
     exitGameMode: function() { exitGameMode(); },
-    gameLoop: { get: function() { return _gameLoop; }, set: function(v) { _gameLoop = v; } }
+    gameLoop: {
+      get: function() { return _gameLoop; },
+      set: function(v) {
+        _gameLoop = v;
+        if (win) win.classList.toggle('is-playing', !!v);
+      }
+    }
   };
 
   window.Terminal = {
@@ -109,18 +162,22 @@
       commands[String(def.name).toLowerCase()] = def;
       if (Array.isArray(def.aliases)) def.aliases.forEach(function(a) { commands[String(a).toLowerCase()] = def; });
     },
-    get commands() { return commands; },
-    ctx: ctx
+    get commands() { return enabledCommands(); },
+    ctx: ctx,
+    open:  function() {},
+    close: function() {}
   };
 
   // No terminal on this page → keep the registry, skip the UI wiring.
-  if (!input || !output) {
+  if (!input || !output || !win) {
     window.heroTerminalClose = window.heroTerminalMin = window.heroTerminalFull = function() {};
     return;
   }
 
-  var canAutoFocus = !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  input.maxLength = cfg.maxInput;
+
   function focusInput() {
+    if (win.hidden || (shell && isPhone() && !shell.classList.contains('is-open') && cfg.mobile !== 'show')) return;
     try { input.focus({ preventScroll: true }); } catch (e) { input.focus(); }
   }
 
@@ -128,6 +185,8 @@
   var typingTimer = null;
   function syncMirror() { if (mirror) mirror.textContent = input.value; }
   input.addEventListener('input', function() {
+    // Strip control characters that can sneak in through paste
+    if (CTRL_CHARS_RE.test(input.value)) input.value = input.value.replace(CTRL_CHARS_RE, '');
     syncMirror();
     if (!area) return;
     area.classList.add('is-typing');
@@ -136,18 +195,61 @@
   });
 
   // ── Focus ─────────────────────────────────────────────────────────────────
-  if (win) win.addEventListener('click', function(e) {
-    if (e.target.closest('.dot') || e.target.closest('.term-game-canvas')) return;
+  win.addEventListener('click', function(e) {
+    if (e.target.closest('.dot, .term-game-exit, .term-game-canvas')) return;
     // Don't steal the focus if the user is selecting output text
     var sel = window.getSelection && window.getSelection();
     if (sel && String(sel).length) return;
     focusInput();
   });
-  if (overlay) overlay.addEventListener('click', exitFullscreen);
+  if (overlay) overlay.addEventListener('click', function() { isPhone() ? closeTerminal() : exitFullscreen(); });
+
+  // ── Open / close (launcher) ───────────────────────────────────────────────
+  function openTerminal() {
+    if (!shell) return;
+    shell.classList.remove('is-closed');
+    win.hidden = false;
+    if (isPhone()) {
+      shell.classList.add('is-open');
+      enterFullscreen();
+    }
+    if (!_booted) boot();
+    setStatus(true);
+    win.classList.remove('minimized');
+    setTimeout(focusInput, 60);
+  }
+
+  function closeTerminal() {
+    stopGame(true);
+    exitFullscreen();
+    if (shell) {
+      shell.classList.remove('is-open');
+      shell.classList.add('is-closed');
+      if (launcher) setTimeout(function() { try { launcher.focus({ preventScroll: true }); } catch (e) {} }, 60);
+    } else {
+      win.hidden = true;
+    }
+  }
+
+  if (launcher) launcher.addEventListener('click', openTerminal);
+  window.Terminal.open  = openTerminal;
+  window.Terminal.close = closeTerminal;
+
+  // Leaving phone layout (rotation to a large tablet, resized window…) while open
+  function onDeviceChange() {
+    if (!isPhone() && _isFs && win.classList.contains('is-mobile-fs')) exitFullscreen();
+    if (!isPhone() && shell) shell.classList.remove('is-open');
+  }
+  if (phoneMQ.addEventListener) phoneMQ.addEventListener('change', onDeviceChange);
+  else if (phoneMQ.addListener) phoneMQ.addListener(onDeviceChange);
 
   // ── Window controls (buttons + legacy globals) ────────────────────────────
-  window.heroTerminalClose = function() { stopGame(); exitFullscreen(); if (win) win.hidden = true; };
-  window.heroTerminalMin   = function() { if (!win) return; stopGame(); setStatus(!win.classList.toggle('minimized')); };
+  window.heroTerminalClose = closeTerminal;
+  window.heroTerminalMin   = function() {
+    if (isPhone()) { closeTerminal(); return; }
+    stopGame(true);
+    setStatus(!win.classList.toggle('minimized'));
+  };
   window.heroTerminalFull  = function() { _isFs ? exitFullscreen() : enterFullscreen(); };
 
   [['dot-close', 'heroTerminalClose'], ['dot-min', 'heroTerminalMin'], ['dot-full', 'heroTerminalFull']]
@@ -156,14 +258,19 @@
       if (el) el.addEventListener('click', function(e) { e.stopPropagation(); window[pair[1]](); });
     });
 
+  // Double-click the title bar = toggle fullscreen (desktop)
+  var header = win.querySelector('.terminal-header');
+  if (header) header.addEventListener('dblclick', function(e) {
+    if (e.target.closest('.dot') || isPhone()) return;
+    window.heroTerminalFull();
+  });
+
   // ── Theme change ──────────────────────────────────────────────────────────
   window.addEventListener('themechange', function() {
     if (_userColor) {
       var p = _userColor.split(',');
-      win.style.setProperty('--term-color', _userColor);
       applyWindowStyle(+p[0], +p[1], +p[2]);
     } else {
-      win.style.removeProperty('--term-color');
       applyWindowStyle(null);
     }
   });
@@ -173,8 +280,11 @@
     if (e.isComposing) return;
 
     if (e.ctrlKey && (e.key === 'c' || e.key === 'C')) {
+      // Keep the native copy when output text is selected
+      var sel = window.getSelection && String(window.getSelection());
+      if (sel && !input.value) return;
       e.preventDefault(); input.value = ''; histIdx = -1; syncMirror();
-      stopGame();
+      stopGame(true);
       if (typeof window.TerminalMatrixStop === 'function') window.TerminalMatrixStop(ctx);
       return;
     }
@@ -183,7 +293,7 @@
     }
     if (e.key === 'Escape') {
       if (_gameLoop) { e.preventDefault(); stopGame(); return; }
-      if (_isFs)     { e.preventDefault(); exitFullscreen(); return; }
+      if (_isFs)     { e.preventDefault(); isPhone() ? closeTerminal() : exitFullscreen(); return; }
     }
     if (e.key === 'Tab') {
       e.preventDefault(); autocomplete(); return;
@@ -202,24 +312,45 @@
     }
     if (e.key === 'Enter') {
       e.preventDefault();
-      var raw = input.value.trim(); input.value = ''; histIdx = -1; syncMirror();
-      if (!raw) return;
-      if (history[0] !== raw) history.unshift(raw);
-      if (history.length > 100) history.length = 100;
-      printLine('$ ' + raw, 'term-out-dim');
-      if (handleEasterEgg(raw)) return;
-      runCommand(raw.toLowerCase());
+      submit();
     }
   });
+
+  function submit() {
+    var raw = input.value.replace(CTRL_CHARS_RE, '').trim().slice(0, cfg.maxInput);
+    input.value = ''; histIdx = -1; syncMirror();
+    if (!raw) return;
+    if (history[0] !== raw) history.unshift(raw);
+    if (history.length > 100) history.length = 100;
+    saveHistory();
+    printLine('$ ' + raw, 'term-out-dim');
+    if (handleEasterEgg(raw)) return;
+    runCommand(raw.toLowerCase());
+  }
+
+  function loadHistory() {
+    if (!cfg.persistHistory) return;
+    try {
+      var h = JSON.parse(sessionStorage.getItem(STORAGE_HISTORY) || '[]');
+      if (Array.isArray(h)) history = h.filter(function(x) { return typeof x === 'string'; })
+                                       .map(function(x) { return x.replace(CTRL_CHARS_RE, '').slice(0, cfg.maxInput); })
+                                       .slice(0, 50);
+    } catch (e) { history = []; }
+  }
+  function saveHistory() {
+    if (!cfg.persistHistory) return;
+    try { sessionStorage.setItem(STORAGE_HISTORY, JSON.stringify(history.slice(0, 50))); } catch (e) {}
+  }
 
   function autocomplete() {
     var v = input.value.replace(/^\s+/, '');
     if (!v || /\s/.test(v)) return;
     var slash = v.charAt(0) === '/' ? '/' : '';
     var stem  = v.replace(/^\//, '').toLowerCase();
-    var hits  = Object.keys(commands).filter(function(k) { return k.indexOf(stem) === 0; }).sort();
+    var cmds  = enabledCommands();
+    var hits  = Object.keys(cmds).filter(function(k) { return k.indexOf(stem) === 0; }).sort();
     // Aliases of a single command (color / colour) → complete to the first one
-    var sameDef = hits.every(function(k) { return commands[k] === commands[hits[0]]; });
+    var sameDef = hits.every(function(k) { return cmds[k] === cmds[hits[0]]; });
     if (hits.length > 1 && sameDef) hits = [hits[0]];
     if (hits.length === 1) {
       input.value = slash + hits[0] + ' '; syncMirror();
@@ -241,7 +372,6 @@
   function applyColor(hex) {
     if (hex === null) {
       _userColor = null;
-      win.style.removeProperty('--term-color');
       applyWindowStyle(null);
       try { sessionStorage.removeItem(STORAGE_COLOR); } catch (e) {}
       return;
@@ -250,23 +380,23 @@
     if (!HEX_RE.test(hex)) return;
     var r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
     _userColor = r + ',' + g + ',' + b;
-    win.style.setProperty('--term-color', _userColor);
     applyWindowStyle(r, g, b);
     try { sessionStorage.setItem(STORAGE_COLOR, _userColor); } catch (e) {}
   }
 
   // ── applyWindowStyle ──────────────────────────────────────────────────────
+  // Inline CSSOM properties + a class only: no <style> element is injected,
+  // so this keeps working under a strict Content-Security-Policy.
   function applyWindowStyle(r, g, b) {
-    var header = win.querySelector('.terminal-header');
-    var old = document.getElementById('term-custom-sweep');
-    if (old) old.parentNode.removeChild(old);
-
     if (r === null) {
-      ['background', 'border-color', 'box-shadow'].forEach(function(p) { win.style.removeProperty(p); });
+      win.classList.remove('has-custom-color');
+      ['--term-color', 'background', 'border-color', 'box-shadow'].forEach(function(p) { win.style.removeProperty(p); });
       if (header) { header.style.removeProperty('background'); header.style.removeProperty('border-bottom-color'); }
       return;
     }
     function rgba(a) { return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')'; }
+    win.classList.add('has-custom-color');
+    win.style.setProperty('--term-color', r + ',' + g + ',' + b);
     var isLight = document.documentElement.getAttribute('data-theme') === 'light';
     if (!isLight) {
       var bg = [Math.round(r * .05 + 7 * .95), Math.round(g * .05 + 13 * .95), Math.round(b * .05 + 24 * .95)];
@@ -283,25 +413,22 @@
       win.style.boxShadow   = '0 0 0 1px ' + rgba(.12) + ', 0 12px 32px ' + rgba(.12) + ', 0 4px 16px rgba(0,0,0,.07)';
       if (header) { header.style.background = 'rgb(' + lh.join(',') + ')'; header.style.borderBottomColor = rgba(.18); }
     }
-    var style = document.createElement('style'); style.id = 'term-custom-sweep';
-    style.textContent =
-      '#hero-terminal::before{background:repeating-linear-gradient(0deg,transparent,transparent 2px,' + rgba(.025) + ' 2px,' + rgba(.025) + ' 4px) !important;}' +
-      '#hero-terminal::after{background:linear-gradient(to bottom,transparent 45%,' + rgba(.035) + ' 48%,' + rgba(.07) + ' 50%,' + rgba(.035) + ' 52%,transparent 55%) !important;}';
-    document.head.appendChild(style);
   }
 
   window.TerminalApplyColor = applyColor;
 
   // ── Print ─────────────────────────────────────────────────────────────────
-  var MAX_LINES = 500;   // keeps the DOM small (e.g. long `matrix` sessions)
+  function trimOutput() {
+    while (output.childElementCount > cfg.maxLines) output.removeChild(output.firstElementChild);
+    output.scrollTop = output.scrollHeight;
+  }
   function printLine(text, cls, delay) {
     setTimeout(function() {
       var line = document.createElement('div');
       line.className = 'terminal-line ' + (cls || 'term-out');
       line.textContent = text;
       output.appendChild(line);
-      while (output.childElementCount > MAX_LINES) output.removeChild(output.firstElementChild);
-      output.scrollTop = output.scrollHeight;
+      trimOutput();
     }, delay || 0);
   }
   function printLines(arr, cls, base) { arr.forEach(function(l, i) { printLine(l, cls || 'term-out', (base || 0) + i * 55); }); }
@@ -322,23 +449,42 @@
     if (nav) document.documentElement.style.setProperty('--navbar-h', nav.offsetHeight + 'px');
   }
 
+  // Phones: follow the *visual* viewport so the virtual keyboard never covers the prompt
+  var vv = window.visualViewport;
+  function fitVisualViewport() {
+    if (!_isFs || !win.classList.contains('is-mobile-fs') || !vv) return;
+    win.style.height = Math.round(vv.height) + 'px';
+    win.style.top    = Math.round(vv.offsetTop) + 'px';
+    output.scrollTop = output.scrollHeight;
+  }
+  if (vv) {
+    vv.addEventListener('resize', fitVisualViewport);
+    vv.addEventListener('scroll', fitVisualViewport);
+  }
+
   function enterFullscreen() {
     if (_isFs) return;
     exitGameMode(); _isFs = true;
     updateNavH();
     _fsPlaceholder = document.createElement('div');
     _fsPlaceholder.className = 'term-fs-placeholder';
-    _fsPlaceholder.style.height = win.offsetHeight + 'px';
+    _fsPlaceholder.style.height = (win.offsetHeight || 0) + 'px';
     win.parentNode.insertBefore(_fsPlaceholder, win);
     document.body.appendChild(win);
-    win.classList.add('fullscreen'); document.body.classList.add('term-fullscreen');
+    win.classList.add('fullscreen');
+    if (isPhone()) { win.classList.add('is-mobile-fs'); fitVisualViewport(); }
+    document.body.classList.add('term-fullscreen');
     if (overlay) overlay.classList.add('active');
     _setFsIcon(true); setTimeout(focusInput, 50);
   }
 
   function exitFullscreen() {
     if (!_isFs) return;
-    _isFs = false; win.classList.remove('fullscreen'); document.body.classList.remove('term-fullscreen');
+    _isFs = false;
+    win.classList.remove('fullscreen', 'is-mobile-fs');
+    win.style.removeProperty('top');
+    if (!_gameMode) win.style.removeProperty('height');
+    document.body.classList.remove('term-fullscreen');
     if (_fsPlaceholder && _fsPlaceholder.parentNode) {
       _fsPlaceholder.parentNode.insertBefore(win, _fsPlaceholder);
       _fsPlaceholder.parentNode.removeChild(_fsPlaceholder);
@@ -351,9 +497,15 @@
   function _setFsIcon(fs) {
     var ic = document.getElementById('dot-full-icon'), dt = document.getElementById('dot-full');
     if (!ic) return;
-    ic.innerHTML = fs
-      ? '<polyline points="4,1 1,1 1,4"/><polyline points="9,4 9,1 6,1"/><polyline points="6,9 9,9 9,6"/><polyline points="1,6 1,9 4,9"/>'
-      : '<polyline points="1,4 1,1 4,1"/><polyline points="6,1 9,1 9,4"/><polyline points="9,6 9,9 6,9"/><polyline points="4,9 1,9 1,6"/>';
+    var pts = fs
+      ? ['4,1 1,1 1,4', '9,4 9,1 6,1', '6,9 9,9 9,6', '1,6 1,9 4,9']
+      : ['1,4 1,1 4,1', '6,1 9,1 9,4', '9,6 9,9 6,9', '4,9 1,9 1,6'];
+    while (ic.firstChild) ic.removeChild(ic.firstChild);
+    pts.forEach(function(p) {
+      var pl = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      pl.setAttribute('points', p);
+      ic.appendChild(pl);
+    });
     if (dt) {
       dt.title = fs ? 'Exit fullscreen' : 'Fullscreen';
       dt.setAttribute('aria-label', dt.title);
@@ -370,10 +522,27 @@
     _savedWinH = _savedMaxW = '';
   }
 
-  function stopGame() {
+  function sendKey(key, type) {
+    document.dispatchEvent(new KeyboardEvent(type || 'keydown', { key: key, bubbles: true, cancelable: true }));
+  }
+  function tapKey(key) {
+    sendKey(key, 'keydown');
+    setTimeout(function() { sendKey(key, 'keyup'); }, 90);
+  }
+
+  // `quit` = true lets the running game clean up its own listeners (it listens
+  // for Escape on document) before the terminal tears the canvas down.
+  function stopGame(quit) {
+    if (quit === true && _gameLoop && !_quitting) {
+      _quitting = true;
+      try { sendKey('Escape'); } finally { _quitting = false; }
+    }
     if (_gameLoop) { cancelAnimationFrame(_gameLoop); _gameLoop = null; }
+    _game = null;
+    win.classList.remove('is-playing');
     if (canvas) canvas.style.display = 'none';
     exitGameMode(); showOutput();
+    if (_isFs && win.classList.contains('is-mobile-fs')) fitVisualViewport();
     setTimeout(focusInput, 50);
   }
 
@@ -383,21 +552,59 @@
     if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) !== -1) e.preventDefault();
   }, { capture: true });
 
+  if (gameExit) gameExit.addEventListener('click', function(e) { e.stopPropagation(); stopGame(true); });
+
+  // Touch controls: swipe → arrow keys, tap → the game's `touch.tap` key,
+  // drag → mousemove (for pointer-driven games such as Pong).
+  if (canvas && isTouch) {
+    var t0 = null;
+    canvas.addEventListener('touchstart', function(e) {
+      if (!_gameLoop || !e.touches.length) return;
+      var t = e.touches[0];
+      t0 = { x: t.clientX, y: t.clientY, time: Date.now() };
+    }, { passive: true });
+    canvas.addEventListener('touchmove', function(e) {
+      if (!_gameLoop || !e.touches.length) return;
+      e.preventDefault();   // no page scroll / pull-to-refresh while playing
+      var touch = _game && _game.touch;
+      if (touch && touch.drag) {
+        var t = e.touches[0];
+        document.dispatchEvent(new MouseEvent('mousemove', { clientX: t.clientX, clientY: t.clientY, bubbles: true }));
+      }
+    }, { passive: false });
+    canvas.addEventListener('touchend', function(e) {
+      if (!_gameLoop || !t0 || !e.changedTouches.length) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - t0.x, dy = t.clientY - t0.y;
+      var adx = Math.abs(dx), ady = Math.abs(dy);
+      var touch = (_game && _game.touch) || {};
+      if (Math.max(adx, ady) < 24) {
+        if (touch.tap) tapKey(touch.tap);
+      } else if (!touch.drag) {
+        tapKey(adx > ady ? (dx > 0 ? 'ArrowRight' : 'ArrowLeft') : (dy > 0 ? 'ArrowDown' : 'ArrowUp'));
+      }
+      t0 = null;
+    }, { passive: true });
+  }
+
   // ── Command dispatch ──────────────────────────────────────────────────────
   function runCommand(raw) {
     var parts = raw.split(/\s+/), name = parts[0].replace(/^\//, ''), args = parts.slice(1);
     if (name === 'exit' || name === 'quit') {
       printLine('logout', 'term-out-dim');
-      setTimeout(function() { window.heroTerminalClose(); }, 400);
+      setTimeout(closeTerminal, 400);
       return;
     }
-    if (Object.prototype.hasOwnProperty.call(commands, name)) {
-      try { commands[name].run(args, ctx); }
+    var cmds = enabledCommands();
+    if (Object.prototype.hasOwnProperty.call(cmds, name)) {
+      _game = cmds[name];
+      try { cmds[name].run(args, ctx); }
       catch (err) {
         console.error('[Terminal] ' + name + ':', err);
         printLine(name + ': internal error (see console)', 'term-out-error');
-        stopGame();
+        stopGame(true);
       }
+      if (!_gameLoop) setTimeout(function() { if (!_gameLoop) _game = null; }, 1000);
       return;
     }
     printLine('-bash: ' + parts[0] + ': command not found', 'term-out-error');
@@ -409,8 +616,22 @@
     return el ? (el.getAttribute('content') || '') : '';
   }
 
-  // ── Boot — neofetch with configurable ASCII art ───────────────────────────
+  // Only same-origin or https images may be used as the boot logo
+  function safeImageUrl(u) {
+    if (!u) return '';
+    try {
+      var url = new URL(u, location.href);
+      if (url.origin === location.origin || url.protocol === 'https:') return url.href;
+    } catch (e) {}
+    return '';
+  }
+
+  // ── Boot — neofetch with configurable ASCII art or logo image ─────────────
   function boot() {
+    if (_booted) return;
+    _booted = true;
+    loadHistory();
+
     // Restore saved color (validated: it ends up in a CSS custom property)
     try {
       var saved = sessionStorage.getItem(STORAGE_COLOR);
@@ -418,7 +639,6 @@
         var sp = saved.split(',').map(Number);
         if (sp.every(function(n) { return n <= 255; })) {
           _userColor = saved;
-          win.style.setProperty('--term-color', saved);
           applyWindowStyle(sp[0], sp[1], sp[2]);
         }
       }
@@ -427,7 +647,7 @@
     var user  = metaVal('term-boot-user')  || 'YOUR_USER';
     var host  = metaVal('term-boot-host')  || 'YOUR_HOST';
     var os    = metaVal('term-boot-os')    || 'YOUR_OS';
-    var shell = metaVal('term-boot-shell') || 'YOUR_SHELL';
+    var shellName = metaVal('term-boot-shell') || 'YOUR_SHELL';
     var role  = metaVal('term-boot-role')  || 'YOUR_ROLE';
     var line1 = metaVal('term-boot-line1');
     var line2 = metaVal('term-boot-line2');
@@ -442,7 +662,7 @@
 
     var info = [id, bar,
       'OS:     ' + os,
-      'Shell:  ' + shell,
+      'Shell:  ' + shellName,
       'Uptime: ' + uptime,
       'Posts:  ' + posts
     ];
@@ -450,40 +670,77 @@
     if (line1) info.push(line1);
     if (line2) info.push(line2);
 
-    // ASCII art: custom from config or default logo
-    var customAscii = metaVal('term-boot-ascii');
-    var logo;
-    if (customAscii && customAscii.indexOf('YOUR_ASCII') === -1 && customAscii.trim() !== '') {
-      logo = customAscii.split('\n');
-      while (logo.length < 3) logo.push('');
+    var image = safeImageUrl(metaVal('term-boot-image'));
+    if (image) {
+      // Logo image on the left, info lines on the right
+      var row  = document.createElement('div');
+      row.className = 'term-neofetch';
+      var img  = document.createElement('img');
+      img.className = 'term-neofetch-logo';
+      img.src = image;
+      img.alt = metaVal('term-boot-image-alt') || '';
+      img.decoding = 'async';
+      img.addEventListener('load', function() { output.scrollTop = output.scrollHeight; });
+      var col  = document.createElement('div');
+      col.className = 'term-neofetch-info';
+      info.forEach(function(l) {
+        var d = document.createElement('div');
+        d.className = 'terminal-line term-out-ascii';
+        d.textContent = l;
+        col.appendChild(d);
+      });
+      row.appendChild(img); row.appendChild(col);
+      output.appendChild(row);
     } else {
-      logo = [
-        '     _______      ',
-        '    |.-----.|     ',
-        '    ||x . x||     ',
-        '    ||_.-._||     ',
-        '    `--)-(--`     ',
-        '   __[=== o]___   ',
-        '  |:::::::::::|\\  ',
-        '  `-=========-`() '
-      ];
+      // ASCII art: custom from config or default logo
+      var customAscii = metaVal('term-boot-ascii');
+      var logo;
+      if (customAscii && customAscii.indexOf('YOUR_ASCII') === -1 && customAscii.trim() !== '') {
+        logo = customAscii.split('\n');
+        while (logo.length < 3) logo.push('');
+      } else {
+        logo = [
+          '     _______      ',
+          '    |.-----.|     ',
+          '    ||x . x||     ',
+          '    ||_.-._||     ',
+          '    `--)-(--`     ',
+          '   __[=== o]___   ',
+          '  |:::::::::::|\\  ',
+          '  `-=========-`() '
+        ];
+      }
+      var PAD = Math.max.apply(null, logo.map(function(l) { return l.length; })) + 2;
+      var pad = function(str, n) { var o = str || ''; while (o.length < n) o += ' '; return o.slice(0, n); };
+      var rows = Math.max(logo.length, info.length);
+      // On narrow phones the side-by-side layout wraps badly → info only
+      var narrow = output.clientWidth && output.clientWidth < 420;
+      for (var i = 0; i < rows; i++) {
+        if (narrow) { if (info[i]) printLine(info[i], 'term-out-ascii'); }
+        else printLine(pad(logo[i] || '', PAD) + (info[i] || ''), 'term-out-ascii');
+      }
     }
-
-    var PAD = Math.max.apply(null, logo.map(function(l) { return l.length; })) + 2;
-    function pad(str, n) { var o = str || ''; while (o.length < n) o += ' '; return o.slice(0, n); }
-
-    var rows = Math.max(logo.length, info.length);
-    for (var i = 0; i < rows; i++) printLine(pad(logo[i] || '', PAD) + (info[i] || ''), 'term-out-ascii');
 
     printLine('', 'term-out-dim');
     printLine('  ' + motd, 'term-out-bold');
     printLine('', 'term-out-dim');
-    if (canAutoFocus) setTimeout(focusInput, 150);
+
+    if (cfg.welcome) setTimeout(function() {
+      printLine('$ ' + cfg.welcome, 'term-out-dim');
+      runCommand(cfg.welcome.toLowerCase());
+    }, 250);
+
+    if (cfg.autofocus && !isTouch) setTimeout(focusInput, 150);
   }
 
   window.addEventListener('resize', updateNavH, { passive: true });
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
   updateNavH();
+
+  // On phones with the launcher, boot lazily when the terminal is first opened
+  var startsHidden = isPhone() && cfg.mobile !== 'show';
+  if (!startsHidden) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+  }
 
 })();
