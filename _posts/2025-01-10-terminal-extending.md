@@ -26,7 +26,8 @@ assets/js/
     ├── pacman.js               ← Game (ctx.createGame)
     ├── snake.js                ← Game (ctx.createGame)
     ├── tetris.js               ← Game (ctx.createGame)
-    └── 2048.js                 ← Game (ctx.createGame)
+    ├── 2048.js                 ← Game (ctx.createGame)
+    └── gba.js                  ← Game Boy Advance emulator (gpSP, WebAssembly)
 ```
 
 Every command file calls `window.Terminal.register()` and is loaded via a `<script>` tag in `_layouts/default.html`.

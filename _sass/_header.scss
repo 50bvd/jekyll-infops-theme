@@ -86,6 +86,29 @@
 }
 [data-theme="light"] .search-input { background: var(--bg-primary); }
 
+// Instant suggestions (assets/js/modules/search-suggest.js)
+.search-suggest {
+  position: absolute; top: calc(100% + .5rem); right: 0; z-index: 1100;
+  width: min(440px, calc(100vw - 2rem)); max-height: min(70vh, 460px); overflow-y: auto;
+  margin: 0; padding: .35rem; list-style: none;
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+  &[hidden] { display: none; }
+  li { margin: 0; }
+  a {
+    display: flex; flex-direction: column; gap: .15rem;
+    padding: .55rem .75rem; border-radius: var(--radius-md);
+    color: var(--text-primary); text-decoration: none;
+  }
+  [aria-selected="true"] > a { background: rgba(88,166,255,.12); }
+  mark { background: none; color: var(--accent-blue); font-weight: 700; padding: 0; margin: 0; border-radius: 0; }
+}
+.search-suggest-title { font-size: .9rem; font-weight: 600; line-height: 1.35; }
+.search-suggest-meta  { font-size: .75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.search-suggest-all   { font-size: .82rem; color: var(--accent-blue) !important; font-weight: 600; }
+.search-suggest-empty { padding: .7rem .75rem; font-size: .85rem; color: var(--text-muted); }
+[data-theme="light"] .search-suggest [aria-selected="true"] > a { background: rgba(29,78,216,.1); }
+
 .search-btn {
   position: absolute;
   right: 4px;

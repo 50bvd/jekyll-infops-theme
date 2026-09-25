@@ -27,7 +27,12 @@
 {% assign gfonts = false %}
 {% if site.data.theme.fonts.sans and site.data.theme.fonts.sans != "" %}{% assign gfonts = true %}{% endif %}
 {% if site.data.theme.fonts.mono and site.data.theme.fonts.mono != "" %}{% assign gfonts = true %}{% endif %}
-{% capture script_src %}'self'{% if inline_js %} 'unsafe-inline'{% endif %}{% if cdn %} https://cdn.jsdelivr.net{% endif %}{% endcapture %}
+{% comment %} Pages with the terminal may run the GBA emulator: WebAssembly compilation needs
+   'wasm-unsafe-eval' (it does NOT allow eval() of JavaScript) {% endcomment %}
+{% assign term_page = false %}
+{% if page.layout == 'home' and site.theme_config.show_hero != false and site.theme_config.show_terminal != false and site.theme_config.terminal.enabled != false %}{% assign term_page = true %}{% endif %}
+{% if page.terminal %}{% assign term_page = true %}{% endif %}
+{% capture script_src %}'self'{% if term_page %} 'wasm-unsafe-eval'{% endif %}{% if inline_js %} 'unsafe-inline'{% endif %}{% if cdn %} https://cdn.jsdelivr.net{% endif %}{% endcapture %}
 {% capture style_src %}'self' 'unsafe-inline'{% if gfonts %} https://fonts.googleapis.com{% endif %}{% endcapture %}
 {% capture connect_src %}'self'{% endcapture %}
 {% capture frame_src %}'self'{% endcapture %}
