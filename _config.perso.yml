@@ -35,6 +35,11 @@ comments:
 
 theme_config:
   default_theme: "dark"
+
+  # GBA emulator: ROM list served from the server (scripts/gba-library.sh,
+  # folder /opt/50bvd-files/roms mounted at /assets/roms/ by docker-compose)
+  gba:
+    library: "/assets/roms/roms.json"
   terminal_user: "50bvd@homelab"
 
   terminal_boot:

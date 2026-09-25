@@ -58,6 +58,11 @@ deploy_host() {
   if command -v apachectl >/dev/null; then sudo apachectl configtest && sudo apachectl graceful; fi
 }
 
+# GBA emulator ROM list (no-op when the folder does not exist yet)
+ROMS_DIR="${ROMS_DIR:-/opt/50bvd-files/roms}"
+mkdir -p "$ROMS_DIR" 2>/dev/null || true
+[ -x scripts/gba-library.sh ] && ./scripts/gba-library.sh "$ROMS_DIR" || true
+
 case "${1:-}" in
   preprod) update_sources; deploy_service preprod; log "Preprod → http://127.0.0.1:${PREPROD_PORT:-8081}" ;;
   prod)    update_sources; deploy_service prod;    log "Production → port ${PROD_PORT:-4000}" ;;
