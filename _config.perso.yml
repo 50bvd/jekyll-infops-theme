@@ -7,3 +7,8 @@
 # =============================================================================
 url:     "https://50bvd.com"
 baseurl: ""               # served from the domain root
+
+# Comments: the theme's Utterances setup would open GitHub issues in the theme
+# repository. Point it to a repo of yours (with the utterances app installed) or keep it off.
+comments:
+  provider: ""

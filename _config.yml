@@ -246,6 +246,7 @@ exclude:
   - apache/
   - scripts/
   - DEPLOY.md
+  - _posts/README.md
 
 include:
   - .htaccess

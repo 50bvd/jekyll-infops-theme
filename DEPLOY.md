@@ -33,7 +33,7 @@ sudo usermod -aG docker "$USER"   # then log out / in
 
 ```bash
 sudo mkdir -p /opt/50bvd && sudo chown "$USER" /opt/50bvd
-git clone https://github.com/50bvd/jekyll-infops-theme.git /opt/50bvd
+git clone --branch site/perso https://github.com/50bvd/jekyll-infops-theme.git /opt/50bvd
 cd /opt/50bvd
 ```
 
@@ -69,7 +69,7 @@ cd /opt/50bvd
 ./scripts/deploy.sh all       # or both at once
 ```
 
-The script pulls the latest `main`, builds the site in Docker, syncs it to `/var/www/50bvd.com` and reloads Apache gracefully (no downtime). If the build fails, nothing is published.
+The script pulls the latest `site/perso`, builds the site in Docker, syncs it to `/var/www/50bvd.com` and reloads Apache gracefully (no downtime). If the build fails, nothing is published.
 
 ---
 
@@ -88,17 +88,25 @@ To reach it directly from the home network instead, change the port line in
 
 ---
 
-## 4. Site settings vs. theme demo
+## 4. Branches
 
-`main` serves two sites:
-
-| | GitHub Pages demo | 50bvd.com (home server) |
+| Branch | Content | Published by |
 |---|---|---|
-| Config | `_config.yml` | `_config.yml` + `_config.perso.yml` |
-| Built by | GitHub Actions | `scripts/deploy.sh` (Docker) |
+| `main` | the theme + its demo articles | GitHub Actions → GitHub Pages |
+| `site/perso` | the theme + **your** articles and settings | `scripts/deploy.sh` → 50bvd.com |
 
-Put anything specific to 50bvd.com (domain, title, author, terminal boot text, logo…) in
-**`_config.perso.yml`** — it overrides `_config.yml` only for the home-server builds.
+- Your articles go in `_posts/` on `site/perso` (see `_posts/README.md`).
+- Your settings (title, terminal boot text, logo…) go in `_config.perso.yml`.
+- To get a new theme version into your site:
+
+```bash
+git checkout site/perso
+git fetch origin && git merge origin/main
+git push origin site/perso
+./scripts/deploy.sh all
+```
+
+Never merge `site/perso` into `main`.
 
 ---
 
