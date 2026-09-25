@@ -26,16 +26,16 @@
 {% case _type %}
   {% when "tip" %}
     {% assign _icon  = "fas fa-lightbulb" %}
-    {% assign _label = _title | default: "Astuce" %}
+    {% assign _label = _title | default: "Tip" %}
   {% when "warning" %}
     {% assign _icon  = "fas fa-exclamation-triangle" %}
-    {% assign _label = _title | default: "Attention" %}
+    {% assign _label = _title | default: "Warning" %}
   {% when "danger" %}
     {% assign _icon  = "fas fa-skull-crossbones" %}
     {% assign _label = _title | default: "Danger" %}
   {% when "success" %}
     {% assign _icon  = "fas fa-check-circle" %}
-    {% assign _label = _title | default: "Succès" %}
+    {% assign _label = _title | default: "Success" %}
   {% when "info" %}
     {% assign _icon  = "fas fa-info-circle" %}
     {% assign _label = _title | default: "Information" %}
