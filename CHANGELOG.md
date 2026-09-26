@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Repository: security policy (private vulnerability reporting), contributing guide, code of conduct, issue forms and pull request template, `CODEOWNERS`.
+- CI: ShellCheck + JavaScript syntax checks, CodeQL analysis (JavaScript and workflows), Dependabot for GitHub Actions and Docker images; checkouts no longer keep the token.
+- `.editorconfig` and `.gitattributes` (LF line endings, binaries, generated gpSP build hidden from diffs).
+
 ## 1.6.5
 
 - **GBA emulator, antivirus**: the compile worker is now served without a Content-Security-Policy header (Apache and nginx), so antivirus products that rewrite CSP headers (Kaspersky…) have nothing to rewrite there and the WebAssembly can still be compiled.

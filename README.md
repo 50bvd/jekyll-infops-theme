@@ -6,6 +6,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-ready-brightgreen?logo=github)](https://pages.github.com)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](https://www.docker.com)
+[![Build](https://github.com/50bvd/jekyll-infops-theme/actions/workflows/pages.yml/badge.svg)](https://github.com/50bvd/jekyll-infops-theme/actions/workflows/pages.yml)
+[![Checks](https://github.com/50bvd/jekyll-infops-theme/actions/workflows/checks.yml/badge.svg)](https://github.com/50bvd/jekyll-infops-theme/actions/workflows/checks.yml)
 
 **Live demo:** https://50bvd.github.io/jekyll-infops-theme/
 
@@ -244,6 +246,14 @@ jekyll-infops-theme/
 
 ---
 
+## Contributing
+
+Issues and pull requests are welcome: see [CONTRIBUTING.md](.github/CONTRIBUTING.md)
+(branches, local checks, style) and the [code of conduct](.github/CODE_OF_CONDUCT.md).
+Security problems: please report them privately, see [SECURITY.md](.github/SECURITY.md).
+
+---
+
 ## License
 
-[MIT](LICENSE) © 2026 [50bvd](https://github.com/50bvd)
+[MIT](LICENSE) © 2026 [50bvd](https://github.com/50bvd). The GBA emulator core (gpSP, `assets/vendor/gpsp/`, `tools/gba-emulator/`) is GPL-2.0.

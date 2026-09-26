@@ -1,0 +1,35 @@
+name: Bug report
+description: Something in the theme does not work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: What you did, what you expected, what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Click …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Theme version or commit
+      placeholder: "1.6.6"
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: "Firefox 131, Windows 11"
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors or screenshots
+      description: Anything from the browser console (F12) helps a lot.
