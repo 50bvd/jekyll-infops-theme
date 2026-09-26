@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **GBA emulator, JavaScript core (antivirus blocking WebAssembly): steady speed.** gpSP's CPU interpreter was one huge function that V8 sometimes never optimised, making the emulator ~7× slower on some page loads (23 ms instead of 3.5 ms per frame on a heavy test ROM). The JavaScript build now uses a rewritten interpreter split into small functions (`tools/gba-emulator/split_interpreter.py`), identical in behaviour (21 test ROMs, video / audio / RAM bit-identical over 900 frames) and fast on every load. The WebAssembly build is unchanged.
+
 - Repository: security policy (private vulnerability reporting), contributing guide, code of conduct, issue forms and pull request template, `CODEOWNERS`.
 - CI: ShellCheck + JavaScript syntax checks, CodeQL analysis (JavaScript and workflows), Dependabot for GitHub Actions and Docker images; checkouts no longer keep the token.
 - `.editorconfig` and `.gitattributes` (LF line endings, binaries, generated gpSP build hidden from diffs).

@@ -17,6 +17,7 @@ compiled to WebAssembly with Emscripten.
 |---|---|
 | `../../assets/js/terminal-commands/gba-compile-worker.js` | compiles the WebAssembly when the page may not |
 | `web_frontend.c` | minimal libretro frontend: video / audio / input bridge and the small C API used by JavaScript |
+| `split_interpreter.py` | rewrites gpSP's CPU interpreter into small functions for the JavaScript build (see below) |
 | `build.sh` | fetches gpSP at a pinned commit, applies a small RTC fix and builds `assets/vendor/gpsp/gpsp.{js,wasm}` plus `gpsp-js.js` (last-resort fallback without WebAssembly) |
 | `../../assets/js/terminal-commands/gba.js` | the terminal command: file picker / drag & drop, game loop on `ctx.createGame`, audio, saves, touch pad |
 
@@ -34,11 +35,17 @@ The command then tries, in order:
    (`apache/site-common.conf`, `docker/nginx.conf`): with no header, there is
    nothing for the antivirus to rewrite.
 2. **Plain JavaScript** (`gpsp-js.js`, the same core built with wasm2js, no
-   eval): works everywhere but is much slower, because the CPU interpreter is
-   one function too large for the browser's optimising compiler. It is also
-   what runs in browsers without a JIT (Edge's "Enhance your security on the
-   web" mode disables both the JIT and WebAssembly on sites you rarely visit):
-   the terminal then says so and how to add an exception.
+   eval). gpSP's CPU interpreter is one huge function; in JavaScript, V8
+   sometimes never optimises it and the emulator became ~7× slower on some
+   page loads. `split_interpreter.py` rewrites it for this build only: the
+   interpreter state moves to a struct and the ARM / Thumb decoders are cut
+   into 12 functions called through a table, so every page load gets the
+   optimised speed (~3.5 ms per frame on a heavy test ROM, against 1.1 ms for
+   WebAssembly). The rewrite is checked by running 21 test ROMs 900 frames
+   with both interpreters: video, audio and RAM are bit-identical.
+   It is also what runs in browsers without a JIT (Edge's "Enhance your
+   security on the web" mode disables both the JIT and WebAssembly on sites
+   you rarely visit): the terminal then says so and how to add an exception.
 
 ## Cartridge clock (RTC)
 
