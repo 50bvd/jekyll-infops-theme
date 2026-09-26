@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.3
+
+- **GBA emulator works with antivirus products that rewrite the page's security policy** (Kaspersky…): when WebAssembly is forbidden, the same core compiled to plain JavaScript is loaded instead (slower, still full speed on a PC).
+- **"The internal battery has run dry" fixed** (Pokémon Ruby / Sapphire / Emerald): the cartridge clock decoded the game's status writes in the wrong bit order; the build now patches gpSP. The cartridge clock follows the PC's clock.
+
 ## 1.6.2
 
 - **Softer light theme**: darker blue-grey surfaces (no near-white areas left), softer text and accent, calmer hero glow, code blocks and terminal in the same tones. Syntax colours darkened to stay above WCAG AA on the new backgrounds.
