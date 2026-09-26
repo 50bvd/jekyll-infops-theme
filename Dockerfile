@@ -8,7 +8,7 @@
 # =============================================================================
 
 # ─── Stage 1 : base Ruby ─────────────────────────────────────────────────────
-FROM ruby:3.4-alpine AS base
+FROM ruby:4.0-alpine AS base
 
 # System dependencies (native extensions + sass-embedded)
 RUN apk add --no-cache \
