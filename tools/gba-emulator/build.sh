@@ -87,6 +87,7 @@ LC_SOURCES=(
 )
 CC_SOURCES=(video.cc cpu.cc)
 
+# shellcheck disable=SC2206  # OPT_FLAGS is a list of flags: split on purpose
 FLAGS=(-O3 ${OPT_FLAGS:-} -DNDEBUG -DHAVE_STRINGS_H -DHAVE_STDINT_H -DHAVE_INTTYPES_H -D__LIBRETRO__ -DINLINE=inline
        -I"$SRC/libretro" -I"$LC/include" -I"$SRC" -w)
 
