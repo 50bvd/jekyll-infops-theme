@@ -45,6 +45,7 @@ static struct { const char *key; char value[16]; } options[] = {
    { "gpsp_color_correction", "enabled"  },   /* GBA LCD colours */
    { "gpsp_frame_mixing",     "disabled" },   /* inter-frame blending */
    { "gpsp_boot_mode",        "game"     },
+   { "gpsp_rtc_time_source",  "system"   },   /* cartridge clock = the PC's clock */
 };
 static bool options_updated;
 

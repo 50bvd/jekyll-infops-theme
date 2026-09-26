@@ -16,8 +16,23 @@ compiled to WebAssembly with Emscripten.
 | File | Role |
 |---|---|
 | `web_frontend.c` | minimal libretro frontend: video / audio / input bridge and the small C API used by JavaScript |
-| `build.sh` | fetches gpSP at a pinned commit and builds `assets/vendor/gpsp/gpsp.{js,wasm}` |
+| `build.sh` | fetches gpSP at a pinned commit, applies a small RTC fix and builds `assets/vendor/gpsp/gpsp.{js,wasm}` plus `gpsp-js.js` (fallback without WebAssembly) |
 | `../../assets/js/terminal-commands/gba.js` | the terminal command: file picker / drag & drop, game loop on `ctx.createGame`, audio, saves, touch pad |
+
+## Without WebAssembly (antivirus)
+
+Some antivirus products (Kaspersky…) rewrite the page's security policy and
+drop `'wasm-unsafe-eval'`, which forbids WebAssembly. The command detects it
+and loads `gpsp-js.js` instead: the same core compiled to plain JavaScript
+(wasm2js, no eval), ~0.9 MB, a few ms per frame instead of ~0.3 ms, still
+well within the 16.7 ms of a frame.
+
+## Cartridge clock (RTC)
+
+Games with a real-time clock (Pokémon Ruby / Sapphire / Emerald…) read the
+PC's clock. gpSP's RTC decoded status writes in the wrong bit order, so after
+the game reset the clock it reported "The internal battery has run dry";
+`build.sh` patches it.
 
 ## Optional: a ROM library on your server
 

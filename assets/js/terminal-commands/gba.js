@@ -41,6 +41,10 @@
   // same ?v=<build> as this script: gpsp.js and gpsp.wasm must always match
   var ver = (scriptSrc.match(/\?v=[\w.-]+/) || [''])[0];
   var coreUrl = base + 'vendor/gpsp/gpsp.js' + ver;
+  // Same core compiled to plain JavaScript, for pages that may not compile
+  // WebAssembly: some antivirus products (Kaspersky…) replace the site's
+  // script-src with their own, without 'wasm-unsafe-eval'.
+  var coreJsUrl = base + 'vendor/gpsp/gpsp-js.js' + ver;
   var libMeta = document.querySelector('meta[name="gba-library"]');
   var libraryUrl = libMeta ? libMeta.getAttribute('content') : '';
 
@@ -65,19 +69,33 @@
 
   // ── Emulator core (loaded on first use) ──────────────────────────────────
   var modulePromise = null;
+  // Can this page compile WebAssembly? (a CSP without 'wasm-unsafe-eval'
+  // throws on the smallest module, synchronously)
+  function wasmAllowed() {
+    try {
+      return typeof WebAssembly === 'object' &&
+        new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0])) instanceof WebAssembly.Module;
+    } catch (e) { return false; }
+  }
+  function loadScript(url, name) {
+    return new Promise(function(resolve, reject) {
+      if (typeof window[name] === 'function') { resolve(window[name]); return; }
+      var s = document.createElement('script');
+      s.src = url; s.async = true;
+      s.onload = function() { typeof window[name] === 'function' ? resolve(window[name]) : reject(new Error('core did not load')); };
+      s.onerror = function() { reject(new Error('cannot download ' + url)); };
+      document.head.appendChild(s);
+    });
+  }
   function loadCore() {
     if (modulePromise) return modulePromise;
-    modulePromise = new Promise(function(resolve, reject) {
-      var s = document.createElement('script');
-      s.src = coreUrl; s.async = true;
-      s.onload = function() {
-        if (typeof window.createGpsp !== 'function') { reject(new Error('core did not load')); return; }
-        window.createGpsp({ locateFile: function(f) { return base + 'vendor/gpsp/' + f + ver; } })
-          .then(function(M) { M._gba_init(); resolve(M); }, reject);
-      };
-      s.onerror = function() { reject(new Error('cannot download ' + coreUrl)); };
-      document.head.appendChild(s);
-    }).catch(function(e) { modulePromise = null; throw e; });
+    var wasm = wasmAllowed();
+    modulePromise = (wasm ? loadScript(coreUrl, 'createGpsp') : loadScript(coreJsUrl, 'createGpspJs'))
+      .then(function(create) {
+        return create({ locateFile: function(f) { return base + 'vendor/gpsp/' + f + ver; } });
+      })
+      .then(function(M) { M._gba_init(); M.isWasm = wasm; return M; })
+      .catch(function(e) { modulePromise = null; throw e; });
     return modulePromise;
   }
   function cstr(M, str) {
@@ -334,6 +352,10 @@
           if (S.running) persistSram(true);
           S.running = false;
           S.M = M;
+          if (!M.isWasm && !S.jsCoreNoted) {
+            S.jsCoreNoted = true;
+            ctx.printLine('gba: WebAssembly is blocked on this page (antivirus or browser policy): using the JavaScript version of the emulator, slower but equivalent.', 'term-out-warn');
+          }
           M.FS.writeFile('/rom.gba', rom);
           var p = cstr(M, '/rom.gba'), ok = M._gba_load(p);
           M._free(p);

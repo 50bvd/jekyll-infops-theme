@@ -4,7 +4,8 @@
 #
 #   ./tools/gba-emulator/build.sh
 #
-# Output: assets/vendor/gpsp/gpsp.js + gpsp.wasm (+ licence / source notes).
+# Output: assets/vendor/gpsp/gpsp.js + gpsp.wasm, gpsp-js.js (no-WebAssembly
+# fallback) and the licence / source notes.
 # Needs the Emscripten SDK (emcc in PATH: `source emsdk/emsdk_env.sh`) and git.
 # The gpSP sources are fetched at the pinned commit below, so the build is
 # reproducible and the exact source of the shipped binary is known (GPL-2.0).
@@ -30,6 +31,40 @@ git -C "$WORK/gpsp" fetch --quiet origin "$GPSP_COMMIT" 2>/dev/null || true
 git -C "$WORK/gpsp" checkout --quiet "$GPSP_COMMIT"
 SRC="$WORK/gpsp"
 LC="$SRC/libretro/libretro-common"
+
+# RTC fix (Pokémon Ruby / Sapphire / Emerald "The internal battery has run
+# dry"): the Seiko RTC receives data bytes LSB first (commands MSB first), but
+# gpSP shifted status writes in MSB first, and treated the reset command as a
+# status write. After the game resets the clock (and writes 24-hour mode) the
+# status read back without the 24-hour flag, which the game reports as a dead
+# battery. Idempotent: re-running the build does not patch twice.
+python3 - "$SRC/gba_memory.c" <<'PY'
+import sys
+p = sys.argv[1]; s = open(p).read()
+if 'infops: RTC LSB-first' not in s:
+    old_cmd = """        case RTC_COMMAND_RESET:
+        case RTC_COMMAND_WRITE_STATUS:"""
+    new_cmd = """        case RTC_COMMAND_RESET:
+          /* infops: RTC LSB-first fix. Reset takes no data and clears the
+           * status register (the game then writes 24-hour mode). */
+          rtc_status = 0;
+          rtc_state = RTC_IDLE;
+          break;
+        case RTC_COMMAND_WRITE_STATUS:"""
+    old_in = """      rtc_data <<= 1;
+      rtc_data |= ((new >> 1) & 1);
+      rtc_data_bits--;
+      if (!rtc_data_bits) {
+        rtc_status = rtc_data; // HACK: assuming write status here."""
+    new_in = """      /* data bytes are sent LSB first */
+      rtc_data |= ((u64)((new >> 1) & 1)) << (8 - rtc_data_bits);
+      rtc_data_bits--;
+      if (!rtc_data_bits) {
+        rtc_status = rtc_data & 0x7F;   /* bit 7 (power failure) is read-only */"""
+    assert s.count(old_cmd) == 1 and s.count(old_in) == 1, 'gpSP RTC code changed: update the patch'
+    s = s.replace(old_cmd, new_cmd).replace(old_in, new_in)
+    open(p, 'w').write(s)
+PY
 
 # The built-in BIOS is embedded with `.incbin` in bios_data.S, which the
 # WebAssembly assembler does not support: generate the same symbol in C.
@@ -75,12 +110,26 @@ em++ -O3 ${OPT_FLAGS:-} "$OBJ"/*.o -o "$OUT/gpsp.js" \
   -sEXPORTED_FUNCTIONS=_malloc,_free,_gba_init,_gba_load,_gba_run_frame,_gba_reset,_gba_set_keys,_gba_frame_ptr,_gba_audio_ptr,_gba_audio_frames,_gba_sample_rate,_gba_fps,_gba_sram_ptr,_gba_sram_size,_gba_state_save,_gba_state_load,_gba_state_ptr,_gba_state_size,_gba_set_option \
   -sEXIT_RUNTIME=0 -sASSERTIONS=0
 
+# Same core compiled to plain JavaScript (wasm2js), loaded only when the page
+# may not compile WebAssembly: some antivirus products (Kaspersky…) replace
+# the site's script-src with their own, without 'wasm-unsafe-eval'. Slower
+# and larger, but it needs no eval of any kind.
+em++ -O3 ${OPT_FLAGS:-} "$OBJ"/*.o -o "$OUT/gpsp-js.js" \
+  -sWASM=0 \
+  -sMODULARIZE=1 -sEXPORT_NAME=createGpspJs -sENVIRONMENT=web \
+  -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=64MB -sSTACK_SIZE=1MB \
+  -sDYNAMIC_EXECUTION=0 -sFILESYSTEM=1 -sFORCE_FILESYSTEM=1 \
+  -sEXPORTED_RUNTIME_METHODS=FS,HEAPU8,HEAP16,HEAPU16 \
+  -sEXPORTED_FUNCTIONS=_malloc,_free,_gba_init,_gba_load,_gba_run_frame,_gba_reset,_gba_set_keys,_gba_frame_ptr,_gba_audio_ptr,_gba_audio_frames,_gba_sample_rate,_gba_fps,_gba_sram_ptr,_gba_sram_size,_gba_state_save,_gba_state_load,_gba_state_ptr,_gba_state_size,_gba_set_option \
+  -sEXIT_RUNTIME=0 -sASSERTIONS=0
+
 cp "$SRC/COPYING" "$OUT/COPYING"
 cat > "$OUT/SOURCE.md" <<EOF
 # gpSP — WebAssembly build
 
 - Emulator: gpSP (libretro), GPL-2.0 — see COPYING
 - Source: $GPSP_REPO @ \`$GPSP_COMMIT\`
+- Patch applied by build.sh: RTC status writes (LSB first) and reset command, fixing "The internal battery has run dry" in Pokémon Ruby / Sapphire / Emerald
 - Built-in BIOS: open-source replacement by Normmatt / VBA-M team (GPL-2.0), \`bios/\` in the gpSP sources
 - Frontend and build script: \`tools/gba-emulator/\` in this repository
 - Rebuild: \`./tools/gba-emulator/build.sh\` (Emscripten $(emcc --version | head -1 | sed 's/.*) //'))
