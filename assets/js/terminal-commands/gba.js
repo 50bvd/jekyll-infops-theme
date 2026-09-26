@@ -45,6 +45,7 @@
   // WebAssembly: some antivirus products (Kaspersky…) replace the site's
   // script-src with their own, without 'wasm-unsafe-eval'.
   var coreJsUrl = base + 'vendor/gpsp/gpsp-js.js' + ver;
+  var workerUrl = base + 'js/terminal-commands/gba-compile-worker.js' + ver;
   var libMeta = document.querySelector('meta[name="gba-library"]');
   var libraryUrl = libMeta ? libMeta.getAttribute('content') : '';
 
@@ -87,17 +88,43 @@
       document.head.appendChild(s);
     });
   }
+  // WebAssembly compiled by a worker (see gba-compile-worker.js); rejects
+  // when the worker cannot do it either
+  function compileInWorker() {
+    return new Promise(function(resolve, reject) {
+      var w;
+      try { w = new Worker(workerUrl); } catch (e) { reject(e); return; }
+      var done = function(fn, v) { clearTimeout(t); w.terminate(); fn(v); };
+      var t = setTimeout(function() { done(reject, new Error('worker timeout')); }, 30000);
+      w.onmessage = function(e) { e.data && e.data.module ? done(resolve, e.data.module) : done(reject, new Error(e.data && e.data.error)); };
+      w.onerror = function(e) { e.preventDefault(); done(reject, new Error(e.message || 'worker error')); };
+      w.postMessage(new URL(base + 'vendor/gpsp/gpsp.wasm' + ver, location.href).href);
+    });
+  }
+  // WebAssembly in the page when allowed; else compiled in a worker; else the
+  // (much slower) plain JavaScript build of the same core
   function loadCore() {
     if (modulePromise) return modulePromise;
-    var wasm = wasmAllowed();
-    modulePromise = (wasm ? loadScript(coreUrl, 'createGpsp') : loadScript(coreJsUrl, 'createGpspJs'))
-      .then(function(create) {
-        return create({ locateFile: function(f) { return base + 'vendor/gpsp/' + f + ver; } });
-      })
-      .then(function(M) { M._gba_init(); M.isWasm = wasm; return M; })
+    var locate = function(f) { return base + 'vendor/gpsp/' + f + ver; };
+    var how = wasmAllowed() ? Promise.resolve('wasm') :
+      compileInWorker().then(function(mod) { return mod; }, function() { return 'js'; });
+    modulePromise = how.then(function(mode) {
+      if (mode === 'js') {
+        return loadScript(coreJsUrl, 'createGpspJs').then(function(create) { return create({ locateFile: locate }); })
+          .then(function(M) { M.coreKind = 'js'; return M; });
+      }
+      var opts = { locateFile: locate };
+      if (mode !== 'wasm') opts.instantiateWasm = function(imports, done) {
+        WebAssembly.instantiate(mode, imports).then(done);
+        return {};
+      };
+      return loadScript(coreUrl, 'createGpsp').then(function(create) { return create(opts); })
+        .then(function(M) { M.coreKind = mode === 'wasm' ? 'wasm' : 'wasm-worker'; return M; });
+    }).then(function(M) { M._gba_init(); return M; })
       .catch(function(e) { modulePromise = null; throw e; });
     return modulePromise;
   }
+
   function cstr(M, str) {
     var b = new TextEncoder().encode(str + '\0'), p = M._malloc(b.length);
     M.HEAPU8.set(b, p);
@@ -352,9 +379,10 @@
           if (S.running) persistSram(true);
           S.running = false;
           S.M = M;
-          if (!M.isWasm && !S.jsCoreNoted) {
+          if (M.coreKind === 'js' && !S.jsCoreNoted) {
             S.jsCoreNoted = true;
-            ctx.printLine('gba: WebAssembly is blocked on this page (antivirus or browser policy): using the JavaScript version of the emulator, slower but equivalent.', 'term-out-warn');
+            ctx.printLine('gba: WebAssembly is blocked on this page (antivirus or browser policy): using the JavaScript version of the emulator, slower. ' +
+              'Adding ' + location.hostname + ' to the antivirus exclusions restores full speed.', 'term-out-warn');
           }
           M.FS.writeFile('/rom.gba', rom);
           var p = cstr(M, '/rom.gba'), ok = M._gba_load(p);
