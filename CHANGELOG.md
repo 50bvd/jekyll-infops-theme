@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.4
+
+- **GBA emulator at full speed even when an antivirus blocks WebAssembly in the page** (Kaspersky…): the module is compiled in a worker, which keeps the site's own policy, then run in the page. The plain JavaScript build is now only a last resort (and says how to get full speed back).
+
 ## 1.6.3
 
 - **GBA emulator works with antivirus products that rewrite the page's security policy** (Kaspersky…): when WebAssembly is forbidden, the same core compiled to plain JavaScript is loaded instead (slower, still full speed on a PC).
