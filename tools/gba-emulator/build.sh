@@ -95,9 +95,16 @@ OBJ="$WORK/obj"; rm -rf "$OBJ"; mkdir -p "$OBJ"
 i=0
 for f in "${C_SOURCES[@]}";  do emcc "${FLAGS[@]}" -c "$SRC/$f" -o "$OBJ/$((i++)).o"; done
 for f in "${LC_SOURCES[@]}"; do emcc "${FLAGS[@]}" -c "$LC/$f"  -o "$OBJ/$((i++)).o"; done
-for f in "${CC_SOURCES[@]}"; do em++ "${FLAGS[@]}" -fno-exceptions -fno-rtti -c "$SRC/$f" -o "$OBJ/$((i++)).o"; done
+for f in "${CC_SOURCES[@]}"; do em++ "${FLAGS[@]}" -fno-exceptions -fno-rtti -c "$SRC/$f" -o "$OBJ/${f%.cc}.o"; done
 emcc "${FLAGS[@]}" -c "$WORK/bios_data.c"      -o "$OBJ/bios.o"
 emcc "${FLAGS[@]}" -c "$HERE/web_frontend.c"   -o "$OBJ/frontend.o"
+
+# JavaScript build only: the CPU interpreter split into small functions that
+# browsers can optimise (split_interpreter.py; same behaviour, see there)
+OBJ_JS="$WORK/obj-js"; rm -rf "$OBJ_JS"; mkdir -p "$OBJ_JS"
+cp "$OBJ"/*.o "$OBJ_JS"/ && rm "$OBJ_JS/cpu.o"
+python3 "$HERE/split_interpreter.py" "$SRC/cpu.cc" "$WORK/cpu_split.cc"
+em++ "${FLAGS[@]}" -fno-exceptions -fno-rtti -c "$WORK/cpu_split.cc" -o "$OBJ_JS/cpu_split.o"
 
 # ── Link ─────────────────────────────────────────────────────────────────────
 # No eval / new Function in the JS glue (works under the site's CSP; WebAssembly
@@ -115,7 +122,7 @@ em++ -O3 ${OPT_FLAGS:-} "$OBJ"/*.o -o "$OUT/gpsp.js" \
 # may not compile WebAssembly: some antivirus products (Kaspersky…) replace
 # the site's script-src with their own, without 'wasm-unsafe-eval'. Slower
 # and larger, but it needs no eval of any kind.
-em++ -O3 ${OPT_FLAGS:-} "$OBJ"/*.o -o "$OUT/gpsp-js.js" \
+em++ -O3 ${OPT_FLAGS:-} "$OBJ_JS"/*.o -o "$OUT/gpsp-js.js" \
   -sWASM=0 \
   -sMODULARIZE=1 -sEXPORT_NAME=createGpspJs -sENVIRONMENT=web \
   -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=64MB -sSTACK_SIZE=1MB \
