@@ -15,17 +15,24 @@ compiled to WebAssembly with Emscripten.
 
 | File | Role |
 |---|---|
+| `../../assets/js/terminal-commands/gba-compile-worker.js` | compiles the WebAssembly when the page may not |
 | `web_frontend.c` | minimal libretro frontend: video / audio / input bridge and the small C API used by JavaScript |
-| `build.sh` | fetches gpSP at a pinned commit, applies a small RTC fix and builds `assets/vendor/gpsp/gpsp.{js,wasm}` plus `gpsp-js.js` (fallback without WebAssembly) |
+| `build.sh` | fetches gpSP at a pinned commit, applies a small RTC fix and builds `assets/vendor/gpsp/gpsp.{js,wasm}` plus `gpsp-js.js` (last-resort fallback without WebAssembly) |
 | `../../assets/js/terminal-commands/gba.js` | the terminal command: file picker / drag & drop, game loop on `ctx.createGame`, audio, saves, touch pad |
 
 ## Without WebAssembly (antivirus)
 
 Some antivirus products (Kaspersky…) rewrite the page's security policy and
-drop `'wasm-unsafe-eval'`, which forbids WebAssembly. The command detects it
-and loads `gpsp-js.js` instead: the same core compiled to plain JavaScript
-(wasm2js, no eval), ~0.9 MB, a few ms per frame instead of ~0.3 ms, still
-well within the 16.7 ms of a frame.
+drop `'wasm-unsafe-eval'`, which forbids compiling WebAssembly in the page.
+The command then tries, in order:
+
+1. **WebAssembly compiled in a worker** (`gba-compile-worker.js`): a worker is
+   governed by the policy sent with its own script, which these products leave
+   alone; the compiled module is handed back to the page, which only
+   instantiates it. Full speed.
+2. **Plain JavaScript** (`gpsp-js.js`, the same core built with wasm2js, no
+   eval): works everywhere but is much slower, because the CPU interpreter is
+   one function too large for the browser's optimising compiler.
 
 ## Cartridge clock (RTC)
 
