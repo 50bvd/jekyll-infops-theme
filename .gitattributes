@@ -1,0 +1,21 @@
+# Normalise line endings in the repository (LF), whatever the platform
+* text=auto eol=lf
+
+# Binaries: never diffed or converted
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.wasm  binary
+*.gba   binary
+*.zip   binary
+
+# Generated / third-party code: hidden from diffs and language stats
+assets/vendor/**          linguist-vendored
+assets/vendor/gpsp/*.js   linguist-generated -diff

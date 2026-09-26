@@ -1,0 +1,33 @@
+name: Checks
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (shell, JavaScript)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: ShellCheck
+        run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck -S warning
+
+      - name: JavaScript syntax
+        run: |
+          git ls-files -z 'assets/js/*.js' 'assets/js/**/*.js' | while IFS= read -r -d '' f; do
+            node --check "$f" || exit 1
+          done
