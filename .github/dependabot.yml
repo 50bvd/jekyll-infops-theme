@@ -16,6 +16,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # A new major Ruby (e.g. 4.x) needs the Jekyll build tested in Docker,
+    # which CI does not do: upgrade it by hand. Minor / patch updates and the
+    # web server images still come automatically.
+    ignore:
+      - dependency-name: ruby
+        update-types: ["version-update:semver-major"]
     groups:
       docker:
         patterns: ["*"]

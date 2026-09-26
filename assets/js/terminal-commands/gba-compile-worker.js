@@ -10,7 +10,14 @@
  */
 'use strict';
 self.onmessage = function(e) {
-  fetch(e.data)
+  var url;
+  try { url = new URL(String(e.data), self.location.href); } catch (err) { url = null; }
+  // only the site's own emulator file, never another origin
+  if (!url || url.origin !== self.location.origin || !/\.wasm$/.test(url.pathname)) {
+    self.postMessage({ error: 'refused: not a same-origin .wasm URL' });
+    return;
+  }
+  fetch(url.href, { credentials: 'same-origin' })
     .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
     .then(function(b) { return WebAssembly.compile(b); })
     .then(function(m) { self.postMessage({ module: m }); },
