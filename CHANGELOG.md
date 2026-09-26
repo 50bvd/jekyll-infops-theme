@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.5
+
+- **GBA emulator, antivirus**: the compile worker is now served without a Content-Security-Policy header (Apache and nginx), so antivirus products that rewrite CSP headers (Kaspersky…) have nothing to rewrite there and the WebAssembly can still be compiled.
+- **Browsers without a JIT** (Edge "Enhance your security on the web", hardened browsers): the emulator no longer refuses to start when WebAssembly does not exist; it runs the JavaScript build and explains how to get full speed back.
+- When the slow JavaScript build is used, the terminal now says exactly why WebAssembly was refused (in the page and in the worker) and what to change (antivirus exclusion, Edge security exception).
+
 ## 1.6.4
 
 - **GBA emulator at full speed even when an antivirus blocks WebAssembly in the page** (Kaspersky…): the module is compiled in a worker, which keeps the site's own policy, then run in the page. The plain JavaScript build is now only a last resort (and says how to get full speed back).

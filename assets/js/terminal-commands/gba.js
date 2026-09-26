@@ -72,11 +72,20 @@
   var modulePromise = null;
   // Can this page compile WebAssembly? (a CSP without 'wasm-unsafe-eval'
   // throws on the smallest module, synchronously)
+  var wasmWhy = { page: '', worker: '' };   // why WebAssembly was refused (diagnostics)
   function wasmAllowed() {
+    if (typeof WebAssembly !== 'object') { wasmWhy.page = 'WebAssembly is disabled in this browser'; return false; }
     try {
-      return typeof WebAssembly === 'object' &&
-        new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0])) instanceof WebAssembly.Module;
-    } catch (e) { return false; }
+      new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]));
+      return true;
+    } catch (e) { wasmWhy.page = String((e && e.message) || e); return false; }
+  }
+  // Rough check of the JavaScript engine: without a JIT (Edge "enhanced
+  // security" mode, some hardened browsers) everything runs ~20× slower
+  function jitLooksDisabled() {
+    var t = performance.now(), x = 0;
+    for (var i = 0; i < 3e6; i++) x = (x + i * 7) | 0;
+    return performance.now() - t > 40 && x !== 1;
   }
   function loadScript(url, name) {
     return new Promise(function(resolve, reject) {
@@ -107,7 +116,7 @@
     if (modulePromise) return modulePromise;
     var locate = function(f) { return base + 'vendor/gpsp/' + f + ver; };
     var how = wasmAllowed() ? Promise.resolve('wasm') :
-      compileInWorker().then(function(mod) { return mod; }, function() { return 'js'; });
+      compileInWorker().then(function(mod) { return mod; }, function(e) { wasmWhy.worker = String((e && e.message) || e); return 'js'; });
     modulePromise = how.then(function(mode) {
       if (mode === 'js') {
         return loadScript(coreJsUrl, 'createGpspJs').then(function(create) { return create({ locateFile: locate }); })
@@ -309,7 +318,6 @@
 
   function openEmulator(ctx, opts) {
     opts = opts || {};
-    if (!window.WebAssembly) { ctx.printLine('gba: WebAssembly is not available in this browser', 'term-out-error'); return; }
     ensureAudio();
     loadCore().catch(function() {});                         // start downloading now
     if (session) {
@@ -381,8 +389,15 @@
           S.M = M;
           if (M.coreKind === 'js' && !S.jsCoreNoted) {
             S.jsCoreNoted = true;
-            ctx.printLine('gba: WebAssembly is blocked on this page (antivirus or browser policy): using the JavaScript version of the emulator, slower. ' +
-              'Adding ' + location.hostname + ' to the antivirus exclusions restores full speed.', 'term-out-warn');
+            var host = location.hostname, why = wasmWhy.page + (wasmWhy.worker && wasmWhy.worker !== wasmWhy.page ? ' | worker: ' + wasmWhy.worker : '');
+            var av = /kaspersky/i.test(why) ? 'Kaspersky' : (/eset|avast|avg|bitdefender|norton/i.exec(why) || [''])[0];
+            ctx.printLine('gba: WebAssembly is not available here, using the JavaScript version of the emulator (much slower).', 'term-out-warn');
+            if (jitLooksDisabled() || /disabled in this browser/.test(why)) {
+              ctx.printLine('gba: this browser also runs JavaScript without its optimising compiler (Edge: Settings → Privacy → "Enhance your security on the web": ' +
+                'add ' + host + ' to the exceptions, or choose "Balanced"). Reload the page afterwards.', 'term-out-warn');
+            }
+            if (av) ctx.printLine('gba: ' + av + ' rewrites the security policy of this site: add ' + host + ' to its exclusions (Web Anti-Virus → trusted addresses) and reload.', 'term-out-warn');
+            if (why) ctx.printLine('gba: reason: ' + why.slice(0, 300));
           }
           M.FS.writeFile('/rom.gba', rom);
           var p = cstr(M, '/rom.gba'), ok = M._gba_load(p);

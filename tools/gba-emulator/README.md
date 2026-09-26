@@ -30,9 +30,15 @@ The command then tries, in order:
    governed by the policy sent with its own script, which these products leave
    alone; the compiled module is handed back to the page, which only
    instantiates it. Full speed.
+   The worker script is sent without any Content-Security-Policy header
+   (`apache/site-common.conf`, `docker/nginx.conf`): with no header, there is
+   nothing for the antivirus to rewrite.
 2. **Plain JavaScript** (`gpsp-js.js`, the same core built with wasm2js, no
    eval): works everywhere but is much slower, because the CPU interpreter is
-   one function too large for the browser's optimising compiler.
+   one function too large for the browser's optimising compiler. It is also
+   what runs in browsers without a JIT (Edge's "Enhance your security on the
+   web" mode disables both the JIT and WebAssembly on sites you rarely visit):
+   the terminal then says so and how to add an exception.
 
 ## Cartridge clock (RTC)
 
