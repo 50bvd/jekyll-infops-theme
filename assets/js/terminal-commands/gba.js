@@ -35,6 +35,9 @@
     volume: 0.8, mute: false, ffSpeed: 3
   };
   var SKEY = 'infops-gba-settings';
+  // Emulation time allowed per displayed frame (see update): 75 % of the real
+  // time since the previous one, at least 12 ms
+  var BUDGET_MS = 12, BUDGET_SHARE = 0.75;
 
   var scriptSrc = (document.currentScript && document.currentScript.src) || '';
   var base = scriptSrc ? scriptSrc.replace(/js\/terminal-commands\/gba\.js.*$/, '') : '/assets/';
@@ -329,6 +332,7 @@
     var S = session = {
       M: null, info: null, keys: 0, running: false, fast: false, acc: 0, frameTime: 1 / 59.7275,
       fpsCount: 0, fpsT: 0, fps: 0, toast: '', toastT: 0, sramSnap: null, saveTimer: 0,
+      tick0: 0, prevTick0: 0, budget: 12, ticked: false, cost: 0, costN: 0, skip: 0,
       fileHandle: null, pendingHandle: null, g: null, pad: null, capture: null, error: ""
     };
     var off = document.createElement('canvas'); off.width = W; off.height = H;
@@ -397,7 +401,8 @@
                 'add ' + host + ' to the exceptions, or choose "Balanced"). Reload the page afterwards.', 'term-out-warn');
             }
             if (av) ctx.printLine('gba: ' + av + ' rewrites the security policy of this site: add ' + host + ' to its exclusions (Web Anti-Virus → trusted addresses) and reload.', 'term-out-warn');
-            if (why) ctx.printLine('gba: reason: ' + why.slice(0, 300));
+            if (wasmWhy.page) ctx.printLine('gba: page: ' + wasmWhy.page.slice(0, 240));
+            if (wasmWhy.worker) ctx.printLine('gba: worker: ' + wasmWhy.worker.slice(0, 240));
           }
           M.FS.writeFile('/rom.gba', rom);
           var p = cstr(M, '/rom.gba'), ok = M._gba_load(p);
@@ -405,6 +410,8 @@
           try { M.FS.unlink('/rom.gba'); } catch (e) {}
           if (!ok) throw new Error('this ROM could not be loaded');
           applyCoreOptions(M);
+          S.skip = 0; S.cost = 0; S.costN = 0;
+          setOption(M, 'gpsp_frameskip', 'disabled');
           S.info = info; S.frameTime = 1 / M._gba_fps(); S.keys = 0; M._gba_set_keys(0);
           put('lastrom', { name: name || info.title, data: rom });
           return Promise.all([get('sram:' + info.id), get('fsh:' + info.id)]);
@@ -647,6 +654,21 @@
       });
     }
 
+    // Automatic frame skipping: when a frame costs too much to hold 60 fps
+    // (JavaScript core, slow machine), gpSP skips drawing 1–3 frames out of
+    // every few (emulation, sound and input keep running); back to all frames
+    // as soon as it is fast enough again.
+    function adaptFrameskip() {
+      var avg = S.cost / S.costN, skip = S.skip;
+      S.cost = 0; S.costN = 0;
+      if (avg > 10 && skip < 3) skip++;
+      else if (avg < 5 && skip > 0) skip--;
+      if (skip === S.skip) return;
+      S.skip = skip;
+      setOption(S.M, 'gpsp_frameskip', skip ? 'fixed_interval' : 'disabled');
+      setOption(S.M, 'gpsp_frameskip_interval', String(skip));
+    }
+
     function fail(e) {
       var msg = String((e && e.message) || e);
       if (/HTTP 403/.test(msg)) msg = 'The server refused the file (HTTP 403): it is not readable by the web server — check its permissions (chmod 644).';
@@ -742,9 +764,25 @@
         if (!S.running) return;
         var speed = S.fast ? settings.ffSpeed : 1;
         S.acc += dt * speed;
+        // Time budget per displayed frame: the engine may call update() many
+        // times to catch up after a slow frame; when the core cannot keep up
+        // (slow machine, JavaScript core) emulating all of it would make every
+        // frame slower still, down to a few fps. Past the budget the late time
+        // is dropped: the game slows down a little instead.
+        if (!S.tick0) {                                   // first update of this display frame
+          S.tick0 = performance.now();
+          S.budget = Math.max(BUDGET_MS, BUDGET_SHARE * (S.tick0 - (S.prevTick0 || S.tick0)));
+          S.prevTick0 = S.tick0;
+        }
         var n = 0;
         while (S.acc >= S.frameTime && n < speed + 1) {
-          S.M._gba_run_frame(); S.acc -= S.frameTime; n++; S.fpsCount++;
+          if (S.ticked && performance.now() - S.tick0 > S.budget) { S.acc = 0; break; }
+          var ts = performance.now();
+          S.M._gba_run_frame(); S.acc -= S.frameTime; n++; S.fpsCount++; S.ticked = true;
+          if (!S.fast) {
+            S.cost += performance.now() - ts;
+            if (++S.costN === 60) adaptFrameskip();
+          }
           if (audio && !S.fast) audio.push(S.M.HEAP16, S.M._gba_audio_ptr(), S.M._gba_audio_frames());
         }
         if (S.acc > S.frameTime * 4) S.acc = 0;
@@ -753,6 +791,7 @@
       },
 
       render: function(c, g) {
+        S.tick0 = 0; S.ticked = false;                  // new display frame: new time budget
         if (S.running) {
           var fp = S.M._gba_frame_ptr() >> 1, src = S.M.HEAPU16;
           for (var i = 0; i < W * H; i++) pix[i] = table[src[fp + i]];

@@ -41,7 +41,8 @@ static struct { const char *key; char value[16]; } options[] = {
    { "gpsp_bios",             "builtin"  },   /* open-source BIOS */
    { "gpsp_drc",              "disabled" },   /* no JIT in WebAssembly */
    { "gpsp_sound_rate",       "32768"    },
-   { "gpsp_frameskip",        "disabled" },
+   { "gpsp_frameskip",        "disabled" },   /* "fixed_interval" when the core is too slow */
+   { "gpsp_frameskip_interval", "0"      },   /* frames skipped between two drawn ones */
    { "gpsp_color_correction", "enabled"  },   /* GBA LCD colours */
    { "gpsp_frame_mixing",     "disabled" },   /* inter-frame blending */
    { "gpsp_boot_mode",        "game"     },
