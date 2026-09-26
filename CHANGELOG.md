@@ -6,6 +6,12 @@
 - CI: ShellCheck + JavaScript syntax checks, CodeQL analysis (JavaScript and workflows), Dependabot for GitHub Actions and Docker images; checkouts no longer keep the token.
 - `.editorconfig` and `.gitattributes` (LF line endings, binaries, generated gpSP build hidden from diffs).
 
+## 1.6.6
+
+- **GBA emulator no longer collapses to a few fps when the machine cannot keep up** (JavaScript core, slow PC): the game loop caught up on late frames by emulating even more frames, making each display frame slower still. Emulation time per displayed frame is now capped at 75 % of the real time elapsed: at worst the game slows down slightly, it never spirals.
+- **Automatic frame skipping**: when a frame costs more than 10 ms to emulate, gpSP skips drawing 1 to 3 frames out of every few (emulation, sound and input keep running), and goes back to drawing every frame as soon as it can.
+- The terminal diagnostics show the page and the worker reasons on separate lines (the worker's was cut off).
+
 ## 1.6.5
 
 - **GBA emulator, antivirus**: the compile worker is now served without a Content-Security-Policy header (Apache and nginx), so antivirus products that rewrite CSP headers (Kaspersky…) have nothing to rewrite there and the WebAssembly can still be compiled.
