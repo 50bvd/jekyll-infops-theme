@@ -85,6 +85,12 @@ counter, volume / mute, fast-forward speed. Stored in the browser.
 
 ## Performance
 
+The game loop never spends more than 75 % of the real time emulating (a
+machine that cannot keep up gets a slightly slower game, not a spiral down to
+a few fps), and when a frame costs more than 10 ms gpSP skips drawing 1–3
+frames out of every few (`gpsp_frameskip = fixed_interval`), until it is fast
+enough again.
+
 gpSP runs a frame in ~0.3 ms in Chromium on a desktop PC (budget 16.7 ms).
 WebAssembly SIMD (`-msimd128`) and LTO were measured and bring nothing
 (LTO is slower and larger), so the build uses plain `-O3`
