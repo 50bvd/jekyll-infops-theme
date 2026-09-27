@@ -29,7 +29,7 @@ FONTS = {  # font file -> CSS family / weight in the subset
     'fa-solid-900.woff2': ('Font Awesome 6 Free', 900),
     'fa-brands-400.woff2': ('Font Awesome 6 Brands', 400),
 }
-SKIP = re.compile(r'^(assets/vendor/|_site/|\.git)|\.(png|jpe?g|gif|webp|avif|ico|svg|woff2?|ttf|eot|wasm|gba|zip|gz)$')
+SKIP = re.compile(r'^(assets/vendor/|tools/fontawesome/|_site/|\.git)|\.(png|jpe?g|gif|webp|avif|ico|svg|woff2?|ttf|eot|wasm|gba|zip|gz)$')
 
 
 def full_css():

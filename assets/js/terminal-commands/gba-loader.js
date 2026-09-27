@@ -5,14 +5,15 @@
  *     visitor asked to save data or is on a 2G connection);
  *   · right away when `gba` is typed or a ROM is dropped on the terminal.
  * The page therefore renders without it, which matters on phones.
- * The URL of gba.js comes from the data-gba-src attribute of the <script> tag
- * that runs this code (the terminal bundle, or this file when not bundled).
+ * gba.js is found next to this script: …/js/terminal.bundle.js?v=… (bundled)
+ * or …/js/terminal-commands/gba-loader.js?v=… → …/js/terminal-commands/gba.js?v=…
  */
 (function() {
   'use strict';
   var me = document.currentScript;
-  var src = me && me.getAttribute('data-gba-src');
-  if (!window.Terminal || !src) return;
+  var m = me && /^(.*\/js\/)(?:terminal\.bundle|terminal-commands\/gba-loader)\.js(\?v=\d+)?$/.exec(me.src || '');
+  if (!window.Terminal || !m) return;
+  var src = m[1] + 'terminal-commands/gba.js' + (m[2] || '');
 
   var loading = null;
   function load() {
