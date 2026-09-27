@@ -11,6 +11,8 @@
  * emulated on the visitor's machine. gpSP (the GP2X / PSP scene emulator,
  * GPL-2.0) is built to WebAssembly by tools/gba-emulator/build.sh, with its
  * open-source BIOS. The core (~500 KB) is only downloaded when `gba` is used.
+ * This file itself is loaded by gba-loader.js (which registers the command)
+ * once the page has loaded, or on first use.
  *
  * Saves: battery saves are kept per game in IndexedDB, can be exported /
  * imported as .sav files, and — in Chromium browsers — linked to a .sav file
@@ -873,55 +875,40 @@
     return pad;
   }
 
-  // ── Drag & drop on the terminal ──────────────────────────────────────────
-  var term = document.getElementById('hero-terminal');
-  if (term) {
-    term.addEventListener('dragover', function(e) {
-      if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0) { e.preventDefault(); term.classList.add('is-dropping'); }
-    });
-    term.addEventListener('dragleave', function() { term.classList.remove('is-dropping'); });
-    term.addEventListener('drop', function(e) {
-      term.classList.remove('is-dropping');
-      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (!f) return;
-      e.preventDefault();
-      if (!session) openEmulator(window.Terminal.ctx);
-      if (session) session.readLocal(f);
-    });
+  // ── Entry points for gba-loader.js (command, ROM dropped on the terminal) ──
+  function openFile(f) {
+    if (!session) openEmulator(window.Terminal.ctx);
+    if (session) session.readLocal(f);
   }
 
-  window.Terminal.register({
-    name: 'gba',
-    aliases: ['gameboy'],
-    help: ['gba [last|settings]', 'Game Boy Advance emulator', 'games'],
-    touch: { none: true },
-    run: function(args, ctx) {
-      var sub = (args[0] || '').toLowerCase();
-      if (sub !== 'help') ensureAudio();                 // needs this key press (autoplay rules)
-      if (sub === 'help') {
-        var k = settings.keys;
-        ctx.printLines([
-          'Game Boy Advance emulator — gpSP compiled to WebAssembly (GPL-2.0), open-source BIOS',
-          '  gba            menu: ' + (libraryUrl ? 'ROM library, ' : '') + 'ROM from your computer, settings',
-          '  gba last       reload the last ROM',
-          '  gba settings   controls, video, audio',
-          'Everything runs in your browser: nothing is uploaded.',
-          'Keys: arrows · ' + keyLabel(k.a) + ' = A · ' + keyLabel(k.b) + ' = B · ' + keyLabel(k.l) + ' / ' + keyLabel(k.r) + ' = L / R · ' +
-            keyLabel(k.start) + ' = Start · ' + keyLabel(k.select) + ' = Select',
-          '      ' + keyLabel(k.fast) + ' (hold) = fast forward · ' + keyLabel(k.save) + ' / ' + keyLabel(k.load) + ' = save / load state · ' +
-            keyLabel(k.menu) + ' = menu · Esc = quit',
-          'Saves: kept in this browser; download / import .sav or link a .sav file on your PC from the menu.'
-        ], 'term-out');
-        return;
-      }
-      if (sub === 'last') {
-        get('lastrom').then(function(r) {
-          if (!r || !r.data) { ctx.printLine('gba: no previous ROM in this browser — type gba', 'term-out-dim'); return; }
-          openEmulator(ctx, { rom: { data: new Uint8Array(r.data), name: r.name } });
-        });
-        return;
-      }
-      openEmulator(ctx, { screen: sub === 'settings' ? 'settings' : 'home' });
+  function run(args, ctx) {
+    var sub = (args[0] || '').toLowerCase();
+    if (sub !== 'help') ensureAudio();                 // needs this key press (autoplay rules)
+    if (sub === 'help') {
+      var k = settings.keys;
+      ctx.printLines([
+        'Game Boy Advance emulator — gpSP compiled to WebAssembly (GPL-2.0), open-source BIOS',
+        '  gba            menu: ' + (libraryUrl ? 'ROM library, ' : '') + 'ROM from your computer, settings',
+        '  gba last       reload the last ROM',
+        '  gba settings   controls, video, audio',
+        'Everything runs in your browser: nothing is uploaded.',
+        'Keys: arrows · ' + keyLabel(k.a) + ' = A · ' + keyLabel(k.b) + ' = B · ' + keyLabel(k.l) + ' / ' + keyLabel(k.r) + ' = L / R · ' +
+          keyLabel(k.start) + ' = Start · ' + keyLabel(k.select) + ' = Select',
+        '      ' + keyLabel(k.fast) + ' (hold) = fast forward · ' + keyLabel(k.save) + ' / ' + keyLabel(k.load) + ' = save / load state · ' +
+          keyLabel(k.menu) + ' = menu · Esc = quit',
+        'Saves: kept in this browser; download / import .sav or link a .sav file on your PC from the menu.'
+      ], 'term-out');
+      return;
     }
-  });
+    if (sub === 'last') {
+      get('lastrom').then(function(r) {
+        if (!r || !r.data) { ctx.printLine('gba: no previous ROM in this browser — type gba', 'term-out-dim'); return; }
+        openEmulator(ctx, { rom: { data: new Uint8Array(r.data), name: r.name } });
+      });
+      return;
+    }
+    openEmulator(ctx, { screen: sub === 'settings' ? 'settings' : 'home' });
+  }
+
+  window.InfopsGBA = { run: run, openFile: openFile };
 })();
