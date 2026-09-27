@@ -214,6 +214,16 @@ Production mode activates analytics scripts (`JEKYLL_ENV=production`).
 
 ---
 
+## Performance
+
+- Icons: a Font Awesome subset with only the icons the site uses. After adding
+  an icon, run `python3 tools/fontawesome/subset.py` (needs `pip install fonttools brotli`);
+  CI tells you when it is needed. Or set `theme_config.icons: full`.
+- Scripts are bundled at build time (`_data/js_bundles.yml`); add a new module
+  there. `theme_config.js_bundles: false` loads the files one by one.
+
+---
+
 ## Project Structure
 
 ```

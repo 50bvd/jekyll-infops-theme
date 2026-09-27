@@ -26,6 +26,9 @@ jobs:
       - name: ShellCheck
         run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck -S warning
 
+      - name: Font Awesome subset covers every icon used
+        run: python3 tools/fontawesome/subset.py --check
+
       - name: JavaScript syntax
         run: |
           git ls-files -z 'assets/js/*.js' 'assets/js/**/*.js' | while IFS= read -r -d '' f; do

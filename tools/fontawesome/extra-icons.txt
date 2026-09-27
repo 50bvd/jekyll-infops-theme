@@ -1,0 +1,4 @@
+# Icons to keep in the Font Awesome subset even when they do not appear in
+# the repository's files (one per line, with or without the "fa-" prefix),
+# e.g. icons you use in content kept elsewhere. Then run:
+#   python3 tools/fontawesome/subset.py

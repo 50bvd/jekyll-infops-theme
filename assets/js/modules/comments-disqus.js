@@ -28,6 +28,21 @@
     note.textContent = text;
   }
 
+  // A security policy that blocks Disqus says so precisely: name the cause.
+  // Antivirus products that rewrite the site's policy (Kaspersky…) are the
+  // usual culprit — their policy only allows the site itself and their host.
+  var cspBlocked = false;
+  document.addEventListener('securitypolicyviolation', function(e) {
+    if (cspBlocked || !/disqus/i.test(String(e.blockedURI || ''))) return;
+    cspBlocked = true;
+    var policy = String(e.originalPolicy || '');
+    var av = /kaspersky/i.test(policy) ? 'Kaspersky' : (/eset|avast|avg|bitdefender|norton/i.exec(policy) || [''])[0];
+    explain(av
+      ? 'Comments are blocked on this computer: ' + av + ' rewrites the security policy of web pages and ' +
+        'does not allow Disqus. Add ' + location.hostname + ' to its trusted addresses (Web Anti-Virus) and reload.'
+      : 'Comments are blocked by a security policy (browser extension, antivirus or proxy) that does not allow disqus.com.');
+  });
+
   // Load only when the comments get close to the viewport (saves bandwidth)
   function load() {
     if (load.done) return; load.done = true;
@@ -35,13 +50,14 @@
     s.src = 'https://' + shortname + '.disqus.com/embed.js';
     s.setAttribute('data-timestamp', String(Date.now()));
     s.onerror = function() {
+      if (cspBlocked) return;                       // already explained, more precisely
       explain('Comments could not load: Disqus is blocked by this browser (ad / tracker blocker or ' +
               'tracking prevention). Allow disqus.com on this site to read and post comments.');
     };
     (document.head || document.body).appendChild(s);
     // Script loaded but no comment frame after a while: Disqus refused the page
     setTimeout(function() {
-      if (!box.querySelector('iframe') && !note) {
+      if (!box.querySelector('iframe') && !note && !cspBlocked) {
         explain('Comments are taking long to load. If they never appear, Disqus may be blocked by this ' +
                 'browser, or the site owner must add this domain to Disqus → Settings → Advanced → Trusted Domains.');
       }

@@ -1,0 +1,33 @@
+# Scripts concatenated into one file each at build time (_plugins/js_bundles.rb):
+# fewer requests, which matters most on phones. Order = execution order.
+# theme_config.js_bundles: false loads the files one by one instead (debugging).
+site:
+  - assets/js/modules/code-blocks.js      # must run before Prism (loaded right after the bundle)
+  - assets/js/modules/notifications.js
+  - assets/js/modules/theme-toggle.js
+  - assets/js/modules/canvas.js
+  - assets/js/modules/navbar.js
+  - assets/js/modules/scroll-fx.js
+  - assets/js/modules/system-status.js
+  - assets/js/modules/goatcounter-widget.js
+  - assets/js/modules/reading-progress.js
+  - assets/js/modules/toc.js
+  - assets/js/modules/search.js
+  - assets/js/modules/search-suggest.js
+  - assets/js/modules/lazy-load.js
+  - assets/js/modules/lightbox.js
+  - assets/js/modules/active-nav.js
+  - assets/js/modules/hero-terminal.js    # terminal engine: window.Terminal.register() on every page
+# Terminal commands, only on pages with a terminal. The GBA emulator is not
+# here: gba-loader.js fetches it once the page has loaded (or on first use).
+terminal:
+  - assets/js/terminal-commands/help.js
+  - assets/js/terminal-commands/system.js
+  - assets/js/terminal-commands/color.js
+  - assets/js/terminal-commands/fun.js
+  - assets/js/terminal-commands/pong.js
+  - assets/js/terminal-commands/pacman.js
+  - assets/js/terminal-commands/snake.js
+  - assets/js/terminal-commands/tetris.js
+  - assets/js/terminal-commands/2048.js
+  - assets/js/terminal-commands/gba-loader.js

@@ -81,7 +81,7 @@ layout: default
       <div class="post-categories">
         <strong><i class="fas fa-folder" aria-hidden="true"></i> Categories:</strong>
         {% for category in page.categories %}
-          <a href="{{ '/categories/' | append: category | slugify | relative_url }}" class="category-link">
+          <a href="{{ category | slugify | prepend: '/categories/' | append: '/' | relative_url }}" class="category-link">
             {{ category }}
           </a>
         {% endfor %}
