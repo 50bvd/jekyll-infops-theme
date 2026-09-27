@@ -135,16 +135,15 @@
 
   {% comment %} Commands and games only where there is a terminal to run them (home hero,
      or any page with `terminal: true` in its front matter). The GBA emulator (gba.js) is
-     fetched by gba-loader.js after the page has loaded, or on first use. {% endcomment %}
+     fetched by gba-loader.js (from next to it) after the page has loaded, or on first use. {% endcomment %}
   {% assign load_terminal = false %}
   {% if has_hero and site.theme_config.show_terminal != false and site.theme_config.terminal.enabled != false %}{% assign load_terminal = true %}{% endif %}
   {% if page.terminal %}{% assign load_terminal = true %}{% endif %}
   {% if load_terminal %}
-  {% capture gba_src %}{{ '/assets/js/terminal-commands/gba.js' | relative_url }}{{ av }}{% endcapture %}
   {% if js_bundles %}
-  <script src="{{ '/assets/js/terminal.bundle.js' | relative_url }}{{ av }}" data-gba-src="{{ gba_src }}" defer></script>
+  <script src="{{ '/assets/js/terminal.bundle.js' | relative_url }}{{ av }}" defer></script>
   {% else %}{% for f in site.data.js_bundles.terminal %}
-  <script src="{{ f | prepend: '/' | relative_url }}{{ av }}"{% if f contains 'gba-loader' %} data-gba-src="{{ gba_src }}"{% endif %} defer></script>{% endfor %}
+  <script src="{{ f | prepend: '/' | relative_url }}{{ av }}" defer></script>{% endfor %}
   {% endif %}
   {% endif %}
 
