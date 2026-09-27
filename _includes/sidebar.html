@@ -46,7 +46,7 @@
       <div class="categories-grid">
         {% assign sorted_cats = site.categories | sort %}
         {% for category in sorted_cats %}
-          <a href="{{ '/categories/' | append: category[0] | slugify | relative_url }}" class="tag">
+          <a href="{{ category[0] | slugify | prepend: '/categories/' | append: '/' | relative_url }}" class="tag">
             {{ category[0] }}
             <span class="tag-count">({{ category[1].size }})</span>
           </a>

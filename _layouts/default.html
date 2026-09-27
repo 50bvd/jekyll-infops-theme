@@ -49,7 +49,13 @@
 
   {% comment %} Font Awesome 6.7.2 and Prism 1.30.0 are served from the site itself (assets/vendor/) — no CDN needed {% endcomment %}
   {% assign prism_theme = site.data.theme.code.theme | default: 'prism-tomorrow' | slugify %}
+  {% comment %} Icons: a subset with only the icons the site uses (tools/fontawesome/subset.py, ~16 KB);
+     theme_config.icons: full loads the whole Font Awesome set (~340 KB) {% endcomment %}
+  {% if site.theme_config.icons == "full" %}
   <link rel="stylesheet" href="{{ '/assets/vendor/fontawesome/css/all.min.css' | relative_url }}{{ av }}">
+  {% else %}
+  <link rel="stylesheet" href="{{ '/assets/vendor/fontawesome/subset/fa-subset.css' | relative_url }}{{ av }}">
+  {% endif %}
   <link rel="stylesheet" href="{{ '/assets/vendor/prism/themes/' | append: prism_theme | append: '.min.css' | relative_url }}{{ av }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}{{ av }}">
   {% comment %} After style.css on purpose: options from _data/theme.yml override the theme {% endcomment %}
@@ -110,47 +116,35 @@
 
   <div id="site-notification" class="notification" role="status" aria-live="polite"></div>
 
-  <!-- code-blocks MUST load before Prism so it can sanitise html/xml blocks first -->
-  <script src="{{ '/assets/js/modules/code-blocks.js'      | relative_url }}{{ av }}" defer></script>
+  {% comment %} Scripts: concatenated into bundles at build time (_data/js_bundles.yml,
+     _plugins/js_bundles.rb) — fewer requests, which matters most on phones.
+     theme_config.js_bundles: false loads the files one by one (debugging). {% endcomment %}
+  {% assign js_bundles = true %}
+  {% if site.theme_config.js_bundles == false %}{% assign js_bundles = false %}{% endif %}
+
+  {% comment %} Site modules + terminal engine (window.Terminal.register() works on every page).
+     code-blocks.js, first in the bundle, must run before Prism. {% endcomment %}
+  {% if js_bundles %}
+  <script src="{{ '/assets/js/site.bundle.js' | relative_url }}{{ av }}" defer></script>
+  {% else %}{% for f in site.data.js_bundles.site %}
+  <script src="{{ f | prepend: '/' | relative_url }}{{ av }}" defer></script>{% endfor %}
+  {% endif %}
 
   <script src="{{ '/assets/vendor/prism/prism-core.min.js' | relative_url }}{{ av }}" defer></script>
   <script src="{{ '/assets/vendor/prism/plugins/autoloader/prism-autoloader.min.js' | relative_url }}{{ av }}" defer></script>
 
-  <script src="{{ '/assets/js/modules/notifications.js'    | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/theme-toggle.js'     | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/canvas.js'           | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/navbar.js'           | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/scroll-fx.js'        | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/system-status.js'    | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/goatcounter-widget.js' | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/reading-progress.js' | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/toc.js'              | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/search.js'           | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/search-suggest.js'   | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/lazy-load.js'        | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/lightbox.js'         | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/modules/active-nav.js'       | relative_url }}{{ av }}" defer></script>
-
-  <!-- Terminal engine: always loaded so window.Terminal.register() works on every page -->
-  <script src="{{ '/assets/js/modules/hero-terminal.js'    | relative_url }}{{ av }}" defer></script>
-
   {% comment %} Commands and games only where there is a terminal to run them (home hero,
-     or any page with `terminal: true` in its front matter) — saves ~150 KB elsewhere {% endcomment %}
+     or any page with `terminal: true` in its front matter). The GBA emulator (gba.js) is
+     fetched by gba-loader.js (from next to it) after the page has loaded, or on first use. {% endcomment %}
   {% assign load_terminal = false %}
   {% if has_hero and site.theme_config.show_terminal != false and site.theme_config.terminal.enabled != false %}{% assign load_terminal = true %}{% endif %}
   {% if page.terminal %}{% assign load_terminal = true %}{% endif %}
   {% if load_terminal %}
-
-  <script src="{{ '/assets/js/terminal-commands/help.js'    | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/system.js'  | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/color.js'   | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/fun.js'     | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/pong.js'    | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/pacman.js'  | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/snake.js'   | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/tetris.js'  | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/2048.js'    | relative_url }}{{ av }}" defer></script>
-  <script src="{{ '/assets/js/terminal-commands/gba.js'     | relative_url }}{{ av }}" defer></script>
+  {% if js_bundles %}
+  <script src="{{ '/assets/js/terminal.bundle.js' | relative_url }}{{ av }}" defer></script>
+  {% else %}{% for f in site.data.js_bundles.terminal %}
+  <script src="{{ f | prepend: '/' | relative_url }}{{ av }}" defer></script>{% endfor %}
+  {% endif %}
   {% endif %}
 
 </body>
